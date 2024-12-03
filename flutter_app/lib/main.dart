@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 
+//login implementation
+//TODO: create model for user
+//TODO: implement auth service in auth_service.dart
+//TODO; create controller
+//TODO: create screen
+
 void main() {
   runApp(const MyApp());
 }

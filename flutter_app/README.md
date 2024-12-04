@@ -9,3 +9,4 @@ Das Flutter Frontend für CineCritique
 ## Nützliche Commands/Links
 - ``flutter doctor -v`` erweiterte Flutter Diagnostik, die auch Pfad zum SDK anzeigt und installierte Version
 - [GitHub](https://github.com/flutter/flutter/blob/master/docs/wiki_archive/Workarounds-for-common-issues.md) Workarounds für häufig auftretende Probleme, u.A. schneller Weg Flutter zu reinstallieren
+- ``r`` in dem Chrome Fenster führt einen Hot Reload durch, ist also nicht nötig die Anwendung immer neu zu starten um Änderungen zu aktualisieren

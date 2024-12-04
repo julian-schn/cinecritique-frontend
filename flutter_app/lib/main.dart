@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 //login implementation
-//TODO: create model for user
-//TODO: implement auth service in auth_service.dart
+//TODO: implement auth service in auth_service.dart with keycloak
 //TODO; create controller
 //TODO: create screen
 

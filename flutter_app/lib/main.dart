@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 //TODO: create screen
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MyApp(
+    home: login_screen(), //this is supposed to let me test the ui of the login screen but nothing is working. thanks dart
+  ));
 }
 
 class MyApp extends StatelessWidget {

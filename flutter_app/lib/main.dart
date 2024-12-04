@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/screen/login/login_screen.dart'; // Ensure this import points to the correct path
 
 //login implementation
 //TODO: implement auth service in auth_service.dart with keycloak
@@ -7,38 +8,24 @@ import 'package:flutter/material.dart';
 
 void main() {
   runApp(const MyApp(
-    home: login_screen(), //this is supposed to let me test the ui of the login screen but nothing is working. thanks dart
+    home: LoginScreen(), //this is supposed to let me test the ui of the login screen but nothing is working. thanks dart
   ));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
 
-  // This widget is the root of your application.
+class MyApp extends StatelessWidget {
+  final Widget home;
+  const MyApp({super.key, required this.home});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in th e colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: home,
     );
   }
 }

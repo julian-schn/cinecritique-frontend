@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/screen/login/login_screen.dart'; // Ensure this import points to the correct path
 
-//login implementation
-//TODO: implement auth service in auth_service.dart with keycloak
-//TODO; create controller
-//TODO: create screen
-
 void main() {
   runApp(const MyApp(
     home: LoginScreen(), //this is supposed to let me test the ui of the login screen but nothing is working. thanks dart

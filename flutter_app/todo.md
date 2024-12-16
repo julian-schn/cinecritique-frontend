@@ -3,3 +3,6 @@
 ## TODO: Keycloak: See below links
 - https://pub.dev/documentation/keycloak_flutter/latest/
 - https://www.youtube.com/watch?v=rGAGdhkF3hQ 
+
+## TODO: Login Screen:
+- Constraints for input information? Or handled by backend?

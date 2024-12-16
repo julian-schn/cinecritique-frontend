@@ -1,29 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/screen/login/login_screen.dart'; // Ensure this import points to the correct path
+import 'package:flutter_app/screen/login/login_screen.dart'; // Ensure this import points to the correct path∏∏∏
+import 'package:flutter_app/widgets/widgets.dart';
 
 void main() {
   runApp(const MyApp(
-    home: LoginScreen(), //this is supposed to let me test the ui of the login screen but nothing is working. thanks dart
   ));
 }
 
 
 class MyApp extends StatelessWidget {
-  final Widget home;
-  const MyApp({super.key, required this.home});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+      home: Scaffold(
+        appBar: CustomAppBar(
+  onHomePressed: () {
+    print("Home tapped");
+  },
+  onProfilePressed: () {
+    print("Profile tapped");
+  },
+  onLoginLogoutPressed: () {
+    print("Login/Logout tapped");
+  },
+),
+        body: const LoginScreen(),
       ),
-      home: home,
     );
   }
 }
+
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});

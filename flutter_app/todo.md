@@ -6,3 +6,6 @@
 
 ## TODO: Login Screen:
 - Constraints for input information? Or handled by backend?
+
+## TODO: Screens:
+- Add barrel files for screens

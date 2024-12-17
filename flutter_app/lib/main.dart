@@ -3,8 +3,7 @@ import 'package:flutter_app/screen/login/login_screen.dart'; // Ensure this impo
 import 'package:flutter_app/widgets/widgets.dart';
 
 void main() {
-  runApp(const MyApp(
-  ));
+  runApp(const MyApp());
 }
 
 
@@ -16,16 +15,16 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       home: Scaffold(
         appBar: CustomAppBar(
-  onHomePressed: () {
-    print("Home tapped");
-  },
-  onProfilePressed: () {
-    print("Profile tapped");
-  },
-  onLoginLogoutPressed: () {
-    print("Login/Logout tapped");
-  },
-),
+          onHomePressed: () {
+            print("Home tapped");
+          },
+        onProfilePressed: () {
+            print("Profile tapped");
+          },
+        onLoginLogoutPressed: () {
+            print("Login/Logout tapped");
+          },
+        ),
         body: const LoginScreen(),
       ),
     );

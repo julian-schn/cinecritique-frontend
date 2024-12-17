@@ -1,6 +1,5 @@
 //appbar or navbar to be implemented here
 import 'package:flutter/material.dart';
-import 'package:flutter_app/widgets/widgets.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onHomePressed;

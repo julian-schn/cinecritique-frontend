@@ -6,7 +6,7 @@ class CustomSearchBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 900,  // Feste Breite für die Suchleiste
+      width: 900,  // Feste Breite für die Suchleiste ## @Lian, ich weiß nicht ob das sinnvoll ist, in anbetracht von responsive Design -Julian
       padding: const EdgeInsets.all(5.0),
       child: TextField(
         decoration: InputDecoration(

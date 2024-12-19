@@ -9,3 +9,7 @@
 
 ## TODO: Screens:
 - Add barrel files for screens
+
+## TODO: General:
+- Add logging
+- Add unit/component testing

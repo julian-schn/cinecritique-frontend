@@ -1,8 +1,7 @@
 # Communal todo file
 
 ## TODO: Keycloak: See below links
-- https://pub.dev/documentation/keycloak_flutter/latest/
-- https://www.youtube.com/watch?v=rGAGdhkF3hQ 
+- Create PoC
 
 ## TODO: Login Screen:
 - Constraints for input information? Or handled by backend?

@@ -7,11 +7,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onLoginLogoutPressed;
 
   const CustomAppBar({
-    Key? key,
+    super.key,
     required this.onHomePressed,
     required this.onProfilePressed,
     required this.onLoginLogoutPressed,
-  }) : super(key: key);
+  });
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);

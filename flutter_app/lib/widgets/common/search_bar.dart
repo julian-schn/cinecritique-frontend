@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CustomSearchBar extends StatelessWidget implements PreferredSizeWidget {
-  const CustomSearchBar({Key? key}) : super(key: key);
+  const CustomSearchBar({super.key});
 
   @override
   Widget build(BuildContext context) {

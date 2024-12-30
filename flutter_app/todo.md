@@ -13,3 +13,7 @@
 ## TODO: General:
 - Add logging
 - Add unit/component testing
+
+## TODO: pubscpec.yaml
+- Clean up unused auth imports
+- Change app name in first line

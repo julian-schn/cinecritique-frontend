@@ -24,10 +24,10 @@ class MyApp extends StatelessWidget {
             print("Login/Logout tapped");
           },
         ),
-        body: Column(
+        body: const Column(
           children: [
-            const CustomSearchBar(), // Hier wird die CustomSearchBar hinzugefügt
-            const Expanded(
+            CustomSearchBar(), // Hier wird die CustomSearchBar hinzugefügt
+            Expanded(
               child: LoginScreen(), // LoginScreen bleibt unverändert
             ),
           ],

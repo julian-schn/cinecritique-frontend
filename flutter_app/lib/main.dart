@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/screen/login/login_screen.dart'; // Ensure this import points to the correct path
+import 'package:flutter_app/widgets/common/create_rating.dart';
 import 'package:flutter_app/widgets/widgets.dart'; // Widgets importieren
 
 void main() {
@@ -26,9 +27,11 @@ class MyApp extends StatelessWidget {
         ),
         body: const Column(
           children: [
-            CustomSearchBar(), // Hier wird die CustomSearchBar hinzugefügt
+            CustomSearchBar(),
+            CreateRatingWidget(),
+
             Expanded(
-              child: LoginScreen(), // LoginScreen bleibt unverändert
+              child: LoginScreen(), 
             ),
           ],
         ),

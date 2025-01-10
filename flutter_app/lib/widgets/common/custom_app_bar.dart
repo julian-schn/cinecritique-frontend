@@ -1,5 +1,15 @@
 //appbar or navbar to be implemented here
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
+//Google sign in initialization
+const List<String> scopes = <String>[
+  'email',
+  'profile'
+];
+GoogleSignIn _googleSignIn = GoogleSignIn(
+  scopes: scopes,
+);
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onHomePressed;

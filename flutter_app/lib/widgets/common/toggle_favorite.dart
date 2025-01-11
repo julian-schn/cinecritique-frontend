@@ -23,7 +23,7 @@ class _FavoriteToggleState extends State<FavoriteToggle> {
         children: [
           Icon(
             isFavorited ? Icons.favorite : Icons.favorite_border,
-            color: Colors.black,
+            color: Colors.white,
             size: 50,
           ),
           if (!isFavorited)
@@ -31,7 +31,7 @@ class _FavoriteToggleState extends State<FavoriteToggle> {
               bottom: 16,
               child: Icon(
                 Icons.add,
-                color: Colors.black,
+                color: Colors.white,
                 size: 20,
               ),
             ),
@@ -40,7 +40,7 @@ class _FavoriteToggleState extends State<FavoriteToggle> {
               bottom: 16,
               child: Icon(
                 Icons.check,
-                color: Colors.white,
+                color: Color(0xFF121212),
                 size: 20,
               ),
             ),

@@ -6,18 +6,39 @@ class CustomSearchBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 900,  // Feste Breite für die Suchleiste ## @Lian, ich weiß nicht ob das sinnvoll ist, in anbetracht von responsive Design -Julian
       padding: const EdgeInsets.all(5.0),
       child: TextField(
+        style: const TextStyle(
+          color: Colors.white, 
+        ),
         decoration: InputDecoration(
           hintText: 'Suche...',
-          prefixIcon: const Icon(Icons.search, color: Colors.black),
+          hintStyle: const TextStyle(
+            color: Colors.white, 
+          ),
+          prefixIcon: const Icon(Icons.search, color: Colors.white),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5.0),
-            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(10.0), 
+            borderSide: const BorderSide(
+              color: Colors.white,
+       
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+            borderSide: const BorderSide(
+              color: Colors.white, 
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+            borderSide: const BorderSide(
+              color: Colors.white, 
+              width: 1.0, 
+            ),
           ),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: const Color(0xFF121212), 
         ),
       ),
     );
@@ -26,4 +47,3 @@ class CustomSearchBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
-

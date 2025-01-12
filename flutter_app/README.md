@@ -3,8 +3,8 @@
 Das Flutter Frontend für CineCritique
 
 ## Starten der App
-1. Öffne ``main.dart```
-2. Öffne Command Palette mit ``Command``+ ``Shift``+ ``P```
+1. Öffne ``main.dart``
+2. Öffne Command Palette mit ``Command``+ ``Shift``+ ``P``
 3. Tipp ``flutter``, wähle Gerät aus (Chrome Desktop)
 4. Führe aus mit VSC (oben rechts, start debugging)
 5. Anmerkung: bei den nützlichen Commands ist eine Erklärung zu hot reloads

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/screen/login/login_screen.dart'; 
-import 'package:flutter_app/screen/register/register_screen.dart';
-import 'package:flutter_app/widgets/common/create_rating.dart';
-import 'package:flutter_app/widgets/common/toggle_favorite.dart';
+import 'package:flutter_app/screen/login/login_screen.dart';
+import 'package:flutter_app/screen/moviepage/moviepage_screen.dart'; 
+
+import 'package:flutter_app/widgets/common/sidebar.dart'; 
 import 'package:flutter_app/widgets/widgets.dart'; 
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -35,14 +35,8 @@ class MyApp extends StatelessWidget {
           onProfilePressed: () {
             print("Profile tapped");
           },
-          onLoginLogoutPressed: () async {
+          onLoginLogoutPressed: () {
             print("Login/Logout tapped");
-          try {
-            await _googleSignIn.signIn();
-            // Handle successful sign in
-          } catch (error) {
-            // Handle sign in error
-          }
           },
         ),
         body: const Column(

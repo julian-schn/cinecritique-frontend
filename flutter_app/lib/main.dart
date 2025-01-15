@@ -1,8 +1,8 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/screen/login/login_screen.dart';
 import 'package:flutter_app/widgets/common/custom_app_bar.dart';
 import 'package:flutter_app/widgets/widgets.dart';
+import 'package:openid_client/openid_client.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

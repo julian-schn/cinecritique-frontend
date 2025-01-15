@@ -22,8 +22,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
             onHomePressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => HomeScreen()),
-              );
+                MaterialPageRoute(builder: (context) => const Scaffold(
+                body: Center(child: Text('Home Screen - Coming Soon')), //TODO: Actually implement this
+  )),
+);
             },
             onGenresPressed: () {
               print("Genres gedrückt");

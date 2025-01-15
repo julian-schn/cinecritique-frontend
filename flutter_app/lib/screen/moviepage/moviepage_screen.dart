@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/main.dart';
 import 'package:flutter_app/screen/login/login_screen.dart';
 import 'package:flutter_app/widgets/common/create_rating.dart';
 import 'package:flutter_app/widgets/common/toggle_favorite.dart';

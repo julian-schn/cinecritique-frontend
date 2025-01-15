@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/screen/login/login_screen.dart';
-import 'package:flutter_app/screen/moviepage/moviepage_screen.dart'; 
-
-import 'package:flutter_app/widgets/common/sidebar.dart'; 
+import 'package:flutter_app/widgets/common/custom_app_bar.dart';
 import 'package:flutter_app/widgets/widgets.dart'; 
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -42,15 +40,14 @@ class MyApp extends StatelessWidget {
         body: const Column(
           children: [
             
-            CustomSearchBar(),
+            CustomSearchBar(), /** 
             CreateRatingWidget(),
             FavoriteToggle(),
             Expanded(child: RegisterScreen(),
             ),
             Expanded(
               child: LoginScreen(),
-             
-            ),
+            ), **/
             
           ],
         ),

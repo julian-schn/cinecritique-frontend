@@ -8,7 +8,7 @@ Das Flutter Frontend für CineCritique
 3. Tipp ``flutter``, wähle Gerät aus (Chrome Desktop)
 4. Führe aus mit VSC (oben rechts, start debugging)
 5. Anmerkung: bei den nützlichen Commands ist eine Erklärung zu hot reloads
-
+s
 
 ## Wichtig
 

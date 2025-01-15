@@ -10,7 +10,7 @@ class CreateRatingWidget extends StatefulWidget {
 class _CreateRatingWidgetState extends State<CreateRatingWidget> {
   int _rating = 0;
   int _hoverRating = 0;
-  TextEditingController _textController = TextEditingController();
+  final TextEditingController _textController = TextEditingController();
 
   void _setRating(int index) {
     setState(() {

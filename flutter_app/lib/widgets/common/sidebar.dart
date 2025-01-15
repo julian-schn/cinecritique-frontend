@@ -10,8 +10,8 @@ class Sidebar extends StatefulWidget {
     required this.onHomePressed,
     required this.onGenresPressed,
     required this.onLoginPressed,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   _SidebarState createState() => _SidebarState();

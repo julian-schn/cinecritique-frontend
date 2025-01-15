@@ -22,10 +22,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
             onHomePressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const Scaffold(
-                body: Center(child: Text('Home Screen - Coming Soon')), //TODO: Actually implement this
-  )),
-);
+                MaterialPageRoute(
+                    builder: (context) => const Scaffold(
+                          body: Center(
+                              child: Text(
+                                  'Home Screen - Coming Soon')), //TODO: Actually implement this
+                        )),
+              );
             },
             onGenresPressed: () {
               print("Genres gedrückt");
@@ -78,17 +81,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           labelText: 'Password',
                           labelStyle: TextStyle(color: Colors.white),
                           border: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white, width: 1.0),
+                            borderSide:
+                                BorderSide(color: Colors.white, width: 1.0),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white, width: 1.0),
+                            borderSide:
+                                BorderSide(color: Colors.white, width: 1.0),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white, width: 1.0),
+                            borderSide:
+                                BorderSide(color: Colors.white, width: 1.0),
                           ),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                              _obscurePassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
                             ),
                             onPressed: () {
                               setState(() {
@@ -110,21 +118,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           labelText: 'Confirm Password',
                           labelStyle: TextStyle(color: Colors.white),
                           border: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white, width: 1.0),
+                            borderSide:
+                                BorderSide(color: Colors.white, width: 1.0),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white, width: 1.0),
+                            borderSide:
+                                BorderSide(color: Colors.white, width: 1.0),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white, width: 1.0),
+                            borderSide:
+                                BorderSide(color: Colors.white, width: 1.0),
                           ),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _obscureConfirmPassword ? Icons.visibility : Icons.visibility_off,
+                              _obscureConfirmPassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
                             ),
                             onPressed: () {
                               setState(() {
-                                _obscureConfirmPassword = !_obscureConfirmPassword;
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword;
                               });
                             },
                           ),

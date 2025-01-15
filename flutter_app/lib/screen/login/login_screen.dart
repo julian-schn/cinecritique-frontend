@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/screen/register/register_screen.dart'; 
-import 'package:flutter_app/widgets/common/sidebar.dart'; 
+import 'package:flutter_app/screen/register/register_screen.dart';
+import 'package:flutter_app/widgets/common/sidebar.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -14,22 +14,24 @@ class LoginScreen extends StatelessWidget {
             onHomePressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const Scaffold(
-                body: Center(child: Text('Home Screen - Coming Soon')), //TODO: Actually implement this
-  )),
-);
+                MaterialPageRoute(
+                    builder: (context) => const Scaffold(
+                          body: Center(
+                              child: Text(
+                                  'Home Screen - Coming Soon')), //TODO: Actually implement this
+                        )),
+              );
             },
             onGenresPressed: () {
               print("Genres gedrückt");
             },
             onLoginPressed: () {
-               Navigator.pushReplacement(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => LoginScreen()),
-               );
+              );
             },
           ),
-          
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -40,60 +42,58 @@ class LoginScreen extends StatelessWidget {
                   Text(
                     'Login',
                     style: TextStyle(
-                      fontSize: 32, 
-                      fontWeight: FontWeight.bold, 
-                      color: Colors.white, 
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                    textAlign: TextAlign.center, 
+                    textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 32), 
+                  const SizedBox(height: 32),
                   TextField(
                     decoration: InputDecoration(
                       labelText: 'E-Mail-Adresse',
-                      labelStyle: TextStyle(color: Colors.white), 
+                      labelStyle: TextStyle(color: Colors.white),
                       border: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white, width: 1.0), 
-                       ),
+                        borderSide: BorderSide(color: Colors.white, width: 1.0),
+                      ),
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white, width: 1.0), 
+                        borderSide: BorderSide(color: Colors.white, width: 1.0),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white, width: 1.0), 
+                        borderSide: BorderSide(color: Colors.white, width: 1.0),
                       ),
                     ),
-                    style: TextStyle(color: Colors.white), 
+                    style: TextStyle(color: Colors.white),
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: 'Passwort',
-                      labelStyle: TextStyle(color: Colors.white), 
+                      labelStyle: TextStyle(color: Colors.white),
                       border: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white, width: 1.0), 
+                        borderSide: BorderSide(color: Colors.white, width: 1.0),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white, width: 1.0), 
+                        borderSide: BorderSide(color: Colors.white, width: 1.0),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white, width: 1.0), 
+                        borderSide: BorderSide(color: Colors.white, width: 1.0),
                       ),
                     ),
                     style: TextStyle(color: Colors.white),
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () {
-                     
-                    },
+                    onPressed: () {},
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white, 
-                      side: BorderSide(color: Colors.white, width: 1.0), 
+                      backgroundColor: Colors.white,
+                      side: BorderSide(color: Colors.white, width: 1.0),
                     ),
                     child: Text(
                       'Login',
                       style: TextStyle(
-                        color: Color(0xFF121212), 
+                        color: Color(0xFF121212),
                       ),
                     ),
                   ),
@@ -102,17 +102,18 @@ class LoginScreen extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => RegisterScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => RegisterScreen()),
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white, 
-                      side: BorderSide(color: Colors.white, width: 1.0), 
+                      backgroundColor: Colors.white,
+                      side: BorderSide(color: Colors.white, width: 1.0),
                     ),
                     child: Text(
                       'Register',
                       style: TextStyle(
-                        color: Color(0xFF121212), 
+                        color: Color(0xFF121212),
                       ),
                     ),
                   ),

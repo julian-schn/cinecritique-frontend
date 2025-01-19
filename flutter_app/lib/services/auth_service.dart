@@ -7,18 +7,19 @@ class kc_params {
   static const String URL = "cinecritique.mi.hdm-stuttgart.de:8080"; //TODO: Server URL
   static const String REALM = "movie-app";
   static const String CLIENT = "movie-app-client-frontend";
-  static const SCOPES = ['profile'];
+  static const String SCOPES = "profile";
+  static const SCOPESL = ['profile']; //scopes (above) as list
 }
 
 //auth method
-authenticate(Uri uri, String clientId, List<Str ing> scopes) async {   
+authenticate(Uri uri, String clientId, String scopes) async {   
     
     // create the client
     var issuer = await Issuer.discover(uri);
     var client = new Client(issuer, clientId);
     
     // create an authenticator
-    var authenticator = new Authenticator(client, scopes: scopes);
+    var authenticator = new Authenticator(client, scopes: kc_params.SCOPESL);
     
     // get the credential
     var c = await authenticator.credential;
@@ -39,7 +40,7 @@ Future<Authenticator> getAuthenticator() async {
   var issuer = await Issuer.discover(uri);
   var client = Client(issuer, clientId);
 
-  return Authenticator(client, scopes: kc_params.SCOPES);
+  return Authenticator(client, scopes: kc_params.SCOPESL);
 }
 
 Future<void> main() async {

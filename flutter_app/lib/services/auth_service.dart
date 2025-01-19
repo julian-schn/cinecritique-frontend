@@ -4,7 +4,7 @@ import 'package:web/web.dart' hide Client;
 // example code, taken from https://github.com/appsup-dart/openid_client/blob/master/example/browser_example/web/main.dart 
 
 class kc_params {
-  static const String URL = "cinecritique.mi.hdm-stuttgart.de:8080"; //TODO: Server URL
+  static const String URL = "https://cinecritique.mi.hdm-stuttgart.de/auth"; //TODO: Server URL
   static const String REALM = "movie-app";
   static const String CLIENT = "movie-app-client-frontend";
   static const String SCOPES = "profile";

@@ -11,7 +11,7 @@ class kc_params {
 }
 
 //auth method
-authenticate(Uri uri, String clientId, List<String> scopes) async {   
+authenticate(Uri uri, String clientId, List<Str ing> scopes) async {   
     
     // create the client
     var issuer = await Issuer.discover(uri);

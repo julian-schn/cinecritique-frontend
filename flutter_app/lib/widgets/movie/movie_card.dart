@@ -13,8 +13,9 @@ class MovieCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 250, 
-      height: 250, 
+      width: 250,
+      height: 250,
+      margin: const EdgeInsets.symmetric(horizontal: 8.0),  
       decoration: BoxDecoration(
         color: const Color(0xFF1C1C1C),
         borderRadius: BorderRadius.circular(12.0),
@@ -29,21 +30,17 @@ class MovieCard extends StatelessWidget {
             ),
             child: Image.network(
               posterUrl,
-              height: 190, 
+              height: 190,
               width: double.infinity,
-              fit: BoxFit.cover, 
-              alignment: Alignment.topCenter, 
+              fit: BoxFit.cover,
+              alignment: Alignment.topCenter,
             ),
           ),
-
-          // Roter Strich
           Container(
             height: 4,
             color: Colors.redAccent,
             margin: const EdgeInsets.only(bottom: 10.0),
           ),
-
-          // filmtitel
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Text(

@@ -11,6 +11,7 @@ import 'package:flutter_app/services/openid_io.dart'
     if (dart.library.js_interop) 'package:flutter_app/services/openid_browser.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
+import 'package:flutter_app/widgets/movie/moviePosterCarousel.dart'; // Importiere das neue Widget
 
 // Global variables for authentication state
 Credential? credential;
@@ -92,13 +93,13 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
+      body: Row( // Row to handle Sidebar and Main content horizontally
         children: [
           Sidebar(
             onHomePressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) =>  HomeScreen()),
+                MaterialPageRoute(builder: (context) => HomeScreen()),
               );
             },
             onGenresPressed: () {
@@ -111,76 +112,69 @@ class HomeScreen extends StatelessWidget {
               );
             },
           ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomSearchBar(),
-                const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
-                  child: Row(
-                    children: [
-                      Text(
-                        'Categories',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+          Expanded( // Main content area
+            child: SingleChildScrollView( // Wrap the main content with SingleChildScrollView
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomSearchBar(),
+                  const SizedBox(height: 20),
+            
+                  const MoviePosterCarousel(),
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
+                    child: Row(
+                      children: [
+                        Text(
+                          'Categories',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      Text(
-                        '.',
-                        style: TextStyle(
-                          color: Colors.redAccent,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                        Text(
+                          '.',
+                          style: TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                const HorizontalGenreList(),
-                const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
-                  child: Row(
-                    children: [
-                      Text(
-                        'Popular Movies',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                  const HorizontalGenreList(),
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
+                    child: Row(
+                      children: [
+                        Text(
+                          'Popular Movies',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      Text(
-                        '.',
-                        style: TextStyle(
-                          color: Colors.redAccent,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                        Text(
+                          '.',
+                          style: TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                const HorizontalMovieList(),
-                const SizedBox(height: 20),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const MoviePageScreen()),
-                      );
-                    },
-                    child: const Text('Zur Movie Page'),
-                  ),
-                ),
-                const Spacer(),
-              ],
+                  const HorizontalMovieList(),
+                  const SizedBox(height: 20),
+                  
+                ],
+              ),
             ),
           ),
         ],

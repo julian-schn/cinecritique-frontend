@@ -82,22 +82,20 @@ class _HorizontalMovieListState extends State<HorizontalMovieList> {
             child: Stack(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 50.0), 
+                  padding: const EdgeInsets.symmetric(horizontal: 50.0),
                   child: ListView.builder(
                     controller: _scrollController,
-                    scrollDirection: Axis.horizontal,
-                    itemCount: movies.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(left: 10.0), 
-                        child: MovieCard(
-                          posterUrl: movies[index]['poster'] ?? '',
-                          title: movies[index]['title'] ?? 'Unknown',
-                        ),
-                      );
-                    },
+                      scrollDirection: Axis.horizontal,
+                        itemCount: movies.length,
+                         itemBuilder: (context, index) {
+                  return MovieCard(
+                            posterUrl: movies[index]['poster'] ?? '',
+                           title: movies[index]['title'] ?? 'Unknown',
+                                  );
+                          },
+                    ),
                   ),
-                ),
+
                 
                 Positioned(
                   left: 0,

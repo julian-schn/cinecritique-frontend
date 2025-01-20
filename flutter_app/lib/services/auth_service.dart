@@ -35,10 +35,9 @@ authenticate(Uri uri, String clientId, String scopes) async {
 
 Future<Authenticator> getAuthenticator() async {
   var uri = Uri.parse(kc_params.URL);
-  var clientId = 'myclient';
 
   var issuer = await Issuer.discover(uri);
-  var client = Client(issuer, clientId);
+  var client = Client(issuer, kc_params.CLIENT);
 
   return Authenticator(client, scopes: kc_params.SCOPESL);
 }

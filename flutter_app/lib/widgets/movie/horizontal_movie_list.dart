@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'movie_card.dart';
+import 'package:flutter_app/screen/moviepage/moviepage_screen.dart'; // Importiere deine MoviePageScreen-Datei
 
 class HorizontalMovieList extends StatefulWidget {
   const HorizontalMovieList({Key? key}) : super(key: key);
@@ -13,7 +14,7 @@ class HorizontalMovieList extends StatefulWidget {
 class _HorizontalMovieListState extends State<HorizontalMovieList> {
   List<Map<String, dynamic>> movies = [];
   bool isLoading = true;
-  ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -22,40 +23,39 @@ class _HorizontalMovieListState extends State<HorizontalMovieList> {
   }
 
   Future<void> fetchMovies() async {
-  try {
-    final response = await http.get(
-      Uri.parse('https://cinecritique.mi.hdm-stuttgart.de/api/movies'),
-    );
+    try {
+      final response = await http.get(
+        Uri.parse('https://cinecritique.mi.hdm-stuttgart.de/api/movies'),
+      );
 
-    if (response.statusCode == 200) {
-    
-      List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
 
-      List<Map<String, dynamic>> loadedMovies = data.map((movie) {
-        return {
-          'poster': movie['poster'] ?? '',
-          'title': movie['title'] ?? 'Unknown',
-        };
-      }).toList();
+        List<Map<String, dynamic>> loadedMovies = data.map((movie) {
+          return {
+            'poster': movie['poster'] ?? '',
+            'title': movie['title'] ?? 'Unknown',
+            'imdbId': movie['imdbId'] ?? '', // IMDb-ID hinzufügen
+          };
+        }).toList();
 
-      setState(() {
-        movies = loadedMovies;
-        isLoading = false;
-      });
-    } else {
-      print('Fehler: ${response.statusCode}');
+        setState(() {
+          movies = loadedMovies;
+          isLoading = false;
+        });
+      } else {
+        print('Fehler: ${response.statusCode}');
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Fehler beim Abrufen der Filme: $e');
       setState(() {
         isLoading = false;
       });
     }
-  } catch (e) {
-    print('Fehler beim Abrufen der Filme: $e');
-    setState(() {
-      isLoading = false;
-    });
   }
-}
-
 
   void scrollLeft() {
     _scrollController.animateTo(
@@ -78,47 +78,64 @@ class _HorizontalMovieListState extends State<HorizontalMovieList> {
     return isLoading
         ? const Center(child: CircularProgressIndicator())
         : Container(
-            height: 250, 
+            height: 250,
             child: Stack(
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 50.0),
                   child: ListView.builder(
                     controller: _scrollController,
-                      scrollDirection: Axis.horizontal,
-                        itemCount: movies.length,
-                         itemBuilder: (context, index) {
-                  return MovieCard(
-                            posterUrl: movies[index]['poster'] ?? '',
-                           title: movies[index]['title'] ?? 'Unknown',
-                                  );
-                          },
-                    ),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: movies.length,
+                    itemBuilder: (context, index) {
+                      return MovieCard(
+                        posterUrl: movies[index]['poster'] ?? '',
+                        title: movies[index]['title'] ?? 'Unknown',
+                        imdbId: movies[index]['imdbId'] ?? '', // IMDb-ID übergeben
+                        onTap: () {
+                          // Navigation zur MoviePage
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MoviePage(
+                                imdbId: movies[index]['imdbId'] ?? '',
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
                   ),
-
+                ),
                 
                 Positioned(
                   left: 0,
-                  top: 92.5, 
-                  child: GestureDetector(
-                    onTap: scrollLeft,
-                    child: Icon(
-                      Icons.arrow_left,
-                      size: 65,
-                      color: Colors.redAccent,
+                  top: 92.5,
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: scrollLeft,
+                      child: const Icon(
+                        Icons.arrow_left,
+                        size: 65,
+                        color: Colors.redAccent,
+                      ),
                     ),
                   ),
                 ),
                 
                 Positioned(
                   right: 0,
-                  top: 92.5, 
-                  child: GestureDetector(
-                    onTap: scrollRight,
-                    child: Icon(
-                      Icons.arrow_right,
-                      size: 65,
-                      color: Colors.redAccent,
+                  top: 92.5,
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: scrollRight,
+                      child: const Icon(
+                        Icons.arrow_right,
+                        size: 65,
+                        color: Colors.redAccent,
+                      ),
                     ),
                   ),
                 ),

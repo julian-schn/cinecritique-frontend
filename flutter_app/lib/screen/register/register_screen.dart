@@ -39,6 +39,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 MaterialPageRoute(builder: (context) => LoginScreen()),
               );
             },
+            currentPage: 'Register',
           ),
           Expanded(
             child: SingleChildScrollView(

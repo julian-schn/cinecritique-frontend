@@ -31,6 +31,7 @@ class LoginScreen extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => LoginScreen()),
               );
             },
+            currentPage: 'Login',
           ),
           Expanded(
             child: Padding(

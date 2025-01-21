@@ -103,32 +103,37 @@ class _HorizontalGenreListState extends State<HorizontalGenreList> {
               },
             ),
           ),
-          // Links-Pfeil Button
-          Positioned(
-            left: 0,
-            top: 42,
-            child: GestureDetector(
-              onTap: scrollLeft,
-              child: Icon(
-                Icons.arrow_left,
-                size: 65,
-                color: Colors.redAccent,
-              ),
-            ),
-          ),
-          // Rechts-Pfeil Button
-          Positioned(
-            right: 0,
-            top: 42,
-            child: GestureDetector(
-              onTap: scrollRight,
-              child: Icon(
-                Icons.arrow_right,
-                size: 65,
-                color: Colors.redAccent,
-              ),
-            ),
-          ),
+           Positioned(
+                  left: 0,
+                  top: 42,
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: scrollLeft,
+                      child: const Icon(
+                        Icons.arrow_left,
+                        size: 65,
+                        color: Colors.redAccent,
+                      ),
+                    ),
+                  ),
+                ),
+                
+                Positioned(
+                  right: 0,
+                  top: 42,
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: scrollRight,
+                      child: const Icon(
+                        Icons.arrow_right,
+                        size: 65,
+                        color: Colors.redAccent,
+                      ),
+                    ),
+                  ),
+                ),
         ],
       ),
     );

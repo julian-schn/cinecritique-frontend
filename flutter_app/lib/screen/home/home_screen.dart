@@ -33,6 +33,7 @@ class HomeScreen extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => HomeScreen()),
               );
             },
+            currentPage: 'fakeHome',
           ),
           Expanded(
             child: Padding(

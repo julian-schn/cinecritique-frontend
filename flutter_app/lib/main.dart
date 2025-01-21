@@ -111,6 +111,7 @@ class HomeScreen extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => const LoginScreen()),
               );
             },
+            currentPage: 'Home',
           ),
           Expanded( // Main content area
             child: SingleChildScrollView( // Wrap the main content with SingleChildScrollView
@@ -170,7 +171,7 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const HorizontalMovieList(),
+                   HorizontalMovieList(),
                   const SizedBox(height: 20),
                   
                 ],

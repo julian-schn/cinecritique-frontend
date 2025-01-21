@@ -5,11 +5,13 @@ class Sidebar extends StatefulWidget {
   final VoidCallback onHomePressed;
   final VoidCallback onGenresPressed;
   final VoidCallback onLoginPressed;
+  final String currentPage; // Hier den aktuellen Bildschirm als Parameter hinzufügen
 
   const Sidebar({
     required this.onHomePressed,
     required this.onGenresPressed,
     required this.onLoginPressed,
+    required this.currentPage, // Übergib den aktuellen Bildschirm als Parameter
     super.key,
   });
 
@@ -19,35 +21,27 @@ class Sidebar extends StatefulWidget {
 
 class _SidebarState extends State<Sidebar> {
   bool isExpanded = true;
-  int selectedIndex = 0;
 
+  // Funktion zum Umschalten der Sidebar
   void toggleSidebar() {
     setState(() {
       isExpanded = !isExpanded;
     });
   }
 
-  void setSelectedIndex(int index) {
-    setState(() {
-      selectedIndex = index;
-    });
-  }
-
+  // Funktion zum Erstellen eines Menüpunktes
   Widget buildMenuItem({
     required IconData icon,
     required String title,
-    required int index,
     required VoidCallback onTap,
   }) {
-    bool isSelected = selectedIndex == index;
+    // Hervorhebung, wenn der Titel dem aktuellen Bildschirm entspricht
+    bool isSelected = widget.currentPage == title;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: () {
-          setSelectedIndex(index);
-          onTap();
-        },
+        onTap: onTap,
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
           child: Row(
@@ -123,20 +117,17 @@ class _SidebarState extends State<Sidebar> {
           buildMenuItem(
             icon: Icons.home,
             title: "Home",
-            index: 0,
             onTap: widget.onHomePressed,
           ),
           buildMenuItem(
             icon: Icons.category,
             title: "Genres",
-            index: 1,
             onTap: widget.onGenresPressed,
           ),
           Spacer(),
           buildMenuItem(
             icon: Icons.login,
             title: "Anmelden",
-            index: 2,
             onTap: widget.onLoginPressed,
           ),
           Align(

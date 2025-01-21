@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/main.dart';
 import 'package:flutter_app/screen/login/login_screen.dart';
 import 'package:flutter_app/widgets/common/sidebar.dart';
 
@@ -18,28 +19,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       body: Row(
         children: [
-          Sidebar(
+            Sidebar(
             onHomePressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => const Scaffold(
-                          body: Center(
-                              child: Text(
-                                  'Home Screen - Coming Soon')), //TODO: Actually implement this
-                        )),
+                MaterialPageRoute(builder: (context) => HomeScreen()),
               );
             },
             onGenresPressed: () {
-              print("Genres gedrückt");
+              print("Genres pressed");
             },
             onLoginPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => LoginScreen()),
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
               );
             },
-            currentPage: 'Register',
+            currentPage: 'Anmelden',
           ),
           Expanded(
             child: SingleChildScrollView(

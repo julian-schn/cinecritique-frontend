@@ -43,26 +43,26 @@ class _SidebarState extends State<Sidebar> {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           child: Row(
             mainAxisAlignment:
                 isExpanded ? MainAxisAlignment.start : MainAxisAlignment.center,
             children: [
               Padding(
-                padding: EdgeInsets.only(left: isExpanded ? 16 : 0),
+                padding: EdgeInsets.only(left: isExpanded ? 24 : 0),
                 child: Icon(
                   icon,
-                  color: isSelected ? Colors.redAccent : Colors.white, // Nur das Icon wird rot hervorgehoben
+                  color: isSelected ? Colors.redAccent : Colors.white,
                   size: 24,
                 ),
               ),
               if (isExpanded)
                 Padding(
-                  padding: EdgeInsets.only(left: 16),
+                  padding: EdgeInsets.only(left: 32),
                   child: Text(
                     title,
                     style: GoogleFonts.inter(
-                        color: Colors.white, // Der Text bleibt weiß
+                        color: Colors.white,
                         fontSize: 16),
                   ),
                 ),
@@ -77,7 +77,7 @@ class _SidebarState extends State<Sidebar> {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: Duration(milliseconds: 300),
-      width: isExpanded ? 250 : 100, // Eingeklappte Breite angepasst
+      width: isExpanded ? 250 : 100, 
       color: Color(0xFF121212),
       child: Column(
         children: [
@@ -115,19 +115,39 @@ class _SidebarState extends State<Sidebar> {
           ),
           SizedBox(height: 20),
           buildMenuItem(
-            icon: Icons.home,
+            icon: Icons.home_outlined,
             title: "Home",
             onTap: widget.onHomePressed,
           ),
           buildMenuItem(
-            icon: Icons.category,
+            icon: Icons.category_outlined,
             title: "Genres",
             onTap: widget.onGenresPressed,
           ),
-          Spacer(),
           buildMenuItem(
-            icon: Icons.login,
-            title: "Anmelden",
+            icon: Icons.favorite_outline,
+            title: "Favoriten",
+            onTap: widget.onGenresPressed,
+          ),
+          buildMenuItem(
+            icon: Icons.reviews_outlined,
+            title: "Reviews",
+            onTap: widget.onGenresPressed,
+          ),
+          buildMenuItem(
+            icon: Icons.lightbulb_outline,
+            title: "Empfehlungen",
+            onTap: widget.onGenresPressed,
+          ),
+          buildMenuItem(
+            icon: Icons.account_circle_outlined,
+            title: "Profil",
+            onTap: widget.onGenresPressed,
+          ),
+          Spacer(), 
+          buildMenuItem(
+            icon: Icons.logout,
+            title: "Abmelden",
             onTap: widget.onLoginPressed,
           ),
           Align(

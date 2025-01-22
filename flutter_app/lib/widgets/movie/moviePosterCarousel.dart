@@ -1,5 +1,6 @@
 import 'dart:async'; // Für Timer
 import 'package:flutter/material.dart';
+import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:math';
@@ -40,9 +41,9 @@ class _MoviePosterCarouselState extends State<MoviePosterCarousel> {
         List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
 
         List<Map<String, dynamic>> loadedMovies = data.map((movie) {
-          // Verwende das erste Bild aus 'backdrops'
           return {
-            'poster': movie['backdrops']?.isNotEmpty == true ? movie['backdrops'][0] : '', // Hole das erste Bild aus dem 'backdrops'-Array
+            'poster': movie['backdrops']?.isNotEmpty == true ? movie['backdrops'][0] : '',
+            'imdbId': movie['imdbId'], // Hier die imdbId hinzufügen
           };
         }).toList();
 
@@ -84,14 +85,30 @@ class _MoviePosterCarouselState extends State<MoviePosterCarousel> {
               width: 800,
               child: AnimatedSwitcher(
                 duration: const Duration(seconds: 1),
-                child: ClipRRect(
-                  key: ValueKey<int>(_currentIndex), // Wichtiger Key für den Übergang
-                  borderRadius: BorderRadius.circular(18.0),
-                  child: Image.network(
-                    movies[_currentIndex]['poster'] ?? '',
-                    fit: BoxFit.cover,
-                    width: 800,
-                    height: 400,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click, // Ändert den Mauszeiger auf "Hand" beim Hover
+                  child: GestureDetector(
+                    onTap: () {
+                      final imdbId = movies[_currentIndex]['imdbId'];
+                      if (imdbId != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MoviePage(imdbId: imdbId), // Weiterleitung zur MoviePage
+                          ),
+                        );
+                      }
+                    },
+                    child: ClipRRect(
+                      key: ValueKey<int>(_currentIndex), // Wichtiger Key für den Übergang
+                      borderRadius: BorderRadius.circular(18.0),
+                      child: Image.network(
+                        movies[_currentIndex]['poster'] ?? '',
+                        fit: BoxFit.cover,
+                        width: 800,
+                        height: 400,
+                      ),
+                    ),
                   ),
                 ),
               ),

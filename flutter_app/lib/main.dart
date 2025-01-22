@@ -83,12 +83,16 @@ class _MyAppState extends State<MyApp> {
         textTheme: const TextTheme(
           bodyLarge: TextStyle(color: Colors.white), // Updated text style
         ),
+        scrollbarTheme: ScrollbarThemeData(
+          thumbColor: MaterialStateProperty.all(const Color.fromARGB(214, 255, 82, 82)), // Set the color here
+          radius: const Radius.circular(10), // Optional: set rounded corners for the thumb
+        ),
       ),
     );
   }
 }
 
-// Home screen widget
+// Home screen widgetcs
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

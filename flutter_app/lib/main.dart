@@ -84,7 +84,7 @@ class _MyAppState extends State<MyApp> {
           bodyLarge: TextStyle(color: Colors.white), // Updated text style
         ),
         scrollbarTheme: ScrollbarThemeData(
-          thumbColor: MaterialStateProperty.all(const Color.fromARGB(214, 255, 82, 82)), // Set the color here
+          thumbColor: MaterialStateProperty.all(Colors.redAccent), // Set the color here
           radius: const Radius.circular(10), // Optional: set rounded corners for the thumb
         ),
       ),

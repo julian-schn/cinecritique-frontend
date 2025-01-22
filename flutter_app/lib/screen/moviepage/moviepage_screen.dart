@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/main.dart';
 import 'package:flutter_app/screen/moviepage/moviepage_controller.dart';
+import 'package:flutter_app/widgets/common/create_rating.dart';
 import 'package:flutter_app/widgets/common/horizontal_backdrops.dart';
 import 'package:flutter_app/widgets/common/rating.dart';
+import 'package:flutter_app/widgets/common/show_rating.dart';
 import 'package:flutter_app/widgets/common/sidebar.dart';
+import 'package:flutter_app/widgets/common/toggle_favorite.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MoviePage extends StatefulWidget {
   final String imdbId;
+
   const MoviePage({
     Key? key,
-    required this.imdbId
+    required this.imdbId,
   }) : super(key: key);
 
   @override
@@ -57,7 +61,6 @@ class _MoviePageState extends State<MoviePage> {
         children: [
           Sidebar(
             onHomePressed: () {
-              // Hier zur MainPage navigieren
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => HomeScreen()),
@@ -78,9 +81,9 @@ class _MoviePageState extends State<MoviePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Backdrop-Bereich
                         Stack(
                           children: [
-                            // Hauptbild - verwendet nun currentBackdrop
                             Image.network(
                               currentBackdrop ?? 'https://via.placeholder.com/300x480',
                               width: double.infinity,
@@ -121,7 +124,7 @@ class _MoviePageState extends State<MoviePage> {
                             ),
                             Positioned(
                               right: 40,
-                              bottom: 40,
+                              bottom: 35,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.red,
@@ -143,9 +146,15 @@ class _MoviePageState extends State<MoviePage> {
                                 ),
                               ),
                             ),
+                            Positioned(
+                              right: 160, // Positioniere den Button direkt neben dem "Watch" Button
+                              bottom: 42,
+                              child: const FavoriteToggle(), // Hier den FavoriteToggle einfügen
+                            ),
                           ],
                         ),
                         const Divider(color: Colors.white, thickness: 2, height: 0),
+                        // Genre-Buttons
                         if (movieData?['genres'] != null)
                           Container(
                             padding: const EdgeInsets.all(16.0),
@@ -169,10 +178,11 @@ class _MoviePageState extends State<MoviePage> {
                                   .toList(),
                             ),
                           ),
+                        // Backdrops
                         if (movieData?['backdrops'] != null &&
                             (movieData?['backdrops'] as List).isNotEmpty)
                           Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 18.0),
+                            padding: const EdgeInsets.symmetric(vertical: 16.0),
                             child: Align(
                               alignment: Alignment.center,
                               child: SizedBox(
@@ -182,13 +192,136 @@ class _MoviePageState extends State<MoviePage> {
                                   backdrops: List<String>.from(movieData?['backdrops'] ?? []),
                                   onBackdropSelected: (String backdrop) {
                                     setState(() {
-                                      currentBackdrop = backdrop;  // Aktualisiert das Hauptbild
+                                      currentBackdrop = backdrop;
                                     });
                                   },
                                 ),
                               ),
                             ),
                           ),
+                        // Plot, Directed by, Released on und Cast
+                        Container(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Plot
+                              Expanded(
+                                flex: 5,
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 16.0),
+                                  child: Text(
+                                    movieData?['plot'] ?? 'Keine Beschreibung verfügbar.',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 150),
+                              // Directed by und Released on
+                              Expanded(
+                                flex: 1,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Padding(
+                                      padding: EdgeInsets.only(bottom: 8.0),
+                                      child: Text(
+                                        'Directed by',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 16.0),
+                                      child: Text(
+                                        movieData?['director'] ?? 'Unbekannt',
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                    const Padding(
+                                      padding: EdgeInsets.only(bottom: 8.0),
+                                      child: Text(
+                                        'Released on',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      movieData?['releaseDate'] ?? 'Unbekannt',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Cast
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 0.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Padding(
+                                        padding: EdgeInsets.only(bottom: 8.0),
+                                        child: Text(
+                                          'Cast',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ),
+                                      ...List<Widget>.from(
+                                        (movieData?['actors'] as List? ?? []).map(
+                                          (actor) => Padding(
+                                            padding: const EdgeInsets.only(bottom: 4.0),
+                                            child: Text(
+                                              actor,
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Horizontal Row for CreateRatingWidget and ShowRatingWidget
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            children: [
+                              const Expanded(child: CreateRatingWidget()), // CreateRatingWidget
+                              const SizedBox(width: 16),
+                              // Überprüfen, ob 'reviewIds' vorhanden sind und eine Liste ist
+                              if (movieData?['reviewIds'] != null && (movieData?['reviewIds'] is List) && (movieData?['reviewIds'] as List).isNotEmpty)
+                                ShowRatingWidget(
+                                  reviews: movieData?['reviewIds'] ?? [],
+                                ), // ShowRatingWidget
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),

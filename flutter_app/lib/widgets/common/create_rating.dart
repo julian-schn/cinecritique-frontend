@@ -15,10 +15,9 @@ class _CreateRatingWidgetState extends State<CreateRatingWidget> {
   void _setRating(int index) {
     setState(() {
       if (_rating == index + 1) {
-       
         _rating = 0;
       } else {
-        _rating = index + 1; 
+        _rating = index + 1;
       }
     });
   }
@@ -33,7 +32,7 @@ class _CreateRatingWidgetState extends State<CreateRatingWidget> {
           Text(
             'Bewertung',
             style: TextStyle(
-              fontSize: 30,
+              fontSize: 28,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -43,14 +42,13 @@ class _CreateRatingWidgetState extends State<CreateRatingWidget> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: List.generate(5, (index) {
               return Padding(
-                padding: const EdgeInsets.only(right: 8.0), 
+                padding: const EdgeInsets.only(right: 8.0),
                 child: GestureDetector(
-                  onTap: () => _setRating(index), 
+                  onTap: () => _setRating(index),
                   onPanUpdate: (details) {
                     setState(() {
-                      
                       if (details.localPosition.dx > (index * 40)) {
-                        _hoverRating = index + 1; 
+                        _hoverRating = index + 1;
                       }
                     });
                   },
@@ -62,59 +60,63 @@ class _CreateRatingWidgetState extends State<CreateRatingWidget> {
                     },
                     onExit: (_) {
                       setState(() {
-                        _hoverRating = 0; 
+                        _hoverRating = 0;
                       });
                     },
                     child: Transform.scale(
-                     scale: _hoverRating == index + 1 ? 1.2 : 1.0,
-                    child: Icon(
-                      index < (_hoverRating > 0 ? _hoverRating : _rating)
-                          ? Icons.star
-                          : Icons.star_border,
-                      color: Colors.white,
-                      size: 32,
+                      scale: _hoverRating == index + 1 ? 1.2 : 1.0,
+                      child: Icon(
+                        index < (_hoverRating > 0 ? _hoverRating : _rating)
+                            ? Icons.star
+                            : Icons.star_border,
+                        color: Colors.white,
+                        size: 32,
+                      ),
                     ),
                   ),
-                ),
                 ),
               );
             }),
           ),
           const SizedBox(height: 16),
           Container(
-            constraints: BoxConstraints(maxWidth: 300),
+            constraints: BoxConstraints(maxWidth: 400),
             child: TextField(
               controller: _textController,
               maxLength: 150,
-              maxLines: 4,
+              maxLines: 5, // Textfeldhöhe anpassen
               decoration: InputDecoration(
                 labelText: 'Deine Bewertung',
-                labelStyle: TextStyle(color: Colors.white), 
+                labelStyle: TextStyle(color: Colors.white),
                 counterText: "${_textController.text.length}/150",
-                counterStyle: TextStyle(color: Colors.white), 
+                counterStyle: TextStyle(color: Colors.white),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                   borderSide: BorderSide(
-                    color: Colors.white, 
-                    width: 2.0, 
+                    color: Colors.white,
+                    width: 2.0,
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                   borderSide: BorderSide(
-                    color: Colors.white, 
+                    color: Colors.white,
                     width: 2.0,
                   ),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                   borderSide: BorderSide(
-                    color: Colors.white, 
+                    color: Colors.white,
                     width: 2.0,
                   ),
                 ),
                 filled: true,
-                fillColor: Color(0xFF121212), 
+                fillColor: Color(0xFF121212),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 30.0, // Höhe des Textfelds
+                  horizontal: 24.0, // Abstand zum Rand
+                ),
               ),
               style: TextStyle(color: Colors.white),
               onChanged: (_) {

@@ -17,7 +17,7 @@ class MovieCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      cursor: SystemMouseCursors.click, // Ändert den Mauszeiger auf "Hand" beim Hover
+      cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: onTap,
         child: Container(

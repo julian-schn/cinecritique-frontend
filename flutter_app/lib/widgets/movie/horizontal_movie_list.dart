@@ -91,7 +91,8 @@ class _HorizontalMovieListState extends State<HorizontalMovieList> {
                       return MovieCard(
                         posterUrl: movies[index]['poster'] ?? '',
                         title: movies[index]['title'] ?? 'Unknown',
-                        imdbId: movies[index]['imdbId'] ?? '', // IMDb-ID übergeben
+                        imdbId: movies[index]['imdbId'] ?? '', // IMDb-ID übergeben#
+
                         onTap: () {
                           // Navigation zur MoviePage
                           Navigator.push(

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/screen/genre/single_genre.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'genre_card.dart'; 
+import 'genre_card.dart'; // Dein GenreCard Widget
 
 class HorizontalGenreList extends StatefulWidget {
   const HorizontalGenreList({super.key});
@@ -29,7 +30,6 @@ class _HorizontalGenreListState extends State<HorizontalGenreList> {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-        print("API response: $data");
 
         Set<String> genreSet = {};
 
@@ -61,22 +61,6 @@ class _HorizontalGenreListState extends State<HorizontalGenreList> {
     }
   }
 
-  void scrollLeft() {
-    _scrollController.animateTo(
-      _scrollController.offset - 400,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
-  }
-
-  void scrollRight() {
-    _scrollController.animateTo(
-      _scrollController.offset + 400,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -94,46 +78,64 @@ class _HorizontalGenreListState extends State<HorizontalGenreList> {
               scrollDirection: Axis.horizontal,
               itemCount: genres.length,
               itemBuilder: (context, index) {
-                return GenreCard(
-                  genre: genres[index],
+                final genre = genres[index];
+                return GestureDetector(
                   onTap: () {
-                    print('Selected genre: ${genres[index]}');
+                    // GenreDetailPage wird mit dem entsprechenden Genre geöffnet
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => GenreDetailPage(genre: genre),
+                      ),
+                    );
                   },
+                  child: GenreCard(genre: genre), // Dein bestehendes Design bleibt hier erhalten
                 );
               },
             ),
           ),
-           Positioned(
-                  left: 0,
-                  top: 42,
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: scrollLeft,
-                      child: const Icon(
-                        Icons.arrow_left,
-                        size: 65,
-                        color: Colors.redAccent,
-                      ),
-                    ),
-                  ),
+          Positioned(
+            left: 0,
+            top: 42,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () {
+                  _scrollController.animateTo(
+                    _scrollController.offset - 400,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                },
+                child: const Icon(
+                  Icons.arrow_left,
+                  size: 65,
+                  color: Colors.redAccent,
                 ),
-                
-                Positioned(
-                  right: 0,
-                  top: 42,
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: scrollRight,
-                      child: const Icon(
-                        Icons.arrow_right,
-                        size: 65,
-                        color: Colors.redAccent,
-                      ),
-                    ),
-                  ),
+              ),
+            ),
+          ),
+          Positioned(
+            right: 0,
+            top: 42,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () {
+                  _scrollController.animateTo(
+                    _scrollController.offset + 400,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                },
+                child: const Icon(
+                  Icons.arrow_right,
+                  size: 65,
+                  color: Colors.redAccent,
                 ),
+              ),
+            ),
+          ),
         ],
       ),
     );

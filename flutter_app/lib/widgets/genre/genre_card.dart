@@ -13,7 +13,9 @@ class GenreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+     return MouseRegion(
+      cursor: SystemMouseCursors.click, // Ändert den Mauszeiger auf "Hand" beim Hover
+    child:  GestureDetector(
       onTap: onTap,
       child: Container(
         width: 250,
@@ -41,6 +43,7 @@ class GenreCard extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ),
+     );
   }
 }

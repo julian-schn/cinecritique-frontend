@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/main.dart';
 import 'package:flutter_app/screen/login/login_screen.dart';
+import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
 import 'package:flutter_app/widgets/common/sidebar.dart';
 import 'package:flutter_app/widgets/movie/movie_card.dart';
 import 'dart:convert';
@@ -58,10 +59,12 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
       return const Center(child: CircularProgressIndicator());
     }
 
+    bool isSidebarExpanded = MediaQuery.of(context).size.width > 800; // Sidebar-Status abfragen
+
     return Scaffold(
-      body: Row(  // Row für Sidebar und Hauptinhalt nebeneinander
+      body: Row(
         children: [
-          Sidebar(  // Sidebar als linke Seite
+          Sidebar(
             onHomePressed: () {
               Navigator.pushReplacement(
                 context,
@@ -77,47 +80,45 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
                 MaterialPageRoute(builder: (context) => const LoginScreen()),
               );
             },
-            currentPage: 'SingelGenre',  
+            currentPage: 'SingelGenre',
           ),
-          Expanded(  // Hauptinhalt
-            child: SingleChildScrollView(  // Scrollen für den Hauptinhalt
+          Expanded(
+            child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-  padding: const EdgeInsets.only(left: 17.0, top: 50.0, bottom: 15),
-  child: Row(
-    children: [
-      Text(
-        widget.genre,  // Genre als Text anzeigen
-        style: const TextStyle(
-          color: Colors.white,  // Weiße Schriftfarbe
-          fontSize: 34,          // Größere Schriftgröße
-          fontWeight: FontWeight.bold,  // Fettschrift
-        ),
-      ),
-      const SizedBox(width: 8.0),  // Abstand zwischen Genre und dem Punkt
-      Text(
-        '.',  // Trennzeichen Punkt
-        style: const TextStyle(
-          color: Colors.redAccent,  // Rote Schriftfarbe
-          fontSize: 34,              // Etwas größere Schriftgröße für den Punkt
-          fontWeight: FontWeight.bold,  // Fettschrift
-        ),
-      ),
-    ],
-  ),
+                    padding: const EdgeInsets.only(left: 35.0, top: 85.0, bottom: 8),
+                    child: Row(
+                      children: [
+                        Text(
+                          widget.genre,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 36,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '.',
+                          style: const TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 38,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(30.0),
                     child: GridView.builder(
-                      physics: NeverScrollableScrollPhysics(),  // Verhindert das Scrollen von GridView, da der ScrollView es übernimmt
-                      shrinkWrap: true,  // Macht die GridView so, dass sie ihre Höhe automatisch anpasst
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 4, // 4 Filme pro Reihe
-                        crossAxisSpacing: 10.0,
-                        mainAxisSpacing: 10.0,
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: isSidebarExpanded ? 4 : 5, // Dynamische Anpassung je nach Sidebar-Status
+                        crossAxisSpacing: 35.0,
+                        mainAxisSpacing: 35.0,
                       ),
                       itemCount: movies.length,
                       itemBuilder: (context, index) {
@@ -126,9 +127,12 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
                           title: movies[index]['title'] ?? 'Unbekannt',
                           imdbId: movies[index]['imdbId'] ?? '',
                           onTap: () {
-                            // Hier kannst du die Logik hinzufügen, was passiert,
-                            // wenn auf einen Film geklickt wird.
-                            print('Film ${movies[index]['title']} wurde ausgewählt');
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MoviePage(imdbId: movies[index]['imdbId']),
+                              ),
+                            );
                           },
                         );
                       },

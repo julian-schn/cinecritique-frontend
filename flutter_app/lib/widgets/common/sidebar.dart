@@ -4,7 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_app/services/auth_service.dart';
 
 void _login() async {
-  final loginUrl = '${kc_params.URL}/realms/${kc_params.realm}/protocol/openid-connect/auth?'
+  final loginUrl = '${kc_params.URL}/realms/${kc_params.REALM}/protocol/openid-connect/auth?'
       'client_id=${kc_params.CLIENT}&'
       'redirect_uri=${Uri.encodeComponent('https://cinecritique.mi.hdm-stuttgart.de/callback')}&' //add flutter url here
       'response_type=code&'

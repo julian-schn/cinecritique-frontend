@@ -16,3 +16,4 @@ docker-build:
     refs:
       - main
       - frontend_dev
+      - keycloak-test

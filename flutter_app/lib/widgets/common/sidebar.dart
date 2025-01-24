@@ -1,5 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_app/services/auth_service.dart';
+
+void _login() async {
+  final loginUrl = '${kc_params.URL}/realms/${kc_params.REALM}/protocol/openid-connect/auth?'
+      'client_id=${kc_params.CLIENT}&'
+      'redirect_uri=${Uri.encodeComponent('https://cinecritique.mi.hdm-stuttgart.de')}&' //add flutter url here
+      'response_type=code&'
+      'scope=openid';
+
+  try {
+    await launch(loginUrl, forceWebView: true);
+  } catch (e) {
+    print('Error launching login URL: $e');
+  }
+}
 
 class Sidebar extends StatefulWidget {
   final VoidCallback onHomePressed;
@@ -148,7 +164,7 @@ class _SidebarState extends State<Sidebar> {
           buildMenuItem(
             icon: Icons.logout,
             title: "Abmelden",
-            onTap: widget.onLoginPressed,
+            onTap: _login,
           ),
           Align(
             alignment: isExpanded ? Alignment.centerRight : Alignment.center,
@@ -157,7 +173,7 @@ class _SidebarState extends State<Sidebar> {
                 isExpanded ? Icons.arrow_back : Icons.arrow_forward,
                 color: Colors.redAccent,
               ),
-              onPressed: toggleSidebar,
+              onPressed: _login, 
             ),
           ),
         ],

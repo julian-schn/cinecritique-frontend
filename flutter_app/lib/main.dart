@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/screen/genre/genre_page.dart';
 import 'package:flutter_app/screen/login/login_screen.dart';
 import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
 import 'package:flutter_app/widgets/common/sidebar.dart';
@@ -98,7 +99,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row( // Row to handle Sidebar and Main content horizontally
+      body: Row(
         children: [
           Sidebar(
             onHomePressed: () {
@@ -108,7 +109,10 @@ class HomeScreen extends StatelessWidget {
               );
             },
             onGenresPressed: () {
-              print("Genres pressed");
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => GenrePage()),
+              );
             },
             onLoginPressed: () {
               Navigator.pushReplacement(
@@ -118,16 +122,14 @@ class HomeScreen extends StatelessWidget {
             },
             currentPage: 'Home',
           ),
-          Expanded( // Main content area
-            child: SingleChildScrollView( // Wrap the main content with SingleChildScrollView
+          Expanded(
+            child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CustomSearchBar(),
                   const SizedBox(height: 20),
-            
-                  const MoviePosterCarousel(),
-                  const SizedBox(height: 20),
+                  const MoviePosterCarousel(),const SizedBox(height: 20),
                   Padding(
                     padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
                     child: Row(
@@ -151,7 +153,7 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const HorizontalGenreList(),
+                  const HorizontalGenreList(),                  
                   const SizedBox(height: 20),
                   Padding(
                     padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
@@ -159,13 +161,13 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         Text(
                           'Popular Movies',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Text(
+                        const Text(
                           '.',
                           style: TextStyle(
                             color: Colors.redAccent,
@@ -176,9 +178,9 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+                  // Liste aller Filme
                    HorizontalMovieList(),
                   const SizedBox(height: 20),
-                  
                 ],
               ),
             ),

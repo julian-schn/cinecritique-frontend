@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'movie_card.dart';
-import 'package:flutter_app/screen/moviepage/moviepage_screen.dart'; // Importiere deine MoviePageScreen-Datei
+import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
 
 class HorizontalMovieList extends StatefulWidget {
-  const HorizontalMovieList({Key? key}) : super(key: key);
+  final String? genre; // Genre optional machen
+
+  const HorizontalMovieList({Key? key, this.genre}) : super(key: key);
 
   @override
   State<HorizontalMovieList> createState() => _HorizontalMovieListState();
@@ -19,10 +21,14 @@ class _HorizontalMovieListState extends State<HorizontalMovieList> {
   @override
   void initState() {
     super.initState();
-    fetchMovies();
+    if (widget.genre == null) {
+      fetchAllMovies(); // Wenn kein Genre angegeben, alle Filme abrufen
+    } else {
+      fetchMoviesByGenre(); // Sonst Filme basierend auf Genre abrufen
+    }
   }
 
-  Future<void> fetchMovies() async {
+  Future<void> fetchAllMovies() async {
     try {
       final response = await http.get(
         Uri.parse('https://cinecritique.mi.hdm-stuttgart.de/api/movies'),
@@ -31,16 +37,48 @@ class _HorizontalMovieListState extends State<HorizontalMovieList> {
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
 
-        List<Map<String, dynamic>> loadedMovies = data.map((movie) {
-          return {
-            'poster': movie['poster'] ?? '',
-            'title': movie['title'] ?? 'Unknown',
-            'imdbId': movie['imdbId'] ?? '', // IMDb-ID hinzufügen
-          };
-        }).toList();
+        setState(() {
+          movies = data.map((movie) {
+            return {
+              'poster': movie['poster'] ?? '',
+              'title': movie['title'] ?? 'Unknown',
+              'imdbId': movie['imdbId'] ?? '',
+            };
+          }).toList();
+          isLoading = false;
+        });
+      } else {
+        print('Fehler: ${response.statusCode}');
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Fehler beim Abrufen der Filme: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> fetchMoviesByGenre() async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://cinecritique.mi.hdm-stuttgart.de/api/movies/genre/${widget.genre}'),
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
 
         setState(() {
-          movies = loadedMovies;
+          movies = data.map((movie) {
+            return {
+              'poster': movie['poster'] ?? '',
+              'title': movie['title'] ?? 'Unknown',
+              'imdbId': movie['imdbId'] ?? '',
+            };
+          }).toList();
           isLoading = false;
         });
       } else {
@@ -91,10 +129,8 @@ class _HorizontalMovieListState extends State<HorizontalMovieList> {
                       return MovieCard(
                         posterUrl: movies[index]['poster'] ?? '',
                         title: movies[index]['title'] ?? 'Unknown',
-                        imdbId: movies[index]['imdbId'] ?? '', // IMDb-ID übergeben#
-
+                        imdbId: movies[index]['imdbId'] ?? '',
                         onTap: () {
-                          // Navigation zur MoviePage
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -108,7 +144,6 @@ class _HorizontalMovieListState extends State<HorizontalMovieList> {
                     },
                   ),
                 ),
-                
                 Positioned(
                   left: 0,
                   top: 92.5,
@@ -124,7 +159,6 @@ class _HorizontalMovieListState extends State<HorizontalMovieList> {
                     ),
                   ),
                 ),
-                
                 Positioned(
                   right: 0,
                   top: 92.5,
@@ -145,3 +179,4 @@ class _HorizontalMovieListState extends State<HorizontalMovieList> {
           );
   }
 }
+

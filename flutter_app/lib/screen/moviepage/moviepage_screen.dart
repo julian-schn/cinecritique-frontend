@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/main.dart';
+import 'package:flutter_app/screen/genre/genre_page.dart';
 import 'package:flutter_app/screen/genre/single_genre.dart';
+import 'package:flutter_app/screen/login/login_screen.dart';
 import 'package:flutter_app/screen/moviepage/moviepage_controller.dart';
 import 'package:flutter_app/widgets/common/create_rating.dart';
 import 'package:flutter_app/widgets/common/horizontal_backdrops.dart';
@@ -68,9 +70,16 @@ class _MoviePageState extends State<MoviePage> {
               );
             },
             onGenresPressed: () {
-              print("Genres gedrückt");
+               Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => GenrePage()),
+              );
             },
             onLoginPressed: () {
+               Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => LoginScreen()),
+              );
               Navigator.pushReplacementNamed(context, '/login');
             },
             currentPage: 'Movie',

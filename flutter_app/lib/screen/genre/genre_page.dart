@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/main.dart';
 import 'package:flutter_app/screen/genre/genre_controller.dart';
 import 'package:flutter_app/screen/login/login_screen.dart';
+import 'package:flutter_app/services/openid_browser.dart';
 import 'package:flutter_app/widgets/common/sidebar.dart';
 import 'package:flutter_app/widgets/movie/horizontal_movie_list.dart';
+import 'package:flutter_app/services/auth_service.dart';
 
 class GenrePage extends StatefulWidget {
-  const GenrePage({Key? key}) : super(key: key);
+  final AuthService authService;
+
+  const GenrePage({Key? key, required this.authService}) : super(key: key);
 
   @override
   _GenrePageState createState() => _GenrePageState();
@@ -43,29 +47,36 @@ class _GenrePageState extends State<GenrePage> {
     return Scaffold(
       body: Row(
         children: [
-          // Sidebar
+          // Sidebar mit AuthService und Callbacks
           Sidebar(
+            authService: widget.authService,
             onHomePressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => HomeScreen()),
+                MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
               );
             },
             onGenresPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const GenrePage()),
+                MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
               );
             },
-            onLoginPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => LoginScreen()),
-              );
+            onFavoritesPressed: () {
+              print("Favoriten-Seite öffnen");
             },
-            currentPage: 'Genres',
+            onReviewsPressed: () {
+              print("Reviews-Seite öffnen");
+            },
+            onRecommendationsPressed: () {
+              print("Empfehlungen-Seite öffnen");
+            },
+            onLoginPressed: (){
+              widget.authService.login();
+            },
+            currentPage: 'Genres', // 'Genres' für den aktuellen Menüpunkt
           ),
-          // Main Content
+          // Hauptinhalt
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(top: 50.0), // Abstand nach oben
@@ -108,7 +119,7 @@ class _GenrePageState extends State<GenrePage> {
                                     ],
                                   ),
                                   const SizedBox(height: 14),
-                                  HorizontalMovieList(genre: genre), // Filme für das Genre
+                                  HorizontalMovieList(genre: genre, authService: widget.authService,), // Filme für das Genre
                                   const SizedBox(height: 20),
                                 ],
                               ),

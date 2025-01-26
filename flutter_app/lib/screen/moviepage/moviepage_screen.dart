@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/main.dart';
 import 'package:flutter_app/screen/genre/genre_page.dart';
 import 'package:flutter_app/screen/genre/single_genre.dart';
-import 'package:flutter_app/screen/login/login_screen.dart';
+import 'package:flutter_app/screen/login/login_screen.dart'; // LoginScreen importieren
 import 'package:flutter_app/screen/moviepage/moviepage_controller.dart';
+import 'package:flutter_app/services/auth_service.dart'; // AuthService importieren
 import 'package:flutter_app/widgets/common/create_rating.dart';
 import 'package:flutter_app/widgets/common/horizontal_backdrops.dart';
 import 'package:flutter_app/widgets/common/rating.dart';
@@ -14,10 +15,12 @@ import 'package:url_launcher/url_launcher.dart';
 
 class MoviePage extends StatefulWidget {
   final String imdbId;
+  final AuthService authService; // AuthService bleibt bestehen
 
   const MoviePage({
     Key? key,
     required this.imdbId,
+    required this.authService, // AuthService weiterhin als required
   }) : super(key: key);
 
   @override
@@ -62,27 +65,34 @@ class _MoviePageState extends State<MoviePage> {
       extendBodyBehindAppBar: true,
       body: Row(
         children: [
+          // Sidebar mit AuthService und Callbacks
           Sidebar(
+            authService: widget.authService, // Korrekt auf widget.authService zugreifen
             onHomePressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => HomeScreen()),
+                MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)), // Korrekt
               );
             },
             onGenresPressed: () {
-               Navigator.pushReplacement(
+              Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => GenrePage()),
+                MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)), // Korrekt
               );
+            },
+            onFavoritesPressed: () {
+              print("Favoriten-Seite öffnen");
+            },
+            onReviewsPressed: () {
+              print("Reviews-Seite öffnen");
+            },
+            onRecommendationsPressed: () {
+              print("Empfehlungen-Seite öffnen");
             },
             onLoginPressed: () {
-               Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => LoginScreen()),
-              );
-              Navigator.pushReplacementNamed(context, '/login');
+              widget.authService.login(); // AuthService wird hier korrekt verwendet
             },
-            currentPage: 'Movie',
+            currentPage: 'Moviepage',
           ),
           Expanded(
             child: movieData == null
@@ -179,11 +189,11 @@ class _MoviePageState extends State<MoviePage> {
                                         ),
                                         onPressed: () {
                                           Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => GenreDetailPage(genre: genre),
-                      ),
-                    );;
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => GenreDetailPage(genre: genre, authService: widget.authService),
+                                            ),
+                                          );
                                         },
                                         child: Text(
                                           genre,

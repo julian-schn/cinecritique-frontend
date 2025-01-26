@@ -1,124 +1,83 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/screen/genre/genre_page.dart';
-import 'package:flutter_app/screen/login/login_screen.dart';
-import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
-import 'package:flutter_app/widgets/common/sidebar.dart';
-import 'package:flutter_app/widgets/movie/horizontal_movie_list.dart';
-import 'package:flutter_app/widgets/widgets.dart';
-import 'package:flutter_app/widgets/genre/horizontal_genre_list.dart';
 import 'package:flutter_app/services/auth_service.dart';
-import 'package:openid_client/openid_client.dart';
-import 'package:flutter_app/services/openid_io.dart'
-    if (dart.library.js_interop) 'package:flutter_app/services/openid_browser.dart';
-import 'package:flutter/foundation.dart';
-import 'dart:io';
-import 'package:flutter_app/widgets/movie/moviePosterCarousel.dart'; // Importiere das neue Widget
+import 'package:flutter_app/screen/genre/genre_page.dart';
+import 'package:flutter_app/widgets/common/sidebar.dart';
+import 'package:flutter_app/widgets/movie/moviePosterCarousel.dart';
+import 'package:flutter_app/widgets/movie/horizontal_movie_list.dart';
+import 'package:flutter_app/widgets/genre/horizontal_genre_list.dart';
+import 'package:flutter_app/widgets/widgets.dart';
 
-
-// Global variables for authentication state
-Credential? credential;
-late final Client client;
-
-// Entry point of the application
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  try {
-    // Initialize OpenID client and credentials
-    client = await getClient();
-    credential = await getRedirectResult(client, scopes: kc_params.SCOPESL);
-  } catch (e) {
-    print("Error initializing OpenID client or credentials: $e");
-  }
-  runApp(const MyApp());
+  // AuthService initialisieren
+  final authService = AuthService();
+  await authService.initialize();
+
+  runApp(MyApp(authService: authService));
 }
 
-// Function to initialize OpenID client
-Future<Client> getClient() async {
-  var uri = Uri.parse(kc_params.URL);
+class MyApp extends StatelessWidget {
+  final AuthService authService;
 
-  if (!kIsWeb && Platform.isAndroid) uri = uri.replace(host: '10.0.2.2');
-  
-  var clientId = 'movieappclient';
-  var issuer = await Issuer.discover(uri);
-  return Client(issuer, clientId);
-}
-
-// Root widget of the application
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-// State class for MyApp widget
-class _MyAppState extends State<MyApp> {
-  UserInfo? userInfo;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeUserInfo();
-  }
-
-  void _initializeUserInfo() async {
-    if (credential != null) {
-      try {
-        final info = await credential!.getUserInfo();
-        setState(() {
-          userInfo = info;
-        });
-      } catch (e) {
-        print('Error getting user info: $e');
-      }
-    }
-  }
+  const MyApp({Key? key, required this.authService}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomeScreen(),
+      title: 'Movie App',
       theme: ThemeData(
         scaffoldBackgroundColor: const Color(0xFF121212),
         textTheme: const TextTheme(
-          bodyLarge: TextStyle(color: Colors.white), // Updated text style
+          bodyLarge: TextStyle(color: Colors.white),
         ),
         scrollbarTheme: ScrollbarThemeData(
-          thumbColor: MaterialStateProperty.all(const Color.fromARGB(214, 255, 82, 82)), // Set the color here
-          radius: const Radius.circular(10), // Optional: set rounded corners for the thumb
+          thumbColor: MaterialStateProperty.all(const Color.fromARGB(214, 255, 82, 82)),
+          radius: const Radius.circular(10),
         ),
       ),
+      home: HomeScreen(authService: authService),
     );
   }
 }
 
-// Home screen widgetcs
 class HomeScreen extends StatelessWidget {
+  final AuthService authService;
+
+  const HomeScreen({Key? key, required this.authService}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Row(
         children: [
           Sidebar(
+            authService: authService,
             onHomePressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => HomeScreen()),
+                MaterialPageRoute(builder: (context) => HomeScreen(authService: authService)),
               );
             },
             onGenresPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => GenrePage()),
+                MaterialPageRoute(builder: (context) => GenrePage(authService: authService)),
               );
             },
+            onFavoritesPressed: () {
+              print("Favoriten-Seite öffnen");
+            },
+            onReviewsPressed: () {
+              print("Reviews-Seite öffnen");
+            },
+            onRecommendationsPressed: () {
+              print("Empfehlungen-Seite öffnen");
+            },
+            // Hier den Login-Button so anpassen, dass er die Login-Methode aufruft:
             onLoginPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-              );
+              authService.login(); // Die Login-Methode des AuthService aufrufen
             },
             currentPage: 'Home',
           ),
@@ -127,15 +86,23 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CustomSearchBar(),
+                  // Hier die CustomSearchBar hinzufügen
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 5.0),
+                    child: CustomSearchBar(authService: authService),
+                  ),
                   const SizedBox(height: 20),
-                  const MoviePosterCarousel(),const SizedBox(height: 20),
+
+                  
+                  const SizedBox(height: 20),
+                  MoviePosterCarousel(authService: authService),
+                  const SizedBox(height: 20),
                   Padding(
                     padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
                     child: Row(
-                      children: [
+                      children: const [
                         Text(
-                          'Categories',
+                          'Genres',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 24,
@@ -153,21 +120,21 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const HorizontalGenreList(),                  
+                  HorizontalGenreList(authService: authService),
                   const SizedBox(height: 20),
                   Padding(
                     padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
                     child: Row(
-                      children: [
+                      children: const [
                         Text(
                           'Popular Movies',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.white,
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const Text(
+                        Text(
                           '.',
                           style: TextStyle(
                             color: Colors.redAccent,
@@ -178,8 +145,7 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  // Liste aller Filme
-                   HorizontalMovieList(),
+                  HorizontalMovieList(authService: authService),
                   const SizedBox(height: 20),
                 ],
               ),

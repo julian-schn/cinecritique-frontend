@@ -1,33 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_app/services/auth_service.dart';
-
-void _login() async {
-  final loginUrl = '${kc_params.URL}/realms/${kc_params.REALM}/protocol/openid-connect/auth?'
-      'client_id=${kc_params.CLIENT}&'
-      'redirect_uri=${Uri.encodeComponent('https://cinecritique.mi.hdm-stuttgart.de')}&' //add flutter url here
-      'response_type=code&'
-      'scope=openid';
-
-  try {
-    await launch(loginUrl, forceWebView: true);
-  } catch (e) {
-    print('Error launching login URL: $e');
-  }
-}
+import 'package:google_fonts/google_fonts.dart';
 
 class Sidebar extends StatefulWidget {
+  final AuthService authService;
   final VoidCallback onHomePressed;
   final VoidCallback onGenresPressed;
+  final VoidCallback onReviewsPressed;
+  final VoidCallback onFavoritesPressed;
+  final VoidCallback onRecommendationsPressed;
   final VoidCallback onLoginPressed;
-  final String currentPage; // Hier den aktuellen Bildschirm als Parameter hinzufügen
+  final String currentPage;
 
   const Sidebar({
+    required this.authService,
     required this.onHomePressed,
     required this.onGenresPressed,
+    required this.onReviewsPressed,
+    required this.onFavoritesPressed,
+    required this.onRecommendationsPressed,
     required this.onLoginPressed,
-    required this.currentPage, // Übergib den aktuellen Bildschirm als Parameter
+    required this.currentPage,
     super.key,
   });
 
@@ -38,20 +31,17 @@ class Sidebar extends StatefulWidget {
 class _SidebarState extends State<Sidebar> {
   bool isExpanded = true;
 
-  // Funktion zum Umschalten der Sidebar
   void toggleSidebar() {
     setState(() {
       isExpanded = !isExpanded;
     });
   }
 
-  // Funktion zum Erstellen eines Menüpunktes
   Widget buildMenuItem({
     required IconData icon,
     required String title,
     required VoidCallback onTap,
   }) {
-    // Hervorhebung, wenn der Titel dem aktuellen Bildschirm entspricht
     bool isSelected = widget.currentPage == title;
 
     return MouseRegion(
@@ -93,90 +83,98 @@ class _SidebarState extends State<Sidebar> {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: Duration(milliseconds: 300),
-      width: isExpanded ? 250 : 100, 
+      width: isExpanded ? 250 : 100,
       color: Color(0xFF121212),
-      child: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: isExpanded
-                  ? MainAxisAlignment.start
-                  : MainAxisAlignment.center,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: isExpanded ? "CineCritique" : "CC",
-                        style: GoogleFonts.inter(
-                          color: Colors.white,
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
+      child: ValueListenableBuilder<bool>(
+        valueListenable: widget.authService.isLoggedIn,
+        builder: (context, isLoggedIn, _) {
+          return Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: isExpanded
+                      ? MainAxisAlignment.start
+                      : MainAxisAlignment.center,
+                  children: [
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: isExpanded ? "CineCritique" : "CC",
+                            style: GoogleFonts.inter(
+                              color: Colors.white,
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          TextSpan(
+                            text: ".",
+                            style: GoogleFonts.inter(
+                              color: Colors.redAccent,
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
-                      TextSpan(
-                        text: ".",
-                        style: GoogleFonts.inter(
-                          color: Colors.redAccent,
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20),
+              buildMenuItem(
+                icon: Icons.home_outlined,
+                title: "Home",
+                onTap: widget.onHomePressed,
+              ),
+              buildMenuItem(
+                icon: Icons.category_outlined,
+                title: "Genres",
+                onTap: widget.onGenresPressed,
+              ),
+              if (isLoggedIn) ...[
+                buildMenuItem(
+                  icon: Icons.favorite_outline,
+                  title: "Favoriten",
+                  onTap: widget.onFavoritesPressed,
+                ),
+                buildMenuItem(
+                  icon: Icons.reviews_outlined,
+                  title: "Reviews",
+                  onTap: widget.onReviewsPressed,
+                ),
+                buildMenuItem(
+                  icon: Icons.lightbulb_outline,
+                  title: "Empfehlungen",
+                  onTap: widget.onRecommendationsPressed,
                 ),
               ],
-            ),
-          ),
-          SizedBox(height: 20),
-          buildMenuItem(
-            icon: Icons.home_outlined,
-            title: "Home",
-            onTap: widget.onHomePressed,
-          ),
-          buildMenuItem(
-            icon: Icons.category_outlined,
-            title: "Genres",
-            onTap: widget.onGenresPressed,
-          ),
-          buildMenuItem(
-            icon: Icons.favorite_outline,
-            title: "Favoriten",
-            onTap: widget.onGenresPressed,
-          ),
-          buildMenuItem(
-            icon: Icons.reviews_outlined,
-            title: "Reviews",
-            onTap: widget.onGenresPressed,
-          ),
-          buildMenuItem(
-            icon: Icons.lightbulb_outline,
-            title: "Empfehlungen",
-            onTap: widget.onGenresPressed,
-          ),
-          buildMenuItem(
-            icon: Icons.account_circle_outlined,
-            title: "Profil",
-            onTap: widget.onGenresPressed,
-          ),
-          Spacer(), 
-          buildMenuItem(
-            icon: Icons.logout,
-            title: "Abmelden",
-            onTap: _login,
-          ),
-          Align(
-            alignment: isExpanded ? Alignment.centerRight : Alignment.center,
-            child: IconButton(
-              icon: Icon(
-                isExpanded ? Icons.arrow_back : Icons.arrow_forward,
-                color: Colors.redAccent,
+              Spacer(),
+              buildMenuItem(
+                icon: isLoggedIn ? Icons.logout : Icons.login,
+                title: isLoggedIn ? "Abmelden" : "Anmelden",
+                onTap: () async {
+                  if (isLoggedIn) {
+                    await widget.authService.logout();
+                  } else {
+                    await widget.authService.login();
+                  }
+                },
               ),
-              onPressed: _login, 
-            ),
-          ),
-        ],
+              Align(
+                alignment: isExpanded ? Alignment.centerRight : Alignment.center,
+                child: IconButton(
+                  icon: Icon(
+                    isExpanded ? Icons.arrow_back : Icons.arrow_forward,
+                    color: Colors.redAccent,
+                  ),
+                  onPressed: toggleSidebar,
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

@@ -4,9 +4,12 @@ import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:math';
+import 'package:flutter_app/services/auth_service.dart'; // Stelle sicher, dass dieser Import korrekt ist
 
 class MoviePosterCarousel extends StatefulWidget {
-  const MoviePosterCarousel({Key? key}) : super(key: key);
+  final AuthService authService;
+
+  const MoviePosterCarousel({Key? key, required this.authService}) : super(key: key);
 
   @override
   State<MoviePosterCarousel> createState() => _MoviePosterCarouselState();
@@ -94,7 +97,10 @@ class _MoviePosterCarouselState extends State<MoviePosterCarousel> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => MoviePage(imdbId: imdbId), // Weiterleitung zur MoviePage
+                            builder: (context) => MoviePage(
+                              imdbId: imdbId,
+                              authService: widget.authService, // authService übergeben
+                            ),
                           ),
                         );
                       }

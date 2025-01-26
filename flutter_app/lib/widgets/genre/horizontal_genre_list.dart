@@ -3,9 +3,12 @@ import 'package:flutter_app/screen/genre/single_genre.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'genre_card.dart'; // Dein GenreCard Widget
+import 'package:flutter_app/services/auth_service.dart'; // Import von AuthService
 
 class HorizontalGenreList extends StatefulWidget {
-  const HorizontalGenreList({super.key});
+  final AuthService authService; // AuthService als Parameter
+
+  const HorizontalGenreList({super.key, required this.authService});
 
   @override
   State<HorizontalGenreList> createState() => _HorizontalGenreListState();
@@ -81,11 +84,14 @@ class _HorizontalGenreListState extends State<HorizontalGenreList> {
                 final genre = genres[index];
                 return GestureDetector(
                   onTap: () {
-                    // GenreDetailPage wird mit dem entsprechenden Genre geöffnet
+                    // GenreDetailPage wird mit dem entsprechenden Genre und authService geöffnet
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => GenreDetailPage(genre: genre),
+                        builder: (context) => GenreDetailPage(
+                          genre: genre,
+                          authService: widget.authService, // authService hier weitergeben
+                        ),
                       ),
                     );
                   },

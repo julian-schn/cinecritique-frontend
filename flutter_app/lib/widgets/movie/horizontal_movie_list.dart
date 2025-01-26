@@ -3,11 +3,13 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'movie_card.dart';
 import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
+import 'package:flutter_app/services/auth_service.dart';
 
 class HorizontalMovieList extends StatefulWidget {
   final String? genre; // Genre optional machen
+  final AuthService authService; // AuthService als Parameter
 
-  const HorizontalMovieList({Key? key, this.genre}) : super(key: key);
+  const HorizontalMovieList({Key? key, this.genre, required this.authService}) : super(key: key);
 
   @override
   State<HorizontalMovieList> createState() => _HorizontalMovieListState();
@@ -136,6 +138,7 @@ class _HorizontalMovieListState extends State<HorizontalMovieList> {
                             MaterialPageRoute(
                               builder: (context) => MoviePage(
                                 imdbId: movies[index]['imdbId'] ?? '',
+                                authService: widget.authService, // authService hier weitergeben
                               ),
                             ),
                           );
@@ -179,4 +182,3 @@ class _HorizontalMovieListState extends State<HorizontalMovieList> {
           );
   }
 }
-

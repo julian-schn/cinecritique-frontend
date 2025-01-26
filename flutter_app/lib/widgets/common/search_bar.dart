@@ -42,7 +42,6 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
     super.initState();
     _focusNode.addListener(() {
       if (!_focusNode.hasFocus) {
-        // Fokus verloren, Vorschläge nur zurücksetzen, wenn keine Navigation
         Future.delayed(Duration(milliseconds: 100), () {
           if (mounted) {
             setState(() {
@@ -231,11 +230,19 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                           fit: BoxFit.cover,
                                         )
                                       : null,
-                                  trailing: Padding(
-                                    padding: const EdgeInsets.only(right: 20.0),
-                                    child: FavoriteToggle(
-                                      iconSize: 35,
-                                    ),
+                                  trailing: ValueListenableBuilder<bool>(
+                                    valueListenable: widget.authService.isLoggedIn,
+                                    builder: (context, isLoggedIn, _) {
+                                      return isLoggedIn
+                                          ? Padding(
+                                              padding:
+                                                  const EdgeInsets.only(right: 20.0),
+                                              child: FavoriteToggle(
+                                                iconSize: 35,
+                                              ),
+                                            )
+                                          : SizedBox.shrink();
+                                    },
                                   ),
                                   onTap: () {
                                     Navigator.push(

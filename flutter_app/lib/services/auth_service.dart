@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:openid_client/openid_client_browser.dart';
 
 class kc_params {
-  static const String URL = "http://cinecritique.mi.hdm-stuttgart.de/auth"; // Keycloak Server-URL
+  static const String URL = "https://cinecritique.mi.hdm-stuttgart.de/auth"; // Keycloak Server-URL
   static const String REALM = "movie-app";
   static const String CLIENT = "movie-app-client-frontend";
   static const SCOPESL = ['profile'];
@@ -36,7 +36,7 @@ class AuthService {
   // Login-Funktion
   Future<void> login() async {
     try {
-      var issuer = await Issuer.discover(Uri.parse('${kc_params.URL}/realms/${kc_params.REALM}'));
+       var issuer = await Issuer.discover(Uri.parse('${kc_params.URL}/realms/${kc_params.REALM}'));
       _client = Client(issuer, kc_params.CLIENT);
             _authenticator = Authenticator(_client, scopes: kc_params.SCOPESL);
 

@@ -152,7 +152,7 @@ class _SidebarState extends State<Sidebar> {
                   onTap: widget.onRecommendationsPressed,
                 ),
                 buildMenuItem(
-                icon: Icons.verified_user_outlined, 
+                icon: Icons.account_circle_outlined, 
                 title: "Profil", 
                 onTap: widget.onProfilPressed,)
               ],

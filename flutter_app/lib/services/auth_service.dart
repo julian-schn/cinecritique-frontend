@@ -6,7 +6,9 @@ class kc_params {
   static const String REALM = "movie-app";
   static const String CLIENT = "movie-app-client-frontend";
   static const SCOPESL = ['profile'];
+  static const String REDIRECT_URI = "https://cinecritique.mi.hdm-stuttgart.de/"; // Redirect URI
 }
+
 
 class AuthService {
   ValueNotifier<bool> isLoggedIn = ValueNotifier(false);

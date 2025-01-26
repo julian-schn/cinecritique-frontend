@@ -71,6 +71,9 @@ class _GenrePageState extends State<GenrePage> {
             onRecommendationsPressed: () {
               print("Empfehlungen-Seite öffnen");
             },
+            onProfilPressed: (){
+              print("Profilseite öffnen");
+            },
             onLoginPressed: (){
               widget.authService.login();
             },

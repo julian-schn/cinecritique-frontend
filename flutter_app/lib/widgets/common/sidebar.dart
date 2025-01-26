@@ -9,6 +9,7 @@ class Sidebar extends StatefulWidget {
   final VoidCallback onReviewsPressed;
   final VoidCallback onFavoritesPressed;
   final VoidCallback onRecommendationsPressed;
+  final VoidCallback onProfilPressed;
   final VoidCallback onLoginPressed;
   final String currentPage;
 
@@ -19,6 +20,7 @@ class Sidebar extends StatefulWidget {
     required this.onReviewsPressed,
     required this.onFavoritesPressed,
     required this.onRecommendationsPressed,
+    required this.onProfilPressed,
     required this.onLoginPressed,
     required this.currentPage,
     super.key,
@@ -149,6 +151,10 @@ class _SidebarState extends State<Sidebar> {
                   title: "Empfehlungen",
                   onTap: widget.onRecommendationsPressed,
                 ),
+                buildMenuItem(
+                icon: Icons.verified_user_outlined, 
+                title: "Profil", 
+                onTap: widget.onProfilPressed,)
               ],
               Spacer(),
               buildMenuItem(

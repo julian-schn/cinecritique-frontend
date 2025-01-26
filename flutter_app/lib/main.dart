@@ -42,10 +42,17 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   final AuthService authService;
 
   const HomeScreen({Key? key, required this.authService}) : super(key: key);
+
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _isSearching = false; // Zustand für die Suche
 
   @override
   Widget build(BuildContext context) {
@@ -53,17 +60,17 @@ class HomeScreen extends StatelessWidget {
       body: Row(
         children: [
           Sidebar(
-            authService: authService,
+            authService: widget.authService,
             onHomePressed: () {
-              Navigator.pushReplacement(
+              Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => HomeScreen(authService: authService)),
+                MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
               );
             },
             onGenresPressed: () {
-              Navigator.pushReplacement(
+              Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => GenrePage(authService: authService)),
+                MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
               );
             },
             onFavoritesPressed: () {
@@ -75,27 +82,46 @@ class HomeScreen extends StatelessWidget {
             onRecommendationsPressed: () {
               print("Empfehlungen-Seite öffnen");
             },
-            // Hier den Login-Button so anpassen, dass er die Login-Methode aufruft:
+            onProfilPressed: () {
+              print("Profilseite öffnen");
+            },
             onLoginPressed: () {
-              authService.login(); // Die Login-Methode des AuthService aufrufen
+              widget.authService.login(); // Die Login-Methode des AuthService aufrufen
             },
             currentPage: 'Home',
           ),
           Expanded(
             child: SingleChildScrollView(
+              physics: _isSearching
+                  ? NeverScrollableScrollPhysics() // Verhindert Scrollen während der Suche
+                  : ClampingScrollPhysics(), // Scrollen wieder aktivieren, wenn Suche beendet
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Hier die CustomSearchBar hinzufügen
+                  // CustomSearchBar
                   Padding(
                     padding: const EdgeInsets.only(bottom: 5.0),
-                    child: CustomSearchBar(authService: authService),
+                    child: CustomSearchBar(
+                      authService: widget.authService,
+                      onSearchStart: () {
+                        setState(() {
+                          _isSearching = true;  // Suche gestartet
+                        });
+                      },
+                      onSearchEnd: () {
+                        setState(() {
+                          _isSearching = false;  // Suche beendet
+                        });
+                      },
+                      onSearchResultsUpdated: (hasResults) {
+                        setState(() {
+                          _isSearching = hasResults; // Wenn Ergebnisse gefunden wurden, Suche fortsetzen
+                        });
+                      },
+                    ),
                   ),
                   const SizedBox(height: 20),
-
-                  
-                  const SizedBox(height: 20),
-                  MoviePosterCarousel(authService: authService),
+                  MoviePosterCarousel(authService: widget.authService),
                   const SizedBox(height: 20),
                   Padding(
                     padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
@@ -120,7 +146,7 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  HorizontalGenreList(authService: authService),
+                  HorizontalGenreList(authService: widget.authService),
                   const SizedBox(height: 20),
                   Padding(
                     padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
@@ -145,7 +171,7 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  HorizontalMovieList(authService: authService),
+                  HorizontalMovieList(authService: widget.authService),
                   const SizedBox(height: 20),
                 ],
               ),

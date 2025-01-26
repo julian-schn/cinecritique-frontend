@@ -97,6 +97,9 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
             onLoginPressed: (){
               widget.authService.login();
             },
+            onProfilPressed: (){
+              print("Profilseite öffnen");
+            },
             currentPage: 'SingeGenre', 
           ),
           Expanded(

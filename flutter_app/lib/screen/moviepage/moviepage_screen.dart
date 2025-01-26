@@ -89,6 +89,9 @@ class _MoviePageState extends State<MoviePage> {
             onRecommendationsPressed: () {
               print("Empfehlungen-Seite öffnen");
             },
+            onProfilPressed: (){
+              print("Profilseite öffnen");
+            },
             onLoginPressed: () {
               widget.authService.login(); // AuthService wird hier korrekt verwendet
             },

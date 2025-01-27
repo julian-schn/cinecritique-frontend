@@ -278,67 +278,40 @@ class _MoviePageState extends State<MoviePage> {
                                   ],
                                 ),
                               ),
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(right: 0.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Padding(
-                                        padding: EdgeInsets.only(bottom: 8.0),
-                                        child: Text(
-                                          'Cast',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                      ),
-                                      ...List<Widget>.from(
-                                        (movieData?['actors'] as List? ?? []).map(
-                                          (actor) => Padding(
-                                            padding: const EdgeInsets.only(bottom: 4.0),
-                                            child: Text(
-                                              actor,
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
                             ],
                           ),
                         ),
-                        // Horizontal Row for CreateRatingWidget and ShowRatingWidget
+                        // Ratings section (always on the right side)
                         Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Row(
-                            children: [
-                              ValueListenableBuilder<bool>(
-                                valueListenable: widget.authService.isLoggedIn,
-                                builder: (context, isLoggedIn, _) {
-                                  return isLoggedIn
-                                      ? const Expanded(child: CreateRatingWidget())
-                                      : SizedBox.shrink();
-                                },
-                              ),
-                              const SizedBox(width: 16),
-                              if (movieData?['reviewIds'] != null &&
-                                  (movieData?['reviewIds'] is List) &&
-                                  (movieData?['reviewIds'] as List).isNotEmpty)
-                                ShowRatingWidget(
-                                  reviews: movieData?['reviewIds'] ?? [],
-                                ),
-                            ],
-                          ),
-                        ),
+  padding: const EdgeInsets.all(16.0),
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.start, // Starts all items from the left
+    children: [
+      // CreateRatingWidget nur angezeigt, wenn der Benutzer eingeloggt ist
+      ValueListenableBuilder<bool>(
+        valueListenable: widget.authService.isLoggedIn,
+        builder: (context, isLoggedIn, _) {
+          return isLoggedIn
+              ? const SizedBox(
+                  width: 300,
+                  child: CreateRatingWidget(),
+                )
+              : const SizedBox.shrink(); // Shows nothing if not logged in
+        },
+      ),
+      // ShowRatingWidget immer rechts
+      Expanded(
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: ShowRatingWidget(
+            reviews: movieData?['reviewIds'] ?? [],
+          ),
+        ),
+      ),
+    ],
+  ),
+),
+
                       ],
                     ),
                   ),

@@ -293,7 +293,7 @@ class _MoviePageState extends State<MoviePage> {
         builder: (context, isLoggedIn, _) {
           return isLoggedIn
               ? const SizedBox(
-                  width: 300,
+                  width: 400,
                   child: CreateRatingWidget(),
                 )
               : const SizedBox.shrink(); // Shows nothing if not logged in

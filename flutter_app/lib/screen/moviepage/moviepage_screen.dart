@@ -1,26 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/main.dart';
-import 'package:flutter_app/screen/genre/genre_page.dart';
-import 'package:flutter_app/screen/genre/single_genre.dart';
-import 'package:flutter_app/screen/login/login_screen.dart'; // LoginScreen importieren
 import 'package:flutter_app/screen/moviepage/moviepage_controller.dart';
-import 'package:flutter_app/services/auth_service.dart'; // AuthService importieren
-import 'package:flutter_app/widgets/common/create_rating.dart';
-import 'package:flutter_app/widgets/common/horizontal_backdrops.dart';
 import 'package:flutter_app/widgets/common/rating.dart';
+import 'package:flutter_app/widgets/common/toggle_favorite.dart';
+import 'package:flutter_app/widgets/common/create_rating.dart';
 import 'package:flutter_app/widgets/common/show_rating.dart';
 import 'package:flutter_app/widgets/common/sidebar.dart';
-import 'package:flutter_app/widgets/common/toggle_favorite.dart';
+import 'package:flutter_app/services/auth_service.dart';
+import 'package:flutter_app/screen/genre/genre_page.dart';
+import 'package:flutter_app/screen/genre/single_genre.dart';
+import 'package:flutter_app/screen/login/login_screen.dart'; 
+import 'package:flutter_app/main.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MoviePage extends StatefulWidget {
   final String imdbId;
-  final AuthService authService; // AuthService bleibt bestehen
+  final AuthService authService;
 
   const MoviePage({
     Key? key,
     required this.imdbId,
-    required this.authService, // AuthService weiterhin als required
+    required this.authService,
   }) : super(key: key);
 
   @override
@@ -65,19 +64,18 @@ class _MoviePageState extends State<MoviePage> {
       extendBodyBehindAppBar: true,
       body: Row(
         children: [
-          // Sidebar mit AuthService und Callbacks
           Sidebar(
-            authService: widget.authService, // Korrekt auf widget.authService zugreifen
+            authService: widget.authService,
             onHomePressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)), // Korrekt
+                MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
               );
             },
             onGenresPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)), // Korrekt
+                MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
               );
             },
             onFavoritesPressed: () {
@@ -93,7 +91,7 @@ class _MoviePageState extends State<MoviePage> {
               print("Profilseite öffnen");
             },
             onLoginPressed: () {
-              widget.authService.login(); // AuthService wird hier korrekt verwendet
+              widget.authService.login();
             },
             currentPage: 'Moviepage',
           ),
@@ -104,7 +102,6 @@ class _MoviePageState extends State<MoviePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Backdrop-Bereich
                         Stack(
                           children: [
                             Image.network(
@@ -169,10 +166,18 @@ class _MoviePageState extends State<MoviePage> {
                                 ),
                               ),
                             ),
+                            // FavoriteToggle only shown when logged in
                             Positioned(
-                              right: 160, // Positioniere den Button direkt neben dem "Watch" Button
+                              right: 160,
                               bottom: 42,
-                              child: const FavoriteToggle(), // Hier den FavoriteToggle einfügen
+                              child: ValueListenableBuilder<bool>(
+                                valueListenable: widget.authService.isLoggedIn,
+                                builder: (context, isLoggedIn, _) {
+                                  return isLoggedIn
+                                      ? const FavoriteToggle() // FavoriteToggle only for logged-in users
+                                      : SizedBox.shrink();
+                                },
+                              ),
                             ),
                           ],
                         ),
@@ -206,34 +211,12 @@ class _MoviePageState extends State<MoviePage> {
                                   .toList(),
                             ),
                           ),
-                        // Backdrops
-                        if (movieData?['backdrops'] != null &&
-                            (movieData?['backdrops'] as List).isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 16.0),
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: SizedBox(
-                                height: 150,
-                                width: 850,
-                                child: HorizontalBackdropList(
-                                  backdrops: List<String>.from(movieData?['backdrops'] ?? []),
-                                  onBackdropSelected: (String backdrop) {
-                                    setState(() {
-                                      currentBackdrop = backdrop;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ),
-                          ),
                         // Plot, Directed by, Released on und Cast
                         Container(
                           padding: const EdgeInsets.all(16.0),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Plot
                               Expanded(
                                 flex: 5,
                                 child: Container(
@@ -248,7 +231,6 @@ class _MoviePageState extends State<MoviePage> {
                                 ),
                               ),
                               const SizedBox(width: 150),
-                              // Directed by und Released on
                               Expanded(
                                 flex: 1,
                                 child: Column(
@@ -296,7 +278,6 @@ class _MoviePageState extends State<MoviePage> {
                                   ],
                                 ),
                               ),
-                              // Cast
                               Expanded(
                                 child: Padding(
                                   padding: const EdgeInsets.only(right: 0.0),
@@ -340,13 +321,21 @@ class _MoviePageState extends State<MoviePage> {
                           padding: const EdgeInsets.all(16.0),
                           child: Row(
                             children: [
-                              const Expanded(child: CreateRatingWidget()), // CreateRatingWidget
+                              ValueListenableBuilder<bool>(
+                                valueListenable: widget.authService.isLoggedIn,
+                                builder: (context, isLoggedIn, _) {
+                                  return isLoggedIn
+                                      ? const Expanded(child: CreateRatingWidget())
+                                      : SizedBox.shrink();
+                                },
+                              ),
                               const SizedBox(width: 16),
-                              // Überprüfen, ob 'reviewIds' vorhanden sind und eine Liste ist
-                              if (movieData?['reviewIds'] != null && (movieData?['reviewIds'] is List) && (movieData?['reviewIds'] as List).isNotEmpty)
+                              if (movieData?['reviewIds'] != null &&
+                                  (movieData?['reviewIds'] is List) &&
+                                  (movieData?['reviewIds'] as List).isNotEmpty)
                                 ShowRatingWidget(
                                   reviews: movieData?['reviewIds'] ?? [],
-                                ), // ShowRatingWidget
+                                ),
                             ],
                           ),
                         ),

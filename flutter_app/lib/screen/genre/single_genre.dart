@@ -105,11 +105,17 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
           Expanded(
             child: SingleChildScrollView(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(left: 35.0, top: 85.0, bottom: 8),
+                    padding: EdgeInsets.only(
+                      left: isSidebarExpanded ? 20.0 : (MediaQuery.of(context).size.width - 1060) / 2, // Reduzierter Abstand
+                      right: 35.0,
+                      top: 85.0,
+                      bottom: 8
+                    ),
                     child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           widget.genre,
@@ -131,49 +137,33 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 10, top: 10, bottom: 1),
-                    child: GridView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: isSidebarExpanded ? 4 : 5,
-                        crossAxisSpacing: 24.0,
-                        mainAxisSpacing: 24.0,
-                      ),
-                      itemCount: movies.length,
-                      itemBuilder: (context, index) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12.0),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
-                                blurRadius: 6.0,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12.0),
-                            child: MovieCard(
-                              posterUrl: movies[index]['poster'] ?? '',
-                              title: movies[index]['title'] ?? 'Unbekannt',
-                              imdbId: movies[index]['imdbId'] ?? '',
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => MoviePage(
-                                      imdbId: movies[index]['imdbId'],
-                                      authService: widget.authService, // Pass authService
-                                    ),
+                    padding: const EdgeInsets.only(left: 20.0, right: 35.0, top: 10, bottom: 1), // Reduzierter Abstand
+                    child: Center(
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: isSidebarExpanded ? 16.0 : 48.0, // Mehr Abstand wenn eingeklappt
+                        runSpacing: 16.0,
+                        children: movies.map((movie) => Container(
+                          width: 250,
+                          height: 250,
+                          child: MovieCard(
+                            posterUrl: movie['poster'] ?? '',
+                            title: movie['title'] ?? 'Unbekannt',
+                            imdbId: movie['imdbId'] ?? '',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MoviePage(
+                                    imdbId: movie['imdbId'],
+                                    authService: widget.authService,
                                   ),
-                                );
-                              },
-                            ),
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
+                        )).toList(),
+                      ),
                     ),
                   )
                 ],

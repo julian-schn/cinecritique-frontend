@@ -4,12 +4,14 @@ import 'package:flutter_app/services/auth_service.dart';
 
 class RecommendationsController {
   Future<List<Map<String, dynamic>>> fetchRecommendations(AuthService authService) async {
+    print('RecommendationsController: Starting to fetch recommendations');
     try {
       final token = await authService.getToken();
       if (token == null) {
-        print('No access token available');
+        print('RecommendationsController: No access token available');
         return [];
       }
+      print('RecommendationsController: Got token, making API call...');
 
       final response = await http.get(
         Uri.parse('https://cinecritique.mi.hdm-stuttgart.de/api/movies/recommendation'),
@@ -19,15 +21,19 @@ class RecommendationsController {
         },
       );
 
+      print('RecommendationsController: API response status: ${response.statusCode}');
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+        print('RecommendationsController: Successfully decoded response data. Found ${data.length} recommendations');
         return List<Map<String, dynamic>>.from(data);
       } else {
+        print('RecommendationsController: Error response body: ${response.body}');
         print('Error fetching recommendations: ${response.statusCode}');
         return [];
       }
     } catch (e) {
-      print('Error: $e');
+      print('RecommendationsController: Exception occurred: $e');
+      print('RecommendationsController: Stack trace: ${StackTrace.current}');
       return [];
     }
   }

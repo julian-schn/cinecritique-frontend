@@ -25,18 +25,26 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   @override
   void initState() {
     super.initState();
+    print('Initializing recommendations page...');
     fetchRecommendations();
   }
 
   Future<void> fetchRecommendations() async {
+    print('Fetching recommendations...');
     try {
       final movies = await _controller.fetchRecommendations(widget.authService);
+      print('Received recommendations: ${movies.length} movies');
+      print('Recommended movies:');
+      for (var movie in movies) {
+        print('- ${movie['title']} (${movie['imdbId']})');
+      }
       setState(() {
         recommendedMovies = movies;
         isLoading = false;
       });
     } catch (e) {
       print('Error fetching recommendations: $e');
+      print('Stack trace: ${StackTrace.current}');
       setState(() {
         isLoading = false;
       });

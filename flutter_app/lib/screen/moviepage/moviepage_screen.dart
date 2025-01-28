@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/screen/moviepage/moviepage_controller.dart';
+import 'package:flutter_app/widgets/common/horizontal_backdrops.dart';
 import 'package:flutter_app/widgets/common/rating.dart';
 import 'package:flutter_app/widgets/common/toggle_favorite.dart';
 import 'package:flutter_app/widgets/common/create_rating.dart';
@@ -211,6 +212,28 @@ class _MoviePageState extends State<MoviePage> {
                                   .toList(),
                             ),
                           ),
+                          // Backdrops
+                        if (movieData?['backdrops'] != null &&
+                            (movieData?['backdrops'] as List).isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16.0),
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: SizedBox(
+                                height: 150,
+                                width: 850,
+                                child: HorizontalBackdropList(
+                                  backdrops: List<String>.from(movieData?['backdrops'] ?? []),
+                                  onBackdropSelected: (String backdrop) {
+                                    setState(() {
+                                      currentBackdrop = backdrop;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+
                         // Plot, Directed by, Released on und Cast
                         Container(
                           padding: const EdgeInsets.all(16.0),

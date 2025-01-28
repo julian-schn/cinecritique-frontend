@@ -22,7 +22,7 @@ class ShowRatingWidget extends StatelessWidget {
           const SizedBox(height: 16),
           if (reviews.isEmpty)
             const Text(
-              "No reviews yet.",
+              "Noch keine Bewertungen.",
               style: TextStyle(fontSize: 16, color: Colors.white70),
             ),
           ...reviews.map((review) {

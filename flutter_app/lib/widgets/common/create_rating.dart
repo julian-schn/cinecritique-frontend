@@ -28,21 +28,30 @@ class _CreateRatingWidgetState extends State<CreateRatingWidget> {
   @override
   void initState() {
     super.initState();
+    print('CreateRatingWidget: Initializing state for movie ID: ${widget.imdbId}');
     _ratingService = RatingService(widget.authService);
   }
 
   void _setRating(int index) {
+    print('CreateRatingWidget: Setting rating to ${index + 1}');
     setState(() {
       if (_rating == index + 1) {
         _rating = 0;
+        print('CreateRatingWidget: Rating cleared (was ${index + 1})');
       } else {
         _rating = index + 1;
+        print('CreateRatingWidget: Rating set to $_rating');
       }
     });
   }
 
   Future<void> _submitRating() async {
+    print('CreateRatingWidget: Starting rating submission');
+    print('CreateRatingWidget: Current rating: $_rating');
+    print('CreateRatingWidget: Review text length: ${_textController.text.length}');
+
     if (_rating == 0) {
+      print('CreateRatingWidget: Submission failed - no rating selected');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Bitte wähle eine Bewertung aus (1-5 Sterne).')),
       );
@@ -52,8 +61,10 @@ class _CreateRatingWidgetState extends State<CreateRatingWidget> {
     setState(() {
       _isSubmitting = true;
     });
+    print('CreateRatingWidget: Set submission state to true');
 
     try {
+      print('CreateRatingWidget: Attempting to create review');
       final success = await _ratingService.createReview(
         widget.imdbId,
         _textController.text.trim(),
@@ -61,6 +72,7 @@ class _CreateRatingWidgetState extends State<CreateRatingWidget> {
       );
 
       if (success) {
+        print('CreateRatingWidget: Review created successfully');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Bewertung erfolgreich erstellt!')),
         );
@@ -68,21 +80,32 @@ class _CreateRatingWidgetState extends State<CreateRatingWidget> {
         setState(() {
           _rating = 0;
         });
+        print('CreateRatingWidget: Cleared form after successful submission');
         widget.onRatingSubmitted?.call();
+        print('CreateRatingWidget: Called onRatingSubmitted callback');
       } else {
+        print('CreateRatingWidget: Failed to create review');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Fehler beim Erstellen der Bewertung.')),
         );
       }
+    } catch (e, stackTrace) {
+      print('CreateRatingWidget: Error during review submission: $e');
+      print('CreateRatingWidget: Stack trace: $stackTrace');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ein unerwarteter Fehler ist aufgetreten.')),
+      );
     } finally {
       setState(() {
         _isSubmitting = false;
       });
+      print('CreateRatingWidget: Set submission state to false');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    print('CreateRatingWidget: Building widget, current rating: $_rating, hover rating: $_hoverRating');
     return Container(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -108,6 +131,7 @@ class _CreateRatingWidgetState extends State<CreateRatingWidget> {
                     setState(() {
                       if (details.localPosition.dx > (index * 40)) {
                         _hoverRating = index + 1;
+                        print('CreateRatingWidget: Pan update - hover rating set to $_hoverRating');
                       }
                     });
                   },
@@ -115,11 +139,13 @@ class _CreateRatingWidgetState extends State<CreateRatingWidget> {
                     onEnter: (_) {
                       setState(() {
                         _hoverRating = index + 1;
+                        print('CreateRatingWidget: Mouse enter - hover rating set to $_hoverRating');
                       });
                     },
                     onExit: (_) {
                       setState(() {
                         _hoverRating = 0;
+                        print('CreateRatingWidget: Mouse exit - hover rating cleared');
                       });
                     },
                     child: Transform.scale(
@@ -179,7 +205,9 @@ class _CreateRatingWidgetState extends State<CreateRatingWidget> {
               ),
               style: const TextStyle(color: Colors.white),
               onChanged: (_) {
-                setState(() {});
+                setState(() {
+                  print('CreateRatingWidget: Review text updated, length: ${_textController.text.length}');
+                });
               },
             ),
           ),
@@ -209,6 +237,7 @@ class _CreateRatingWidgetState extends State<CreateRatingWidget> {
 
   @override
   void dispose() {
+    print('CreateRatingWidget: Disposing widget');
     _textController.dispose();
     super.dispose();
   }

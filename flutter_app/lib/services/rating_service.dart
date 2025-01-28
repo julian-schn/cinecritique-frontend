@@ -7,115 +7,155 @@ class RatingService {
   final AuthService _authService;
   final String _baseUrl = 'http://localhost:8080/api/v1/reviews';
 
-  RatingService(this._authService);
+  RatingService(this._authService) {
+    print('RatingService: Initialized with base URL: $_baseUrl');
+  }
 
   // Get all reviews for a movie
   Future<List<Map<String, dynamic>>> getReviews(String imdbId) async {
+    print('RatingService: Fetching reviews for movie ID: $imdbId');
     try {
       final token = await _authService.getToken();
       if (token == null) {
-        print('No token available for getting reviews');
+        print('RatingService: No token available for getting reviews');
         return [];
       }
+      print('RatingService: Token retrieved successfully');
+
+      final url = '$_baseUrl/movie/$imdbId';
+      print('RatingService: Making GET request to: $url');
 
       final response = await http.get(
-        Uri.parse('$_baseUrl/movie/$imdbId'),
+        Uri.parse(url),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
 
-      print('Get reviews response status: ${response.statusCode}');
-      print('Get reviews response body: ${response.body}');
+      print('RatingService: Get reviews response status: ${response.statusCode}');
+      print('RatingService: Get reviews response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final List<dynamic> reviewsJson = json.decode(response.body);
+        print('RatingService: Successfully parsed ${reviewsJson.length} reviews');
         return reviewsJson.cast<Map<String, dynamic>>();
       } else {
-        print('Failed to get reviews: ${response.statusCode}');
+        print('RatingService: Failed to get reviews: ${response.statusCode}');
+        print('RatingService: Error response: ${response.body}');
         return [];
       }
-    } catch (e) {
-      print('Error getting reviews: $e');
+    } catch (e, stackTrace) {
+      print('RatingService: Error getting reviews: $e');
+      print('RatingService: Stack trace: $stackTrace');
       return [];
     }
   }
 
   // Create a new review
   Future<bool> createReview(String imdbId, String reviewText, int rating) async {
+    print('RatingService: Creating review for movie ID: $imdbId');
+    print('RatingService: Review details - Rating: $rating, Text length: ${reviewText.length}');
+    
     try {
       final token = await _authService.getToken();
       if (token == null) {
-        print('No token available for creating review');
+        print('RatingService: No token available for creating review');
         return false;
       }
+      print('RatingService: Token retrieved successfully');
+
+      final url = '$_baseUrl/create';
+      print('RatingService: Making POST request to: $url');
+
+      final body = {
+        'imdbId': imdbId,
+        'body': reviewText,
+        'rating': rating,
+      };
+      print('RatingService: Request body: $body');
 
       final response = await http.post(
-        Uri.parse('$_baseUrl/create'),
+        Uri.parse(url),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
-        body: json.encode({
-          'imdbId': imdbId,
-          'body': reviewText,
-          'rating': rating,
-        }),
+        body: json.encode(body),
       );
 
-      print('Create review response status: ${response.statusCode}');
-      print('Create review response body: ${response.body}');
+      print('RatingService: Create review response status: ${response.statusCode}');
+      print('RatingService: Create review response body: ${response.body}');
 
-      return response.statusCode == 201;
-    } catch (e) {
-      print('Error creating review: $e');
+      final success = response.statusCode == 201;
+      print('RatingService: Review creation ${success ? 'successful' : 'failed'}');
+      return success;
+    } catch (e, stackTrace) {
+      print('RatingService: Error creating review: $e');
+      print('RatingService: Stack trace: $stackTrace');
       return false;
     }
   }
 
   // Delete a review
   Future<bool> deleteReview(String imdbId) async {
+    print('RatingService: Deleting review for movie ID: $imdbId');
     try {
       final token = await _authService.getToken();
       if (token == null) {
-        print('No token available for deleting review');
+        print('RatingService: No token available for deleting review');
         return false;
       }
+      print('RatingService: Token retrieved successfully');
+
+      final url = '$_baseUrl/remove?imdbId=$imdbId';
+      print('RatingService: Making DELETE request to: $url');
 
       final response = await http.delete(
-        Uri.parse('$_baseUrl/remove?imdbId=$imdbId'),
+        Uri.parse(url),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
 
-      print('Delete review response status: ${response.statusCode}');
-      print('Delete review response body: ${response.body}');
+      print('RatingService: Delete review response status: ${response.statusCode}');
+      print('RatingService: Delete review response body: ${response.body}');
 
-      return response.statusCode == 200;
-    } catch (e) {
-      print('Error deleting review: $e');
+      final success = response.statusCode == 200;
+      print('RatingService: Review deletion ${success ? 'successful' : 'failed'}');
+      return success;
+    } catch (e, stackTrace) {
+      print('RatingService: Error deleting review: $e');
+      print('RatingService: Stack trace: $stackTrace');
       return false;
     }
   }
 
   // Calculate average rating from reviews
   double calculateAverageRating(List<Map<String, dynamic>> reviews) {
-    if (reviews.isEmpty) return 0.0;
+    print('RatingService: Calculating average rating for ${reviews.length} reviews');
+    if (reviews.isEmpty) {
+      print('RatingService: No reviews available, returning 0.0');
+      return 0.0;
+    }
     
     final totalRating = reviews.fold<int>(
       0,
       (sum, review) => sum + (review['rating'] as int? ?? 0),
     );
     
-    return totalRating / reviews.length;
+    final average = totalRating / reviews.length;
+    print('RatingService: Calculated average rating: $average');
+    return average;
   }
 
   // Format username from email
   String formatUsername(String email) {
-    return email.split('@').first;
+    print('RatingService: Formatting username from email: $email');
+    final username = email.split('@').first;
+    print('RatingService: Formatted username: $username');
+    return username;
   }
 }
 

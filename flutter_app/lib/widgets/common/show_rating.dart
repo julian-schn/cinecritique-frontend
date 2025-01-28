@@ -24,25 +24,30 @@ class _ShowRatingWidgetState extends State<ShowRatingWidget> {
   @override
   void initState() {
     super.initState();
+    print('ShowRatingWidget: Initializing state');
     _ratingService = RatingService(widget.authService);
     _loadReviews();
   }
 
   Future<void> _loadReviews() async {
+    print('ShowRatingWidget: Starting to load reviews for movie ID: ${widget.imdbId}');
     setState(() {
       isLoading = true;
     });
 
     final loadedReviews = await _ratingService.getReviews(widget.imdbId);
+    print('ShowRatingWidget: Loaded ${loadedReviews.length} reviews');
     
     setState(() {
       reviews = loadedReviews;
       isLoading = false;
     });
+    print('ShowRatingWidget: Updated state with loaded reviews');
   }
 
   @override
   Widget build(BuildContext context) {
+    print('ShowRatingWidget: Building widget, isLoading: $isLoading, reviews count: ${reviews.length}');
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
@@ -65,6 +70,7 @@ class _ShowRatingWidgetState extends State<ShowRatingWidget> {
             )
           else
             ...reviews.map((review) {
+              print('ShowRatingWidget: Rendering review from user: ${review['createdBy']}');
               final int rating = review['rating'] ?? 0;
               final String userName = _ratingService.formatUsername(review['createdBy'] ?? 'Unbekannt');
 

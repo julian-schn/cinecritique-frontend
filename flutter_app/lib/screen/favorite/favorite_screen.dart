@@ -6,6 +6,7 @@ import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
 import 'package:flutter_app/screen/genre/genre_page.dart';
 import 'package:flutter_app/main.dart';
 import 'package:flutter_app/screen/favorite/favorite_controller.dart';
+import 'package:flutter_app/widgets/common/search_bar.dart';
 
 class FavoriteScreen extends StatefulWidget {
   final AuthService authService;
@@ -23,6 +24,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
   List<Map<String, dynamic>> favorites = [];
   bool isLoading = true;
   late final FavoriteController _controller;
+  bool _isSearching = false;
 
   @override
   void initState() {
@@ -53,7 +55,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
         children: [
           Sidebar(
             authService: widget.authService,
-            currentPage: 'Favorites',
+            currentPage: 'Favoriten',
             onHomePressed: () {
               Navigator.pushReplacement(
                 context,
@@ -67,26 +69,50 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               );
             },
             onFavoritesPressed: () {
-              // Bereits auf der Favoriten-Seite
+              // Already on favorites page
             },
             onReviewsPressed: () {
-              // Navigation zur Reviews-Seite
+              // Navigation to Reviews page
             },
             onRecommendationsPressed: () {
-              // Navigation zur Empfehlungen-Seite
+              // Navigation to Recommendations page
             },
             onLoginPressed: () {
               widget.authService.login();
             },
             onProfilPressed: () {
-              // Navigation zur Profil-Seite
+              // Navigation to Profile page
             },
           ),
           Expanded(
             child: SingleChildScrollView(
+              physics: _isSearching
+                  ? NeverScrollableScrollPhysics()
+                  : ClampingScrollPhysics(),
               child: Column(
                 crossAxisAlignment: isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
                 children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 5.0),
+                    child: CustomSearchBar(
+                      authService: widget.authService,
+                      onSearchStart: () {
+                        setState(() {
+                          _isSearching = true;
+                        });
+                      },
+                      onSearchEnd: () {
+                        setState(() {
+                          _isSearching = false;
+                        });
+                      },
+                      onSearchResultsUpdated: (hasResults) {
+                        setState(() {
+                          _isSearching = hasResults;
+                        });
+                      },
+                    ),
+                  ),
                   Padding(
                     padding: EdgeInsets.only(
                       left: isSidebarExpanded ? 20.0 : (MediaQuery.of(context).size.width - 1060) / 2,
@@ -96,8 +122,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text(
+                      children: const [
+                        Text(
                           'Meine Favoriten',
                           style: TextStyle(
                             color: Colors.white,
@@ -105,7 +131,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const Text(
+                        Text(
                           '.',
                           style: TextStyle(
                             color: Colors.redAccent,

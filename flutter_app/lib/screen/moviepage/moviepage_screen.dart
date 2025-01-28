@@ -160,7 +160,8 @@ class _MoviePageState extends State<MoviePage> {
                               bottom: 16,
                               left: 16,
                               child: DisplayRatingWidget(
-                                averageRating: movieData?['rating'] ?? 0.0,
+                                imdbId: widget.imdbId,
+                                authService: widget.authService,
                               ),
                             ),
                             Positioned(
@@ -333,37 +334,34 @@ class _MoviePageState extends State<MoviePage> {
                             ],
                           ),
                         ),
-                        // Ratings section (always on the right side)
-                        Padding(
-  padding: const EdgeInsets.all(16.0),
-  child: Row(
-    mainAxisAlignment: MainAxisAlignment.start, // Starts all items from the left
-    children: [
-      // CreateRatingWidget nur angezeigt, wenn der Benutzer eingeloggt ist
-      ValueListenableBuilder<bool>(
-        valueListenable: widget.authService.isLoggedIn,
-        builder: (context, isLoggedIn, _) {
-          return isLoggedIn
-              ? const SizedBox(
-                  width: 400,
-                  child: CreateRatingWidget(),
-                )
-              : const SizedBox.shrink(); // Shows nothing if not logged in
-        },
-      ),
-      // ShowRatingWidget immer rechts
-      Expanded(
-        child: Align(
-          alignment: Alignment.centerRight,
-          child: ShowRatingWidget(
-            reviews: movieData?['reviewIds'] ?? [],
-          ),
-        ),
-      ),
-    ],
-  ),
-),
-
+                        // Add CreateRatingWidget and ShowRatingWidget after the backdrops section
+                        ValueListenableBuilder<bool>(
+                          valueListenable: widget.authService.isLoggedIn,
+                          builder: (context, isLoggedIn, _) {
+                            if (!isLoggedIn) {
+                              return const SizedBox.shrink();
+                            }
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CreateRatingWidget(
+                                  imdbId: widget.imdbId,
+                                  authService: widget.authService,
+                                  onRatingSubmitted: () {
+                                    setState(() {
+                                      // Refresh the reviews when a new rating is submitted
+                                      _fetchMovieDetails();
+                                    });
+                                  },
+                                ),
+                                ShowRatingWidget(
+                                  imdbId: widget.imdbId,
+                                  authService: widget.authService,
+                                ),
+                              ],
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),

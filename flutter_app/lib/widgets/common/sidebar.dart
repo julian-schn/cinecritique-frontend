@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/services/auth_service.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_app/screen/favorite/favorite_screen.dart';
 
 class Sidebar extends StatefulWidget {
   final AuthService authService;
@@ -139,7 +140,16 @@ class _SidebarState extends State<Sidebar> {
                 buildMenuItem(
                   icon: Icons.favorite_outline,
                   title: "Favoriten",
-                  onTap: widget.onFavoritesPressed,
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FavoriteScreen(
+                          authService: widget.authService,
+                        ),
+                      ),
+                    );
+                  },
                 ),
                 buildMenuItem(
                   icon: Icons.reviews_outlined,

@@ -61,7 +61,7 @@ class AuthService {
       if (credential != null) {
         var tokenResponse = await credential.getTokenResponse();
         if (tokenResponse != null) {
-          return 'Bearer ${tokenResponse.accessToken}';
+          return tokenResponse.accessToken;
         }
       }
     } catch (e) {
@@ -78,7 +78,7 @@ class AuthService {
       final response = await http.get(
         Uri.parse('https://cinecritique.mi.hdm-stuttgart.de/api/users/favorites/all'),
         headers: {
-          'Authorization': token,
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
@@ -100,7 +100,7 @@ class AuthService {
       final response = await http.post(
         Uri.parse('https://cinecritique.mi.hdm-stuttgart.de/api/users/favorites/add'),
         headers: {
-          'Authorization': token,
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
         body: jsonEncode({'imdbId': imdbId}),
@@ -121,7 +121,7 @@ class AuthService {
       final response = await http.delete(
         Uri.parse('https://cinecritique.mi.hdm-stuttgart.de/api/users/favorites/remove'),
         headers: {
-          'Authorization': token,
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
         body: jsonEncode({'imdbId': imdbId}),
@@ -132,5 +132,9 @@ class AuthService {
       print('Fehler beim Entfernen des Favoriten: $e');
       return false;
     }
+  }
+
+  String? getEmail() {
+    return userInfo.value?.email;
   }
 }

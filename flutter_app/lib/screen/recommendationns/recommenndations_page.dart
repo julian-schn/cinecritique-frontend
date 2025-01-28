@@ -17,8 +17,9 @@ class RecommendationsPage extends StatefulWidget {
 
 class _RecommendationsPageState extends State<RecommendationsPage> {
   final RecommendationsController _controller = RecommendationsController();
-  List<String> categories = [];
+  List<Map<String, dynamic>> recommendedMovies = [];
   bool isLoading = true;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -28,9 +29,9 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
 
   Future<void> fetchRecommendations() async {
     try {
-      final fetchedCategories = await _controller.fetchRecommendations();
+      final movies = await _controller.fetchRecommendations(widget.authService);
       setState(() {
-        categories = fetchedCategories;
+        recommendedMovies = movies;
         isLoading = false;
       });
     } catch (e) {
@@ -75,14 +76,14 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
             onLoginPressed: () {
               widget.authService.login();
             },
-            currentPage: 'Recommendations',
+            currentPage: 'Empfehlungen',
           ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(top: 50.0),
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
-                  : categories.isEmpty
+                  : recommendedMovies.isEmpty
                       ? const Center(
                           child: Text(
                             'No recommendations found.',
@@ -90,9 +91,9 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
                           ),
                         )
                       : ListView.builder(
-                          itemCount: categories.length,
+                          itemCount: recommendedMovies.length,
                           itemBuilder: (context, index) {
-                            final category = categories[index];
+                            final movie = recommendedMovies[index];
                             return Padding(
                               padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
                               child: Column(
@@ -101,7 +102,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
                                   Row(
                                     children: [
                                       Text(
-                                        category,
+                                        movie['title'],
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 24,

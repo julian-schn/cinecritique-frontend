@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/services/auth_service.dart';
+import 'package:flutter_app/screen/favorite/favorite_controller.dart';
 
 class FavoriteToggle extends StatefulWidget {
   const FavoriteToggle({
@@ -24,10 +25,12 @@ class FavoriteToggle extends StatefulWidget {
 class _FavoriteToggleState extends State<FavoriteToggle> {
   late bool isFavorited;
   bool isLoading = false;
+  late final FavoriteController _controller;
 
   @override
   void initState() {
     super.initState();
+    _controller = FavoriteController(widget.authService);
     isFavorited = widget.initiallyFavorited;
     _checkFavoriteStatus();
   }
@@ -45,7 +48,7 @@ class _FavoriteToggleState extends State<FavoriteToggle> {
     });
 
     try {
-      final favorites = await widget.authService.getFavorites();
+      final favorites = await _controller.getFavorites();
       if (mounted) {
         setState(() {
           isFavorited = favorites.any((movie) => movie['imdbId'] == widget.imdbId);
@@ -60,7 +63,7 @@ class _FavoriteToggleState extends State<FavoriteToggle> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              'Fehler beim Laden der Favoriten',
+              'Error loading favorites',
               style: TextStyle(color: Colors.white),
             ),
             backgroundColor: Color(0xFF1C1C1C),
@@ -78,7 +81,7 @@ class _FavoriteToggleState extends State<FavoriteToggle> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'Bitte melde dich an, um Favoriten zu speichern',
+            'Please log in to save favorites',
             style: TextStyle(color: Colors.white),
           ),
           backgroundColor: Color(0xFF1C1C1C),
@@ -98,63 +101,49 @@ class _FavoriteToggleState extends State<FavoriteToggle> {
       final bool wasAlreadyFavorited = isFavorited;
 
       if (wasAlreadyFavorited) {
-        success = await widget.authService.removeFavorite(widget.imdbId);
+        success = await _controller.removeFavorite(widget.imdbId);
       } else {
-        success = await widget.authService.addFavorite(widget.imdbId);
+        success = await _controller.addFavorite(widget.imdbId);
       }
 
       if (success && mounted) {
         setState(() {
           isFavorited = !wasAlreadyFavorited;
-          if (widget.onToggle != null) {
-            widget.onToggle!(isFavorited);
-          }
+          isLoading = false;
         });
-        
+        if (widget.onToggle != null) {
+          widget.onToggle!(!wasAlreadyFavorited);
+        }
+      } else if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              isFavorited ? 'Film zu Favoriten hinzugefügt' : 'Film aus Favoriten entfernt',
+              wasAlreadyFavorited ? 'Error removing from favorites' : 'Error adding to favorites',
               style: const TextStyle(color: Colors.white),
             ),
             backgroundColor: const Color(0xFF1C1C1C),
             duration: const Duration(seconds: 2),
           ),
         );
-      } else if (mounted) {
-        // Bei Fehler den Status zurücksetzen
-        setState(() {
-          isFavorited = wasAlreadyFavorited;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Fehler beim Aktualisieren der Favoriten',
-              style: TextStyle(color: Colors.white),
-            ),
-            backgroundColor: Color(0xFF1C1C1C),
-            duration: Duration(seconds: 2),
-          ),
-        );
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Fehler beim Aktualisieren der Favoriten',
-              style: TextStyle(color: Colors.white),
-            ),
-            backgroundColor: Color(0xFF1C1C1C),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-    } finally {
       if (mounted) {
         setState(() {
           isLoading = false;
         });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Error updating favorites',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Color(0xFF1C1C1C),
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
     }
   }

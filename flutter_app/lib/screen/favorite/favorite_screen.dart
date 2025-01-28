@@ -5,6 +5,7 @@ import 'package:flutter_app/widgets/common/sidebar.dart';
 import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
 import 'package:flutter_app/screen/genre/genre_page.dart';
 import 'package:flutter_app/main.dart';
+import 'package:flutter_app/screen/favorite/favorite_controller.dart';
 
 class FavoriteScreen extends StatefulWidget {
   final AuthService authService;
@@ -21,10 +22,12 @@ class FavoriteScreen extends StatefulWidget {
 class _FavoriteScreenState extends State<FavoriteScreen> {
   List<Map<String, dynamic>> favorites = [];
   bool isLoading = true;
+  late final FavoriteController _controller;
 
   @override
   void initState() {
     super.initState();
+    _controller = FavoriteController(widget.authService);
     loadFavorites();
   }
 
@@ -33,7 +36,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       isLoading = true;
     });
 
-    final favList = await widget.authService.getFavorites();
+    final favList = await _controller.getFavorites();
     
     setState(() {
       favorites = favList;

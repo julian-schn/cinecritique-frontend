@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/services/rating_service.dart';
+import 'package:flutter_app/services/auth_service.dart';
 
 class CreateRatingWidget extends StatefulWidget {
-  const CreateRatingWidget({super.key});
+  final String imdbId;
+  final AuthService authService;
+  final Function? onRatingSubmitted;
+
+  const CreateRatingWidget({
+    Key? key,
+    required this.imdbId,
+    required this.authService,
+    this.onRatingSubmitted,
+  }) : super(key: key);
 
   @override
   _CreateRatingWidgetState createState() => _CreateRatingWidgetState();
@@ -11,6 +22,14 @@ class _CreateRatingWidgetState extends State<CreateRatingWidget> {
   int _rating = 0;
   int _hoverRating = 0;
   final TextEditingController _textController = TextEditingController();
+  late final RatingService _ratingService;
+  bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _ratingService = RatingService(widget.authService);
+  }
 
   void _setRating(int index) {
     setState(() {
@@ -22,6 +41,46 @@ class _CreateRatingWidgetState extends State<CreateRatingWidget> {
     });
   }
 
+  Future<void> _submitRating() async {
+    if (_rating == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Bitte wähle eine Bewertung aus (1-5 Sterne).')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      final success = await _ratingService.createReview(
+        widget.imdbId,
+        _textController.text.trim(),
+        _rating,
+      );
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Bewertung erfolgreich erstellt!')),
+        );
+        _textController.clear();
+        setState(() {
+          _rating = 0;
+        });
+        widget.onRatingSubmitted?.call();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Fehler beim Erstellen der Bewertung.')),
+        );
+      }
+    } finally {
+      setState(() {
+        _isSubmitting = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -29,7 +88,7 @@ class _CreateRatingWidgetState extends State<CreateRatingWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Bewertung',
             style: TextStyle(
               fontSize: 28,
@@ -80,64 +139,77 @@ class _CreateRatingWidgetState extends State<CreateRatingWidget> {
           ),
           const SizedBox(height: 16),
           Container(
-            constraints: BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: TextField(
               controller: _textController,
               maxLength: 150,
-              maxLines: 5, // Textfeldhöhe anpassen
+              maxLines: 5,
               decoration: InputDecoration(
                 labelText: 'Deine Bewertung',
-                labelStyle: TextStyle(color: Colors.white),
+                labelStyle: const TextStyle(color: Colors.white),
                 counterText: "${_textController.text.length}/150",
-                counterStyle: TextStyle(color: Colors.white),
+                counterStyle: const TextStyle(color: Colors.white),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide(
+                  borderSide: const BorderSide(
                     color: Colors.white,
                     width: 2.0,
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide(
+                  borderSide: const BorderSide(
                     color: Colors.white,
                     width: 2.0,
                   ),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide(
+                  borderSide: const BorderSide(
                     color: Colors.white,
                     width: 2.0,
                   ),
                 ),
                 filled: true,
-                fillColor: Color(0xFF121212),
+                fillColor: const Color(0xFF121212),
                 contentPadding: const EdgeInsets.symmetric(
-                  vertical: 30.0, // Höhe des Textfelds
-                  horizontal: 24.0, // Abstand zum Rand
+                  vertical: 30.0,
+                  horizontal: 24.0,
                 ),
               ),
-              style: TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white),
               onChanged: (_) {
                 setState(() {});
               },
             ),
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 16),
           ElevatedButton(
-            onPressed: () {
-              // Hier Logik für Button hinzufügen
-            },
-            child: const Text(
-              'Bewertung absenden',
-              style: TextStyle(
-                color: Color(0xFF121212), // Schriftfarbe des Buttons
-              ),
-            ),
+            onPressed: _isSubmitting ? null : _submitRating,
+            child: _isSubmitting
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF121212)),
+                    ),
+                  )
+                : const Text(
+                    'Bewertung absenden',
+                    style: TextStyle(
+                      color: Color(0xFF121212),
+                    ),
+                  ),
           ),
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
   }
 }

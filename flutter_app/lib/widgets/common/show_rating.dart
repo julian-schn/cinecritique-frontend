@@ -1,9 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/services/rating_service.dart';
+import 'package:flutter_app/services/auth_service.dart';
 
-class ShowRatingWidget extends StatelessWidget {
-  final List<Map<String, dynamic>> reviews;
+class ShowRatingWidget extends StatefulWidget {
+  final String imdbId;
+  final AuthService authService;
 
-  const ShowRatingWidget({Key? key, required this.reviews}) : super(key: key);
+  const ShowRatingWidget({
+    Key? key, 
+    required this.imdbId,
+    required this.authService,
+  }) : super(key: key);
+
+  @override
+  _ShowRatingWidgetState createState() => _ShowRatingWidgetState();
+}
+
+class _ShowRatingWidgetState extends State<ShowRatingWidget> {
+  late final RatingService _ratingService;
+  List<Map<String, dynamic>> reviews = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _ratingService = RatingService(widget.authService);
+    _loadReviews();
+  }
+
+  Future<void> _loadReviews() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final loadedReviews = await _ratingService.getReviews(widget.imdbId);
+    
+    setState(() {
+      reviews = loadedReviews;
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,57 +56,64 @@ class ShowRatingWidget extends StatelessWidget {
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
           ),
           const SizedBox(height: 16),
-          if (reviews.isEmpty)
+          if (isLoading)
+            const Center(child: CircularProgressIndicator())
+          else if (reviews.isEmpty)
             const Text(
               "Noch keine Bewertungen.",
               style: TextStyle(fontSize: 16, color: Colors.white70),
-            ),
-          ...reviews.map((review) {
-            final int rating = review['rating'] ?? 0;
-            String userName = 'Unbekannt'; // Standardwert
+            )
+          else
+            ...reviews.map((review) {
+              final int rating = review['rating'] ?? 0;
+              final String userName = _ratingService.formatUsername(review['createdBy'] ?? 'Unbekannt');
 
-            // Wenn 'createdBy' vorhanden ist und ein Wert enthält, nutzen wir diesen
-            if (review.containsKey('createdBy')) {
-              var createdBy = review['createdBy'];
-              userName = createdBy ?? 'Unbekannt'; // Falls 'createdBy' ein Wert ist, verwenden wir ihn
-            }
-
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
-              child: Card(
-                color: const Color.fromARGB(255, 33, 33, 33),
-                margin: EdgeInsets.zero,
-                child: Container(
-                  width: 450,
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(userName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-                            Row(
-                              children: List.generate(5, (index) {
-                                return Icon(
-                                  index < rating ? Icons.star : Icons.star_border,
-                                  color: Colors.white,
-                                  size: 23,
-                                );
-                              }),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16), // Abstand nach dem Username und den Sternen
-                        Text(review['body'] ?? 'No review text available.', style: const TextStyle(fontSize: 16, color: Colors.white)),
-                      ],
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: Card(
+                  color: const Color.fromARGB(255, 33, 33, 33),
+                  margin: EdgeInsets.zero,
+                  child: Container(
+                    width: 450,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                userName,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white
+                                )
+                              ),
+                              Row(
+                                children: List.generate(5, (index) {
+                                  return Icon(
+                                    index < rating ? Icons.star : Icons.star_border,
+                                    color: Colors.white,
+                                    size: 23,
+                                  );
+                                }),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            review['body'] ?? 'No review text available.',
+                            style: const TextStyle(fontSize: 16, color: Colors.white)
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
-          }).toList(),
+              );
+            }).toList(),
         ],
       ),
     );

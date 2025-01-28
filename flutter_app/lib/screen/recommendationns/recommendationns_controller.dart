@@ -22,10 +22,22 @@ class RecommendationsController {
       );
 
       print('RecommendationsController: API response status: ${response.statusCode}');
+      print('RecommendationsController: API response body: ${response.body}');
+      
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-        print('RecommendationsController: Successfully decoded response data. Found ${data.length} recommendations');
-        return List<Map<String, dynamic>>.from(data);
+        if (response.body.isEmpty) {
+          print('RecommendationsController: Empty response body');
+          return [];
+        }
+        
+        try {
+          final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+          print('RecommendationsController: Successfully decoded response data. Found ${data.length} recommendations');
+          return List<Map<String, dynamic>>.from(data);
+        } catch (e) {
+          print('RecommendationsController: Error decoding response: $e');
+          return [];
+        }
       } else {
         print('RecommendationsController: Error response body: ${response.body}');
         print('Error fetching recommendations: ${response.statusCode}');

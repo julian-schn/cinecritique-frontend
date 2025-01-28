@@ -12,6 +12,7 @@ import 'package:flutter_app/screen/genre/single_genre.dart';
 import 'package:flutter_app/screen/login/login_screen.dart'; 
 import 'package:flutter_app/main.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_app/screen/favorite/favorite_screen.dart';
 
 class MoviePage extends StatefulWidget {
   final String imdbId;
@@ -31,11 +32,13 @@ class _MoviePageState extends State<MoviePage> {
   final MoviePageController _controller = MoviePageController();
   Map<String, dynamic>? movieData;
   String? currentBackdrop;
+  bool? isFavorited;
 
   @override
   void initState() {
     super.initState();
     _fetchMovieDetails();
+    _checkFavoriteStatus();
   }
 
   Future<void> _fetchMovieDetails() async {
@@ -43,6 +46,13 @@ class _MoviePageState extends State<MoviePage> {
     setState(() {
       movieData = data;
       currentBackdrop = data?['backdrops']?.first;
+    });
+  }
+
+  Future<void> _checkFavoriteStatus() async {
+    final favorites = await widget.authService.getFavorites();
+    setState(() {
+      isFavorited = favorites.any((movie) => movie['imdbId'] == widget.imdbId);
     });
   }
 
@@ -80,7 +90,14 @@ class _MoviePageState extends State<MoviePage> {
               );
             },
             onFavoritesPressed: () {
-              print("Favoriten-Seite öffnen");
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FavoriteScreen(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
             },
             onReviewsPressed: () {
               print("Reviews-Seite öffnen");
@@ -174,8 +191,17 @@ class _MoviePageState extends State<MoviePage> {
                               child: ValueListenableBuilder<bool>(
                                 valueListenable: widget.authService.isLoggedIn,
                                 builder: (context, isLoggedIn, _) {
-                                  return isLoggedIn
-                                      ? const FavoriteToggle() // FavoriteToggle only for logged-in users
+                                  return isLoggedIn && isFavorited != null
+                                      ? FavoriteToggle(
+                                          imdbId: widget.imdbId,
+                                          authService: widget.authService,
+                                          initiallyFavorited: isFavorited!,
+                                          onToggle: (bool newState) {
+                                            setState(() {
+                                              isFavorited = newState;
+                                            });
+                                          },
+                                        )
                                       : SizedBox.shrink();
                                 },
                               ),

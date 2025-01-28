@@ -36,14 +36,15 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
 
   Map<int, bool> _isHovered = {};
   final ScrollController _scrollController = ScrollController();
+  bool _isClickInsideSearchResults = false;
 
   @override
   void initState() {
     super.initState();
     _focusNode.addListener(() {
-      if (!_focusNode.hasFocus) {
+      if (!_focusNode.hasFocus && !_isClickInsideSearchResults) {
         Future.delayed(Duration(milliseconds: 100), () {
-          if (mounted) {
+          if (mounted && !_isClickInsideSearchResults) {
             setState(() {
               _movies = [];
             });
@@ -130,8 +131,9 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
     return Padding(
       padding: const EdgeInsets.only(top: 7.0),
       child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
         onTap: () {
-          if (_focusNode.hasFocus) {
+          if (!_focusNode.hasPrimaryFocus && !_isClickInsideSearchResults) {
             FocusScope.of(context).requestFocus(FocusNode());
             setState(() {
               _movies = [];
@@ -235,10 +237,21 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                     builder: (context, isLoggedIn, _) {
                                       return isLoggedIn
                                           ? Padding(
-                                              padding:
-                                                  const EdgeInsets.only(right: 20.0),
-                                              child: FavoriteToggle(
-                                                iconSize: 35,
+                                              padding: const EdgeInsets.only(right: 20.0),
+                                              child: GestureDetector(
+                                                onTapDown: (_) {
+                                                  setState(() {
+                                                    _isClickInsideSearchResults = true;
+                                                  });
+                                                },
+                                                onTap: () {
+                                                  // Nichts tun, nur den Klick abfangen
+                                                },
+                                                child: FavoriteToggle(
+                                                  iconSize: 35,
+                                                  imdbId: movie['imdbId'],
+                                                  authService: widget.authService,
+                                                ),
                                               ),
                                             )
                                           : SizedBox.shrink();
@@ -253,10 +266,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                           authService: widget.authService,
                                         ),
                                       ),
-                                    ).then((_) {
-                                      FocusScope.of(context)
-                                          .requestFocus(_focusNode);
-                                    });
+                                    );
                                   },
                                 ),
                               ),

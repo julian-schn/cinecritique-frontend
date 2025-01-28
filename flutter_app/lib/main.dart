@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Movie App',
+      title: 'CineCritique',
       theme: ThemeData(
         scaffoldBackgroundColor: const Color(0xFF121212),
         textTheme: const TextTheme(

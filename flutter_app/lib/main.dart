@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/services/auth_service.dart';
 import 'package:flutter_app/screen/genre/genre_page.dart';
+import 'package:flutter_app/screen/recommendationns/recommenndations_page.dart';
 import 'package:flutter_app/widgets/common/sidebar.dart';
 import 'package:flutter_app/widgets/movie/moviePosterCarousel.dart';
 import 'package:flutter_app/widgets/movie/horizontal_movie_list.dart';
@@ -80,7 +81,10 @@ class _HomeScreenState extends State<HomeScreen> {
               print("Reviews-Seite öffnen");
             },
             onRecommendationsPressed: () {
-              print("Empfehlungen-Seite öffnen");
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => RecommendationsPage(authService: widget.authService)),
+              );
             },
             onProfilPressed: () {
               print("Profilseite öffnen");

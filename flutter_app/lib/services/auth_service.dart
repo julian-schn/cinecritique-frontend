@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:openid_client/openid_client_browser.dart';
+import 'dart:html';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:openid_client/openid_client_browser.dart';
 
 class kc_params {
-  static const String URL = "https://cinecritique.mi.hdm-stuttgart.de/auth"; // Keycloak Server-URL
-  static const String REALM = "movie-app";
+  static const String URL =
+      "http://cinecritique.mi.hdm-stuttgart.de/auth"; // Keycloak Server-URL
+  static const String REALM = "movie-app";  
   static const String CLIENT = "movie-app-client-frontend";
+  static const String REDIRECT_URI = "https://cinecritique.mi.hdm-stuttgart.de";
   static const SCOPESL = ['profile'];
-  static const String REDIRECT_URI = "https://cinecritique.mi.hdm-stuttgart.de/"; // Redirect URI
 }
-
 
 class AuthService {
   ValueNotifier<bool> isLoggedIn = ValueNotifier(false);
@@ -20,7 +23,8 @@ class AuthService {
   // Keycloak Client initialisieren
   Future<void> initialize() async {
     try {
-      var issuer = await Issuer.discover(Uri.parse('${kc_params.URL}/realms/${kc_params.REALM}'));
+      var issuer = await Issuer.discover(
+          Uri.parse('${kc_params.URL}/realms/${kc_params.REALM}'));
       _client = Client(issuer, kc_params.CLIENT);
       _authenticator = Authenticator(_client, scopes: kc_params.SCOPESL);
 
@@ -38,15 +42,28 @@ class AuthService {
   // Login-Funktion
   Future<void> login() async {
     try {
-       var issuer = await Issuer.discover(Uri.parse('${kc_params.URL}/realms/${kc_params.REALM}'));
+      var issuer = await Issuer.discover(
+          Uri.parse('${kc_params.URL}/realms/${kc_params.REALM}'));
       _client = Client(issuer, kc_params.CLIENT);
-            _authenticator = Authenticator(_client, scopes: kc_params.SCOPESL);
 
-      _authenticator.authorize(); // Umleitung zu Keycloak-Login
+      // IMPORTANT: This constructor (with urlLauncher & redirectUrl)
+      // is only in openid_client_browser.dart
+      _authenticator = Authenticator(
+        _client,
+        scopes: kc_params.SCOPESL,
+        urlLauncher: (String url) async {
+          window.location.href = url;  // Manual redirect
+        },
+        redirectUrl: Uri.parse(kc_params.REDIRECT_URI),
+      );
+
+      // Redirect to Keycloak login
+      _authenticator.authorize();
     } catch (e) {
       print('Fehler beim Login: $e');
     }
   }
+}
 
   // Logout-Funktion
   Future<void> logout() async {

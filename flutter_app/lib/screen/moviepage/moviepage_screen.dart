@@ -13,6 +13,7 @@ import 'package:flutter_app/screen/login/login_screen.dart';
 import 'package:flutter_app/main.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_app/screen/favorite/favorite_screen.dart';
+import 'package:flutter_app/screen/favorite/favorite_controller.dart';
 
 class MoviePage extends StatefulWidget {
   final String imdbId;
@@ -30,6 +31,7 @@ class MoviePage extends StatefulWidget {
 
 class _MoviePageState extends State<MoviePage> {
   final MoviePageController _controller = MoviePageController();
+  late final FavoriteController _favoriteController;
   Map<String, dynamic>? movieData;
   String? currentBackdrop;
   bool? isFavorited;
@@ -37,6 +39,7 @@ class _MoviePageState extends State<MoviePage> {
   @override
   void initState() {
     super.initState();
+    _favoriteController = FavoriteController(widget.authService);
     _fetchMovieDetails();
     _checkFavoriteStatus();
   }
@@ -50,7 +53,7 @@ class _MoviePageState extends State<MoviePage> {
   }
 
   Future<void> _checkFavoriteStatus() async {
-    final favorites = await widget.authService.getFavorites();
+    final favorites = await _favoriteController.getFavorites();
     setState(() {
       isFavorited = favorites.any((movie) => movie['imdbId'] == widget.imdbId);
     });

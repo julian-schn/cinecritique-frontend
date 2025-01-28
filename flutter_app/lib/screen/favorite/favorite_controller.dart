@@ -62,8 +62,8 @@ class FavoriteController {
       print('FavoriteController: Add favorite response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final message = json.decode(response.body);
-        print('FavoriteController: Successfully added favorite. Response: $message');
+        // Don't try to parse as JSON if it's a plain text message
+        print('FavoriteController: Successfully processed add favorite response: ${response.body}');
         return true;
       }
       print('FavoriteController: Failed to add favorite. Status: ${response.statusCode}');
@@ -97,8 +97,8 @@ class FavoriteController {
       print('FavoriteController: Remove favorite response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final message = json.decode(response.body);
-        print('FavoriteController: Successfully removed favorite. Response: $message');
+        // Don't try to parse as JSON if it's a plain text message
+        print('FavoriteController: Successfully processed remove favorite response: ${response.body}');
         return true;
       }
       print('FavoriteController: Failed to remove favorite. Status: ${response.statusCode}');

@@ -5,7 +5,7 @@ import 'package:flutter_app/services/auth_service.dart';
 
 class RatingService {
   final AuthService _authService;
-  final String _baseUrl = 'http://localhost:8080/api/v1/reviews';
+  final String _baseUrl = 'https://cinecritique.mi.hdm-stuttgart.de/api/v1/reviews';
 
   RatingService(this._authService) {
     print('RatingService: Initialized with base URL: $_baseUrl');

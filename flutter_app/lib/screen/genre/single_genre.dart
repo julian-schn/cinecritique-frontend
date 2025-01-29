@@ -8,6 +8,8 @@ import 'package:flutter_app/widgets/movie/movie_card.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_app/services/auth_service.dart'; // Import AuthService
+import 'package:flutter_app/screen/recommendationns/recommenndations_page.dart';
+import 'package:flutter_app/screen/favorite/favorite_screen.dart';
 
 class GenreDetailPage extends StatefulWidget {
   final String genre;
@@ -86,13 +88,27 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
               );
             },
             onFavoritesPressed: () {
-              print("Favoriten-Seite öffnen");
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FavoriteScreen(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
             },
             onReviewsPressed: () {
               print("Reviews-Seite öffnen");
             },
             onRecommendationsPressed: () {
-              print("Empfehlungen-Seite öffnen");
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RecommendationsPage(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
             },
             onLoginPressed: (){
               widget.authService.login();

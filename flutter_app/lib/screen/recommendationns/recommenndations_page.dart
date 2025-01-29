@@ -6,6 +6,7 @@ import 'package:flutter_app/services/auth_service.dart';
 import 'package:flutter_app/widgets/common/sidebar.dart';
 import 'package:flutter_app/widgets/movie/movie_card.dart';
 import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
+import 'package:flutter_app/screen/favorite/favorite_screen.dart';
 
 class RecommendationsPage extends StatefulWidget {
   final AuthService authService;
@@ -87,7 +88,14 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
               );
             },
             onFavoritesPressed: () {
-              print("Open favorites page");
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FavoriteScreen(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
             },
             onReviewsPressed: () {
               print("Open reviews page");

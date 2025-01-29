@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_app/services/auth_service.dart'; // Import AuthService
 import 'package:flutter_app/screen/recommendationns/recommenndations_page.dart';
 import 'package:flutter_app/screen/favorite/favorite_screen.dart';
+import 'package:flutter_app/screen/rating/rating_screen.dart';
 
 class GenreDetailPage extends StatefulWidget {
   final String genre;
@@ -97,9 +98,6 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
                 ),
               );
             },
-            onReviewsPressed: () {
-              print("Reviews-Seite öffnen");
-            },
             onRecommendationsPressed: () {
               Navigator.pushReplacement(
                 context,
@@ -110,13 +108,26 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
                 ),
               );
             },
-            onLoginPressed: (){
+            onRatingsPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RatingScreen(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
+            },
+            onProfilPressed: () {
+              print("Profile page not implemented yet");
+            },
+            onLoginPressed: () {
               widget.authService.login();
             },
-            onProfilPressed: (){
-              print("Profilseite öffnen");
+            onLogoutPressed: () {
+              widget.authService.logout();
             },
-            currentPage: 'SingeGenre', 
+            currentPage: 'Genre',
           ),
           Expanded(
             child: SingleChildScrollView(

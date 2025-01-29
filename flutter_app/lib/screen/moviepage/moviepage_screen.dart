@@ -104,9 +104,6 @@ class _MoviePageState extends State<MoviePage> {
                 ),
               );
             },
-            onReviewsPressed: () {
-              print("Reviews-Seite öffnen");
-            },
             onRecommendationsPressed: () {
               Navigator.pushReplacement(
                 context,
@@ -127,11 +124,14 @@ class _MoviePageState extends State<MoviePage> {
                 ),
               );
             },
-            onProfilPressed: (){
-              print("Profilseite öffnen");
+            onProfilPressed: () {
+              print("Profile page not implemented yet");
             },
             onLoginPressed: () {
               widget.authService.login();
+            },
+            onLogoutPressed: () {
+              widget.authService.logout();
             },
             currentPage: 'Moviepage',
           ),

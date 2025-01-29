@@ -70,7 +70,7 @@ class AuthService {
     return null;
   }
 
-  String? getEmail() {
+  Future<String?> getUserEmail() async {
     return userInfo.value?.email;
   }
 }

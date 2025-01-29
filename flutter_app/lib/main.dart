@@ -9,6 +9,7 @@ import 'package:flutter_app/widgets/genre/horizontal_genre_list.dart';
 import 'package:flutter_app/widgets/widgets.dart';
 import 'package:flutter_app/screen/favorite/favorite_screen.dart';
 import 'package:flutter_app/screen/rating/rating_screen.dart';
+import 'package:flutter_app/screen/userprofile/userprofile_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -116,7 +117,14 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
             onProfilPressed: () {
-              print("Profile page not implemented yet");
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => UserProfileScreen(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
             },
             onLoginPressed: () {
               widget.authService.login();

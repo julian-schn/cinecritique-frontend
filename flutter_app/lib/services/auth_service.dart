@@ -17,6 +17,7 @@ class AuthService {
 
   late Client _client;
   late Authenticator _authenticator;
+  Credential? _credential;
 
   Future<void> initialize() async {
     try {
@@ -24,9 +25,9 @@ class AuthService {
       _client = Client(issuer, kc_params.CLIENT);
       _authenticator = Authenticator(_client, scopes: kc_params.SCOPESL);
 
-      var credential = await _authenticator.credential;
-      if (credential != null) {
-        userInfo.value = await credential.getUserInfo();
+      _credential = await _authenticator.credential;
+      if (_credential != null) {
+        userInfo.value = await _credential!.getUserInfo();
         isLoggedIn.value = true;
       }
     } catch (e) {
@@ -57,9 +58,9 @@ class AuthService {
 
   Future<String?> getToken() async {
     try {
-      var credential = await _authenticator.credential;
-      if (credential != null) {
-        var tokenResponse = await credential.getTokenResponse();
+      _credential = await _authenticator.credential;
+      if (_credential != null) {
+        var tokenResponse = await _credential!.getTokenResponse();
         if (tokenResponse != null) {
           return tokenResponse.accessToken;
         }
@@ -72,5 +73,106 @@ class AuthService {
 
   Future<String?> getUserEmail() async {
     return userInfo.value?.email;
+  }
+
+  // ported methods from JavaScript implementation
+
+  String getUsername() {
+    if (isLoggedIn.value) {
+      return userInfo.value?.name ?? 'Unknown User';
+    }
+    return 'User is not authenticated';
+  }
+
+  bool isAuthenticated() {
+    return isLoggedIn.value;
+  }
+
+  Future<bool> updateToken([int minValidity = 5]) async {
+    try {
+      _credential = await _authenticator.credential;
+      if (_credential != null) {
+        // The OpenID client library handles token refresh automatically
+        var tokenResponse = await _credential!.getTokenResponse();
+        return tokenResponse != null;
+      }
+      return false;
+    } catch (e) {
+      print('Fehler beim Token aktualisieren: $e');
+      login(); // Redirect to login if token refresh fails
+      return false;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getUserProfile() async {
+    try {
+      if (!isLoggedIn.value) return null;
+      
+      final token = await getToken();
+      if (token == null) return null;
+
+      final response = await http.get(
+        Uri.parse('${kc_params.URL}/realms/${kc_params.REALM}/account'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      }
+      return null;
+    } catch (e) {
+      print('Fehler beim Abrufen des Benutzerprofils: $e');
+      return null;
+    }
+  }
+
+  Future<bool> updateEmail(String oldEmail, String newEmail) async {
+    try {
+      final token = await getToken();
+      if (token == null) return false;
+
+      final response = await http.put(
+        Uri.parse('${kc_params.URL}/realms/${kc_params.REALM}/account'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'email': newEmail,
+        }),
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print('Fehler beim Aktualisieren der E-Mail: $e');
+      return false;
+    }
+  }
+
+  Future<bool> deleteUserProfile() async {
+    try {
+      final token = await getToken();
+      if (token == null) return false;
+
+      final response = await http.delete(
+        Uri.parse('${kc_params.URL}/realms/${kc_params.REALM}/account'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        await logout();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Fehler beim Löschen des Benutzerprofils: $e');
+      return false;
+    }
   }
 }

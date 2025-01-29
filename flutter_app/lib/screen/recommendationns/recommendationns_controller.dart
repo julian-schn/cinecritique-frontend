@@ -14,7 +14,7 @@ class RecommendationsController {
       print('RecommendationsController: Got token, making API call...');
 
       final response = await http.get(
-        Uri.parse('https://cinecritique.mi.hdm-stuttgart.de/api/movies/recommendation'),
+        Uri.parse('https://cinecritique.mi.hdm-stuttgart.de/api/ai/recommendation'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',

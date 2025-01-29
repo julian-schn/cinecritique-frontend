@@ -32,34 +32,51 @@ class _RatingScreenState extends State<RatingScreen> {
   void initState() {
     super.initState();
     print('RatingScreen: Initializing state');
+    print('RatingScreen: Creating RatingController instance');
     _controller = RatingController(widget.authService);
+    print('RatingScreen: Starting initial load of rated movies');
     loadRatedMovies();
   }
 
+  @override
+  void dispose() {
+    print('RatingScreen: Disposing state');
+    super.dispose();
+  }
+
   Future<void> loadRatedMovies() async {
-    print('RatingScreen: Loading rated movies');
+    print('RatingScreen: Starting to load rated movies');
     setState(() {
       isLoading = true;
+      print('RatingScreen: Set loading state to true');
     });
 
     try {
+      print('RatingScreen: Calling getRatedMovies on controller');
       final movies = await _controller.getRatedMovies(widget.authService);
-      print('RatingScreen: Loaded ${movies.length} rated movies');
+      print('RatingScreen: Successfully received ${movies.length} rated movies');
+      print('RatingScreen: First few movies: ${movies.take(3).map((m) => '${m['title']} (${m['imdbId']})').join(', ')}');
+      
       setState(() {
         ratedMovies = movies;
         isLoading = false;
+        print('RatingScreen: Updated state with movies and set loading to false');
       });
-    } catch (e) {
+    } catch (e, stackTrace) {
       print('RatingScreen: Error loading rated movies: $e');
+      print('RatingScreen: Stack trace: $stackTrace');
       setState(() {
         isLoading = false;
+        print('RatingScreen: Set loading to false after error');
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    print('RatingScreen: Building widget');
     bool isSidebarExpanded = MediaQuery.of(context).size.width > 800;
+    print('RatingScreen: Sidebar expanded: $isSidebarExpanded');
 
     return Scaffold(
       body: Row(
@@ -68,18 +85,21 @@ class _RatingScreenState extends State<RatingScreen> {
             authService: widget.authService,
             currentPage: 'Bewertungen',
             onHomePressed: () {
+              print('RatingScreen: Home navigation pressed');
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
               );
             },
             onGenresPressed: () {
+              print('RatingScreen: Genres navigation pressed');
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
               );
             },
             onFavoritesPressed: () {
+              print('RatingScreen: Favorites navigation pressed');
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -90,6 +110,7 @@ class _RatingScreenState extends State<RatingScreen> {
               );
             },
             onRecommendationsPressed: () {
+              print('RatingScreen: Recommendations navigation pressed');
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -100,6 +121,7 @@ class _RatingScreenState extends State<RatingScreen> {
               );
             },
             onRatingsPressed: () {
+              print('RatingScreen: Ratings navigation pressed');
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -110,12 +132,15 @@ class _RatingScreenState extends State<RatingScreen> {
               );
             },
             onProfilPressed: () {
+              print('RatingScreen: Profile navigation pressed (not implemented)');
               print("Profile page not implemented yet");
             },
             onLoginPressed: () {
+              print('RatingScreen: Login pressed');
               widget.authService.login();
             },
             onLogoutPressed: () {
+              print('RatingScreen: Logout pressed');
               widget.authService.logout();
             },
           ),
@@ -132,16 +157,19 @@ class _RatingScreenState extends State<RatingScreen> {
                     child: CustomSearchBar(
                       authService: widget.authService,
                       onSearchStart: () {
+                        print('RatingScreen: Search started');
                         setState(() {
                           _isSearching = true;
                         });
                       },
                       onSearchEnd: () {
+                        print('RatingScreen: Search ended');
                         setState(() {
                           _isSearching = false;
                         });
                       },
                       onSearchResultsUpdated: (hasResults) {
+                        print('RatingScreen: Search results updated, has results: $hasResults');
                         setState(() {
                           _isSearching = hasResults;
                         });

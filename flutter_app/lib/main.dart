@@ -7,6 +7,7 @@ import 'package:flutter_app/widgets/movie/moviePosterCarousel.dart';
 import 'package:flutter_app/widgets/movie/horizontal_movie_list.dart';
 import 'package:flutter_app/widgets/genre/horizontal_genre_list.dart';
 import 'package:flutter_app/widgets/widgets.dart';
+import 'package:flutter_app/screen/favorite/favorite_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -75,7 +76,14 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
             onFavoritesPressed: () {
-              print("Favoriten-Seite öffnen");
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FavoriteScreen(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
             },
             onReviewsPressed: () {
               print("Reviews-Seite öffnen");

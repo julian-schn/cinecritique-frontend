@@ -14,6 +14,7 @@ import 'package:flutter_app/main.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_app/screen/favorite/favorite_screen.dart';
 import 'package:flutter_app/screen/favorite/favorite_controller.dart';
+import 'package:flutter_app/screen/recommendationns/recommenndations_page.dart';
 
 class MoviePage extends StatefulWidget {
   final String imdbId;
@@ -106,7 +107,14 @@ class _MoviePageState extends State<MoviePage> {
               print("Reviews-Seite öffnen");
             },
             onRecommendationsPressed: () {
-              print("Empfehlungen-Seite öffnen");
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RecommendationsPage(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
             },
             onProfilPressed: (){
               print("Profilseite öffnen");

@@ -6,6 +6,8 @@ import 'package:flutter_app/services/openid_browser.dart';
 import 'package:flutter_app/widgets/common/sidebar.dart';
 import 'package:flutter_app/widgets/movie/horizontal_movie_list.dart';
 import 'package:flutter_app/services/auth_service.dart';
+import 'package:flutter_app/screen/recommendationns/recommenndations_page.dart';
+import 'package:flutter_app/screen/favorite/favorite_screen.dart';
 
 class GenrePage extends StatefulWidget {
   final AuthService authService;
@@ -63,13 +65,27 @@ class _GenrePageState extends State<GenrePage> {
               );
             },
             onFavoritesPressed: () {
-              print("Favoriten-Seite öffnen");
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FavoriteScreen(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
             },
             onReviewsPressed: () {
               print("Reviews-Seite öffnen");
             },
             onRecommendationsPressed: () {
-              print("Empfehlungen-Seite öffnen");
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RecommendationsPage(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
             },
             onProfilPressed: (){
               print("Profilseite öffnen");

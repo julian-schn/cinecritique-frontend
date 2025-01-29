@@ -1,51 +1,60 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/services/auth_service.dart';
-import 'package:flutter_app/widgets/movie/movie_card.dart';
-import 'package:flutter_app/widgets/common/sidebar.dart';
-import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
-import 'package:flutter_app/screen/genre/genre_page.dart';
 import 'package:flutter_app/main.dart';
-import 'package:flutter_app/screen/favorite/favorite_controller.dart';
-import 'package:flutter_app/widgets/common/search_bar.dart';
+import 'package:flutter_app/screen/genre/genre_page.dart';
+import 'package:flutter_app/screen/rating/rating_controller.dart';
+import 'package:flutter_app/services/auth_service.dart';
+import 'package:flutter_app/widgets/common/sidebar.dart';
+import 'package:flutter_app/widgets/movie/movie_card.dart';
+import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
+import 'package:flutter_app/screen/favorite/favorite_screen.dart';
 import 'package:flutter_app/screen/recommendationns/recommenndations_page.dart';
-import 'package:flutter_app/screen/rating/rating_screen.dart';
+import 'package:flutter_app/widgets/common/search_bar.dart';
 
-class FavoriteScreen extends StatefulWidget {
+class RatingScreen extends StatefulWidget {
   final AuthService authService;
 
-  const FavoriteScreen({
+  const RatingScreen({
     Key? key,
     required this.authService,
   }) : super(key: key);
 
   @override
-  _FavoriteScreenState createState() => _FavoriteScreenState();
+  _RatingScreenState createState() => _RatingScreenState();
 }
 
-class _FavoriteScreenState extends State<FavoriteScreen> {
-  List<Map<String, dynamic>> favorites = [];
+class _RatingScreenState extends State<RatingScreen> {
+  late final RatingController _controller;
+  List<Map<String, dynamic>> ratedMovies = [];
   bool isLoading = true;
-  late final FavoriteController _controller;
   bool _isSearching = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = FavoriteController(widget.authService);
-    loadFavorites();
+    print('RatingScreen: Initializing state');
+    _controller = RatingController(widget.authService);
+    loadRatedMovies();
   }
 
-  Future<void> loadFavorites() async {
+  Future<void> loadRatedMovies() async {
+    print('RatingScreen: Loading rated movies');
     setState(() {
       isLoading = true;
     });
 
-    final favList = await _controller.getFavorites();
-    
-    setState(() {
-      favorites = favList;
-      isLoading = false;
-    });
+    try {
+      final movies = await _controller.getRatedMovies(widget.authService);
+      print('RatingScreen: Loaded ${movies.length} rated movies');
+      setState(() {
+        ratedMovies = movies;
+        isLoading = false;
+      });
+    } catch (e) {
+      print('RatingScreen: Error loading rated movies: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -57,24 +66,17 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
         children: [
           Sidebar(
             authService: widget.authService,
+            currentPage: 'Bewertungen',
             onHomePressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => HomeScreen(
-                    authService: widget.authService,
-                  ),
-                ),
+                MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
               );
             },
             onGenresPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => GenrePage(
-                    authService: widget.authService,
-                  ),
-                ),
+                MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
               );
             },
             onFavoritesPressed: () {
@@ -116,7 +118,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             onLogoutPressed: () {
               widget.authService.logout();
             },
-            currentPage: 'Favoriten',
           ),
           Expanded(
             child: SingleChildScrollView(
@@ -158,7 +159,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: const [
                         Text(
-                          'Meine Favoriten',
+                          'Meine Bewertungen',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 36,
@@ -178,12 +179,12 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                   ),
                   if (isLoading)
                     const Center(child: CircularProgressIndicator())
-                  else if (favorites.isEmpty)
+                  else if (ratedMovies.isEmpty)
                     const Padding(
                       padding: EdgeInsets.all(20.0),
                       child: Center(
                         child: Text(
-                          'Keine Favoriten vorhanden.',
+                          'Keine Bewertungen vorhanden.',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 18,
@@ -199,24 +200,57 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                           alignment: WrapAlignment.center,
                           spacing: isSidebarExpanded ? 16.0 : 48.0,
                           runSpacing: 16.0,
-                          children: favorites.map((movie) => Container(
+                          children: ratedMovies.map((movie) => Container(
                             width: 250,
                             height: 250,
-                            child: MovieCard(
-                              posterUrl: movie['poster'] ?? '',
-                              title: movie['title'] ?? 'Unbekannt',
-                              imdbId: movie['imdbId'] ?? '',
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => MoviePage(
-                                      imdbId: movie['imdbId'],
-                                      authService: widget.authService,
+                            child: Stack(
+                              children: [
+                                MovieCard(
+                                  posterUrl: movie['poster'] ?? '',
+                                  title: movie['title'] ?? 'Unbekannt',
+                                  imdbId: movie['imdbId'] ?? '',
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => MoviePage(
+                                          imdbId: movie['imdbId'],
+                                          authService: widget.authService,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.7),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(
+                                          Icons.star,
+                                          color: Colors.amber,
+                                          size: 20,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '${movie['rating']}',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                );
-                              },
+                                ),
+                              ],
                             ),
                           )).toList(),
                         ),
@@ -230,4 +264,4 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       ),
     );
   }
-} 
+}

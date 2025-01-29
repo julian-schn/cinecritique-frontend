@@ -15,6 +15,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_app/screen/favorite/favorite_screen.dart';
 import 'package:flutter_app/screen/favorite/favorite_controller.dart';
 import 'package:flutter_app/screen/recommendationns/recommenndations_page.dart';
+import 'package:flutter_app/screen/rating/rating_screen.dart';
 
 class MoviePage extends StatefulWidget {
   final String imdbId;
@@ -111,6 +112,16 @@ class _MoviePageState extends State<MoviePage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => RecommendationsPage(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
+            },
+            onRatingsPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RatingScreen(
                     authService: widget.authService,
                   ),
                 ),

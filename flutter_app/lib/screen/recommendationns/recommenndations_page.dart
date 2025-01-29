@@ -7,6 +7,7 @@ import 'package:flutter_app/widgets/common/sidebar.dart';
 import 'package:flutter_app/widgets/movie/movie_card.dart';
 import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
 import 'package:flutter_app/screen/favorite/favorite_screen.dart';
+import 'package:flutter_app/screen/rating/rating_screen.dart';
 
 class RecommendationsPage extends StatefulWidget {
   final AuthService authService;
@@ -78,13 +79,21 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
             onHomePressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
+                MaterialPageRoute(
+                  builder: (context) => HomeScreen(
+                    authService: widget.authService,
+                  ),
+                ),
               );
             },
             onGenresPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
+                MaterialPageRoute(
+                  builder: (context) => GenrePage(
+                    authService: widget.authService,
+                  ),
+                ),
               );
             },
             onFavoritesPressed: () {
@@ -97,17 +106,34 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
                 ),
               );
             },
-            onReviewsPressed: () {
-              print("Open reviews page");
-            },
             onRecommendationsPressed: () {
-              // We're already on the recommendations page
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RecommendationsPage(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
+            },
+            onRatingsPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RatingScreen(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
             },
             onProfilPressed: () {
-              print("Open profile page");
+              print("Profile page not implemented yet");
             },
             onLoginPressed: () {
               widget.authService.login();
+            },
+            onLogoutPressed: () {
+              widget.authService.logout();
             },
             currentPage: 'Empfehlungen',
           ),

@@ -8,6 +8,7 @@ import 'package:flutter_app/widgets/movie/horizontal_movie_list.dart';
 import 'package:flutter_app/services/auth_service.dart';
 import 'package:flutter_app/screen/recommendationns/recommenndations_page.dart';
 import 'package:flutter_app/screen/favorite/favorite_screen.dart';
+import 'package:flutter_app/screen/rating/rating_screen.dart';
 
 class GenrePage extends StatefulWidget {
   final AuthService authService;
@@ -55,13 +56,21 @@ class _GenrePageState extends State<GenrePage> {
             onHomePressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
+                MaterialPageRoute(
+                  builder: (context) => HomeScreen(
+                    authService: widget.authService,
+                  ),
+                ),
               );
             },
             onGenresPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
+                MaterialPageRoute(
+                  builder: (context) => GenrePage(
+                    authService: widget.authService,
+                  ),
+                ),
               );
             },
             onFavoritesPressed: () {
@@ -74,9 +83,6 @@ class _GenrePageState extends State<GenrePage> {
                 ),
               );
             },
-            onReviewsPressed: () {
-              print("Reviews-Seite öffnen");
-            },
             onRecommendationsPressed: () {
               Navigator.pushReplacement(
                 context,
@@ -87,11 +93,24 @@ class _GenrePageState extends State<GenrePage> {
                 ),
               );
             },
-            onProfilPressed: (){
-              print("Profilseite öffnen");
+            onRatingsPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RatingScreen(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
             },
-            onLoginPressed: (){
+            onProfilPressed: () {
+              print("Profile page not implemented yet");
+            },
+            onLoginPressed: () {
               widget.authService.login();
+            },
+            onLogoutPressed: () {
+              widget.authService.logout();
             },
             currentPage: 'Genres', // 'Genres' für den aktuellen Menüpunkt
           ),

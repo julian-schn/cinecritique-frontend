@@ -7,25 +7,27 @@ class Sidebar extends StatefulWidget {
   final AuthService authService;
   final VoidCallback onHomePressed;
   final VoidCallback onGenresPressed;
-  final VoidCallback onReviewsPressed;
   final VoidCallback onFavoritesPressed;
   final VoidCallback onRecommendationsPressed;
+  final VoidCallback onRatingsPressed;
   final VoidCallback onProfilPressed;
   final VoidCallback onLoginPressed;
+  final VoidCallback onLogoutPressed;
   final String currentPage;
 
   const Sidebar({
+    Key? key,
     required this.authService,
     required this.onHomePressed,
     required this.onGenresPressed,
-    required this.onReviewsPressed,
     required this.onFavoritesPressed,
     required this.onRecommendationsPressed,
+    required this.onRatingsPressed,
     required this.onProfilPressed,
     required this.onLoginPressed,
+    required this.onLogoutPressed,
     required this.currentPage,
-    super.key,
-  });
+  }) : super(key: key);
 
   @override
   _SidebarState createState() => _SidebarState();
@@ -44,153 +46,101 @@ class _SidebarState extends State<Sidebar> {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
+    bool selected = false,
   }) {
-    bool isSelected = widget.currentPage == title;
-
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          child: Row(
-            mainAxisAlignment:
-                isExpanded ? MainAxisAlignment.start : MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(left: isExpanded ? 24 : 0),
-                child: Icon(
-                  icon,
-                  color: isSelected ? Colors.redAccent : Colors.white,
-                  size: 24,
-                ),
-              ),
-              if (isExpanded)
-                Padding(
-                  padding: EdgeInsets.only(left: 32),
-                  child: Text(
-                    title,
-                    style: GoogleFonts.inter(
-                        color: Colors.white,
-                        fontSize: 16),
-                  ),
-                ),
-            ],
-          ),
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: selected ? Colors.white : Colors.grey,
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: selected ? Colors.white : Colors.grey,
         ),
       ),
+      onTap: onTap,
+      selected: selected,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: Duration(milliseconds: 300),
-      width: isExpanded ? 250 : 100,
-      color: Color(0xFF121212),
-      child: ValueListenableBuilder<bool>(
-        valueListenable: widget.authService.isLoggedIn,
-        builder: (context, isLoggedIn, _) {
-          return Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: isExpanded
-                      ? MainAxisAlignment.start
-                      : MainAxisAlignment.center,
-                  children: [
-                    RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: isExpanded ? "CineCritique" : "CC",
-                            style: GoogleFonts.inter(
-                              color: Colors.white,
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          TextSpan(
-                            text: ".",
-                            style: GoogleFonts.inter(
-                              color: Colors.redAccent,
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 20),
-              buildMenuItem(
-                icon: Icons.home_outlined,
-                title: "Home",
-                onTap: widget.onHomePressed,
-              ),
-              buildMenuItem(
-                icon: Icons.category_outlined,
-                title: "Genres",
-                onTap: widget.onGenresPressed,
-              ),
-              if (isLoggedIn) ...[
+    return Container(
+      width: isExpanded ? 200 : 60,
+      color: const Color(0xFF121212),
+      child: Column(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.menu, color: Colors.white),
+            onTap: () {
+              setState(() {
+                isExpanded = !isExpanded;
+              });
+            },
+          ),
+          const Divider(color: Colors.white),
+          Expanded(
+            child: ListView(
+              children: [
                 buildMenuItem(
-                  icon: Icons.favorite_outline,
+                  icon: Icons.home,
+                  title: "Home",
+                  onTap: widget.onHomePressed,
+                  selected: widget.currentPage == 'Home',
+                ),
+                buildMenuItem(
+                  icon: Icons.movie,
+                  title: "Genres",
+                  onTap: widget.onGenresPressed,
+                  selected: widget.currentPage == 'Genres',
+                ),
+                buildMenuItem(
+                  icon: Icons.favorite,
                   title: "Favoriten",
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => FavoriteScreen(
-                          authService: widget.authService,
-                        ),
-                      ),
-                    );
+                  onTap: widget.onFavoritesPressed,
+                  selected: widget.currentPage == 'Favoriten',
+                ),
+                buildMenuItem(
+                  icon: Icons.star,
+                  title: "Bewertungen",
+                  onTap: widget.onRatingsPressed,
+                  selected: widget.currentPage == 'Bewertungen',
+                ),
+                buildMenuItem(
+                  icon: Icons.recommend,
+                  title: "Empfehlungen",
+                  onTap: widget.onRecommendationsPressed,
+                  selected: widget.currentPage == 'Empfehlungen',
+                ),
+                ValueListenableBuilder<bool>(
+                  valueListenable: widget.authService.isLoggedIn,
+                  builder: (context, isLoggedIn, _) {
+                    return isLoggedIn
+                        ? buildMenuItem(
+                            icon: Icons.person,
+                            title: "Profil",
+                            onTap: widget.onProfilPressed,
+                            selected: widget.currentPage == 'Profil',
+                          )
+                        : buildMenuItem(
+                            icon: Icons.login,
+                            title: "Login",
+                            onTap: widget.onLoginPressed,
+                            selected: widget.currentPage == 'Login',
+                          );
                   },
                 ),
                 buildMenuItem(
-                  icon: Icons.reviews_outlined,
-                  title: "Reviews",
-                  onTap: widget.onReviewsPressed,
+                  icon: Icons.logout,
+                  title: "Logout",
+                  onTap: widget.onLogoutPressed,
+                  selected: false,
                 ),
-                buildMenuItem(
-                  icon: Icons.lightbulb_outline,
-                  title: "Empfehlungen",
-                  onTap: widget.onRecommendationsPressed,
-                ),
-                buildMenuItem(
-                icon: Icons.account_circle_outlined, 
-                title: "Profil", 
-                onTap: widget.onProfilPressed,)
               ],
-              Spacer(),
-              buildMenuItem(
-                icon: isLoggedIn ? Icons.logout : Icons.login,
-                title: isLoggedIn ? "Abmelden" : "Anmelden",
-                onTap: () async {
-                  if (isLoggedIn) {
-                    await widget.authService.logout();
-                  } else {
-                    await widget.authService.login();
-                  }
-                },
-              ),
-              Align(
-                alignment: isExpanded ? Alignment.centerRight : Alignment.center,
-                child: IconButton(
-                  icon: Icon(
-                    isExpanded ? Icons.arrow_back : Icons.arrow_forward,
-                    color: Colors.redAccent,
-                  ),
-                  onPressed: toggleSidebar,
-                ),
-              ),
-            ],
-          );
-        },
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -8,6 +8,7 @@ import 'package:flutter_app/widgets/movie/horizontal_movie_list.dart';
 import 'package:flutter_app/widgets/genre/horizontal_genre_list.dart';
 import 'package:flutter_app/widgets/widgets.dart';
 import 'package:flutter_app/screen/favorite/favorite_screen.dart';
+import 'package:flutter_app/screen/rating/rating_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,15 +65,23 @@ class _HomeScreenState extends State<HomeScreen> {
           Sidebar(
             authService: widget.authService,
             onHomePressed: () {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
+                MaterialPageRoute(
+                  builder: (context) => HomeScreen(
+                    authService: widget.authService,
+                  ),
+                ),
               );
             },
             onGenresPressed: () {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
+                MaterialPageRoute(
+                  builder: (context) => GenrePage(
+                    authService: widget.authService,
+                  ),
+                ),
               );
             },
             onFavoritesPressed: () {
@@ -85,20 +94,34 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               );
             },
-            onReviewsPressed: () {
-              print("Reviews-Seite öffnen");
-            },
             onRecommendationsPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => RecommendationsPage(authService: widget.authService)),
+                MaterialPageRoute(
+                  builder: (context) => RecommendationsPage(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
+            },
+            onRatingsPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RatingScreen(
+                    authService: widget.authService,
+                  ),
+                ),
               );
             },
             onProfilPressed: () {
-              print("Profilseite öffnen");
+              print("Profile page not implemented yet");
             },
             onLoginPressed: () {
-              widget.authService.login(); // Die Login-Methode des AuthService aufrufen
+              widget.authService.login();
+            },
+            onLogoutPressed: () {
+              widget.authService.logout();
             },
             currentPage: 'Home',
           ),

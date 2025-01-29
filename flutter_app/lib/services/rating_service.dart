@@ -204,3 +204,36 @@ class RatingService {
         }
     }
 */
+
+/* Movie endpoints for getting reviews (they are by movie)
+
+// Handles HTTP GET requests to /movies/bestrated, returns the best-rated movies
+    @GetMapping("/bestrated")
+    public ResponseEntity<List<Movie>> findBestMovies() {
+        logger.info("Finding best rated movies");
+        // Returns a list of the best-rated movies sorted by rating with an HTTP status of OK (200)
+        return new ResponseEntity<List<Movie>>(movieService.allMoviesSortedByRating(), HttpStatus.OK);
+    }
+
+    // Endpoint for paginated best rated list
+    @GetMapping("/bestrated/paginated")
+    public ResponseEntity<List<Movie>> findBestMovies(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        logger.info("Finding best rated movies (page: {}, size: {})", page, size);
+
+        // Pageable erstellen
+        Pageable pageable = PageRequest.of(page, size);
+
+        // Filme abrufen
+        Page<Movie> bestRatedMoviesPage = movieService.allMoviesSortedByRating(pageable);
+
+        // Nur die Inhalte der Seite extrahieren
+        List<Movie> bestRatedMovies = bestRatedMoviesPage.getContent();
+
+        return new ResponseEntity<>(bestRatedMovies, HttpStatus.OK);
+    }
+
+
+*/

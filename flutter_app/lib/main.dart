@@ -121,8 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
               widget.authService.login();
             },
             onLogoutPressed: () {
-              widget.authService.logout();
-            },
+              widget.authService.logout();debar            },
             currentPage: 'Home',
           ),
           Expanded(

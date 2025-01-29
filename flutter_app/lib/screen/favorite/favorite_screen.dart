@@ -7,6 +7,7 @@ import 'package:flutter_app/screen/genre/genre_page.dart';
 import 'package:flutter_app/main.dart';
 import 'package:flutter_app/screen/favorite/favorite_controller.dart';
 import 'package:flutter_app/widgets/common/search_bar.dart';
+import 'package:flutter_app/screen/recommendationns/recommenndations_page.dart';
 
 class FavoriteScreen extends StatefulWidget {
   final AuthService authService;
@@ -75,7 +76,14 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               // Navigation to Reviews page
             },
             onRecommendationsPressed: () {
-              // Navigation to Recommendations page
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RecommendationsPage(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
             },
             onLoginPressed: () {
               widget.authService.login();

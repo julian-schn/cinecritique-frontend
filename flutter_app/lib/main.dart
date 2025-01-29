@@ -36,7 +36,8 @@ class MyApp extends StatelessWidget {
           bodyLarge: TextStyle(color: Colors.white),
         ),
         scrollbarTheme: ScrollbarThemeData(
-          thumbColor: MaterialStateProperty.all(const Color.fromARGB(214, 255, 82, 82)),
+          thumbColor:
+              MaterialStateProperty.all(const Color.fromARGB(214, 255, 82, 82)),
           radius: const Radius.circular(10),
         ),
       ),
@@ -121,7 +122,8 @@ class _HomeScreenState extends State<HomeScreen> {
               widget.authService.login();
             },
             onLogoutPressed: () {
-              widget.authService.logout();debar            },
+              widget.authService.logout();
+            },
             currentPage: 'Home',
           ),
           Expanded(
@@ -139,17 +141,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       authService: widget.authService,
                       onSearchStart: () {
                         setState(() {
-                          _isSearching = true;  // Suche gestartet
+                          _isSearching = true; // Suche gestartet
                         });
                       },
                       onSearchEnd: () {
                         setState(() {
-                          _isSearching = false;  // Suche beendet
+                          _isSearching = false; // Suche beendet
                         });
                       },
                       onSearchResultsUpdated: (hasResults) {
                         setState(() {
-                          _isSearching = hasResults; // Wenn Ergebnisse gefunden wurden, Suche fortsetzen
+                          _isSearching =
+                              hasResults; // Wenn Ergebnisse gefunden wurden, Suche fortsetzen
                         });
                       },
                     ),

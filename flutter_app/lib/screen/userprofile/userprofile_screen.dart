@@ -25,6 +25,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   late UserProfileController _controller;
   Map<String, String>? _userInfo;
   bool _isLoading = true;
+  String? _editingField;
+  String? _newEmail;
+  String? _alertMessage;
+  String? _alertType;
+  bool _showDeleteModal = false;
+  final TextEditingController _emailController = TextEditingController();
 
   @override
   void initState() {
@@ -35,9 +41,25 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   Future<void> _loadUserInfo() async {
     try {
+      if (!widget.authService.isAuthenticated()) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
+        );
+        return;
+      }
+
       final userInfo = await _controller.getUserInfo();
+      final profile = await widget.authService.getUserProfile();
+      
       setState(() {
         _userInfo = userInfo;
+        if (profile != null) {
+          _userInfo?.addAll({
+            'name': profile['firstName'] ?? '' + ' ' + profile['lastName'] ?? '',
+            'username': profile['username'] ?? '',
+          });
+        }
         _isLoading = false;
       });
     } catch (e) {
@@ -46,6 +68,207 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  void _showAlert(String message, String type) {
+    setState(() {
+      _alertMessage = message;
+      _alertType = type;
+    });
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        setState(() {
+          _alertMessage = null;
+          _alertType = null;
+        });
+      }
+    });
+  }
+
+  Future<void> _handleEmailUpdate() async {
+    if (_newEmail == null || _newEmail!.isEmpty) return;
+    
+    try {
+      final currentEmail = _userInfo?['email'];
+      if (currentEmail == null) return;
+
+      final success = await widget.authService.updateEmail(currentEmail, _newEmail!);
+      
+      if (success) {
+        setState(() {
+          _userInfo?['email'] = _newEmail!;
+          _editingField = null;
+        });
+        _showAlert('Email erfolgreich geändert.', 'success');
+      } else {
+        _showAlert('Fehler beim Ändern der E-Mail Adresse', 'error');
+      }
+    } catch (e) {
+      _showAlert('Fehler beim Ändern der E-Mail Adresse', 'error');
+    }
+  }
+
+  Future<void> _handleDeleteProfile() async {
+    _showAlert('Du hast dein Profil erfolgreich gelöscht.', 'success');
+    
+    await Future.delayed(const Duration(milliseconds: 500));
+    
+    try {
+      final success = await widget.authService.deleteUserProfile();
+      if (success) {
+        await Future.delayed(const Duration(seconds: 2));
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
+          );
+        }
+      } else {
+        _showAlert('Fehler beim Löschen des Profils.', 'error');
+      }
+    } catch (e) {
+      _showAlert('Fehler beim Löschen des Profils.', 'error');
+    }
+  }
+
+  Widget _buildProfileField(String label, String value, {bool canEdit = false}) {
+    final isEditing = _editingField == label.toLowerCase();
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              color: Colors.grey,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2A2A2A),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: isEditing
+                      ? TextField(
+                          controller: _emailController,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: const InputDecoration(
+                            border: InputBorder.none,
+                            isDense: true,
+                          ),
+                          onSubmitted: (value) {
+                            _newEmail = value;
+                            _handleEmailUpdate();
+                          },
+                        )
+                      : Text(
+                          value,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                ),
+              ),
+              if (canEdit)
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      if (isEditing) {
+                        _editingField = null;
+                      } else {
+                        _editingField = label.toLowerCase();
+                        _emailController.text = value;
+                      }
+                    });
+                  },
+                  child: Text(
+                    isEditing ? 'Speichern' : 'ändern',
+                    style: const TextStyle(color: Colors.redAccent),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDeleteButton() {
+    return Container(
+      margin: const EdgeInsets.only(top: 32),
+      child: TextButton(
+        onPressed: () => setState(() => _showDeleteModal = true),
+        style: TextButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.delete_outline, color: Colors.red[400]),
+            const SizedBox(width: 8),
+            Text(
+              'Profil löschen',
+              style: TextStyle(color: Colors.red[400]),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeleteConfirmationDialog() {
+    return AlertDialog(
+      backgroundColor: const Color(0xFF1E1E1E),
+      title: const Text(
+        'Profil löschen',
+        style: TextStyle(color: Colors.white),
+      ),
+      content: const Text(
+        'Möchtest du dein Profil wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
+        style: TextStyle(color: Colors.white70),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => setState(() => _showDeleteModal = false),
+          child: const Text('Abbrechen'),
+        ),
+        TextButton(
+          onPressed: () {
+            setState(() => _showDeleteModal = false);
+            _handleDeleteProfile();
+          },
+          style: TextButton.styleFrom(foregroundColor: Colors.red),
+          child: const Text('Löschen'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAlert() {
+    if (_alertMessage == null) return const SizedBox.shrink();
+
+    final backgroundColor = _alertType == 'success' ? Colors.green : Colors.red;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      margin: const EdgeInsets.only(top: 16),
+      decoration: BoxDecoration(
+        color: backgroundColor.withOpacity(0.1),
+        border: Border.all(color: backgroundColor),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        _alertMessage!,
+        style: TextStyle(color: backgroundColor),
+      ),
+    );
   }
 
   @override
@@ -128,7 +351,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           Row(
                             children: [
                               Text(
-                                'Profil',
+                                'Profil Einstellungen',
                                 style: GoogleFonts.inter(
                                   color: Colors.white,
                                   fontSize: 36,
@@ -155,15 +378,21 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _buildInfoRow(
-                                  'Username',
+                                _buildProfileField(
+                                  'Dein Name',
+                                  _userInfo?['name'] ?? 'Not available',
+                                ),
+                                _buildProfileField(
+                                  'Dein Username',
                                   _userInfo?['username'] ?? 'Not available',
                                 ),
-                                const SizedBox(height: 24),
-                                _buildInfoRow(
-                                  'Email',
+                                _buildProfileField(
+                                  'Email Adresse',
                                   _userInfo?['email'] ?? 'Not available',
+                                  canEdit: true,
                                 ),
+                                _buildDeleteButton(),
+                                _buildAlert(),
                               ],
                             ),
                           ),
@@ -174,31 +403,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           ),
         ],
       ),
+      // Show delete confirmation dialog
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: _showDeleteModal ? _buildDeleteConfirmationDialog() : null,
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.inter(
-            color: Colors.grey,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          style: GoogleFonts.inter(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
   }
 }

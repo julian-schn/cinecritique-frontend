@@ -23,12 +23,22 @@ class AuthService {
     try {
       var issuer = await Issuer.discover(Uri.parse('${kc_params.URL}/realms/${kc_params.REALM}'));
       _client = Client(issuer, kc_params.CLIENT);
-      _authenticator = Authenticator(_client, scopes: kc_params.SCOPESL);
+      _authenticator = Authenticator(
+        _client,
+        scopes: kc_params.SCOPESL,
+        urlLauncher: (String url) async {
+          window.location.href = url;
+        },
+        redirectUrl: Uri.parse(kc_params.REDIRECT_URI),
+      );
 
-      _credential = await _authenticator.credential;
-      if (_credential != null) {
-        userInfo.value = await _credential!.getUserInfo();
-        isLoggedIn.value = true;
+      // Check if we're returning from a login redirect
+      if (Uri.base.hasFragment || Uri.base.hasQuery) {
+        _credential = await _authenticator.credential;
+        if (_credential != null) {
+          userInfo.value = await _credential!.getUserInfo();
+          isLoggedIn.value = true;
+        }
       }
     } catch (e) {
       print('Fehler bei der Initialisierung: $e');

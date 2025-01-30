@@ -36,11 +36,12 @@ class RatingController {
       if (response.statusCode == 200) {
         final List<dynamic> ratedMovieIds = json.decode(response.body) as List<dynamic>;
         print('RatingController: Found ${ratedMovieIds.length} rated movies');
-        print('RatingController: Movie IDs: $ratedMovieIds');
         
         final List<Map<String, dynamic>> moviesWithDetails = [];
+        final userEmail = await _authService.getUserEmail();
+        
         for (var movieId in ratedMovieIds) {
-          // Fetch movie details
+          // Get movie details
           final movieResponse = await http.get(
             Uri.parse('https://cinecritique.mi.hdm-stuttgart.de/api/movies/$movieId'),
             headers: {
@@ -52,37 +53,21 @@ class RatingController {
           if (movieResponse.statusCode == 200) {
             final movieData = json.decode(movieResponse.body) as Map<String, dynamic>;
             
-            // Fetch reviews for this movie
-            final reviewResponse = await http.get(
-              Uri.parse('https://cinecritique.mi.hdm-stuttgart.de/api/reviews/movie/$movieId'),
-              headers: {
-                'Authorization': 'Bearer $token',
-                'Content-Type': 'application/json',
-              },
+            // Get reviews for this movie
+            final reviews = await _ratingService.getReviews(movieId.toString());
+            
+            // Find user's review
+            final userReview = reviews.firstWhere(
+              (review) => review['createdBy'] == userEmail,
+              orElse: () => null,
             );
-
-            if (reviewResponse.statusCode == 200) {
-              final reviews = json.decode(reviewResponse.body) as List<dynamic>;
-              final userEmail = await _authService.getUserEmail();
-              
-              try {
-                final userReview = reviews.firstWhere(
-                  (review) => review['createdBy'] == userEmail,
-                  orElse: () => null,
-                );
-                
-                if (userReview != null) {
-                  moviesWithDetails.add({
-                    ...movieData,
-                    'userRating': userReview['rating'],
-                    'userReview': userReview['body'],
-                  });
-                }
-              } catch (e) {
-                print('RatingController: Error processing reviews for movie $movieId: $e');
-              }
-            } else {
-              print('RatingController: Failed to fetch reviews for movie $movieId: ${reviewResponse.statusCode}');
+            
+            if (userReview != null) {
+              moviesWithDetails.add({
+                ...movieData,
+                'userRating': userReview['rating'],
+                'userReview': userReview['body'],
+              });
             }
           } else {
             print('RatingController: Failed to fetch movie $movieId: ${movieResponse.statusCode}');
@@ -182,3 +167,22 @@ class RatingController {
     return username;
   }
 }
+
+/*
+Endpoint implementation to get all users ratings
+
+    /**
+     * Retrieves the list of rated movies for the authenticated user.
+     *
+     * @param email The email of the user.
+     * @return A list of IMDb IDs for rated movies.
+     */
+    public List<String> getRatedMovies(String email) {
+        return userRepository.findByEmail(email)
+                .map(User::getRatedMovies)
+                .orElse(Collections.emptyList()); // Return empty list if user not found
+    }
+
+}
+
+*/

@@ -1,13 +1,79 @@
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:flutter_app/services/auth_service.dart';
 import 'package:flutter_app/services/rating_service.dart';
 
 class RatingController {
+  final AuthService _authService;
+  final ValueNotifier<List<Map<String, dynamic>>> ratedMovies = ValueNotifier([]);
+  final ValueNotifier<bool> isLoading = ValueNotifier(false);
   late final RatingService _ratingService;
 
-  RatingController(AuthService authService) {
+  RatingController(this._authService) {
     print('RatingController: Initializing with AuthService');
-    _ratingService = RatingService(authService);
+    _ratingService = RatingService(_authService);
     print('RatingController: RatingService initialized');
+  }
+
+  Future<void> fetchRatedMovies() async {
+    isLoading.value = true;
+    try {
+      final token = await _authService.getToken();
+      if (token == null) {
+        print('RatingController: No token available');
+        return;
+      }
+
+      final response = await http.get(
+        Uri.parse('https://cinecritique.mi.hdm-stuttgart.de/api/users/rated-movies'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Get the list of rated movie IDs
+        final List<String> ratedMovieIds = List<String>.from(json.decode(response.body));
+        
+        // Fetch details for each movie
+        final List<Map<String, dynamic>> moviesWithDetails = [];
+        for (String movieId in ratedMovieIds) {
+          final movieResponse = await http.get(
+            Uri.parse('https://cinecritique.mi.hdm-stuttgart.de/api/movies/$movieId'),
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
+            },
+          );
+          
+          if (movieResponse.statusCode == 200) {
+            final movieData = json.decode(movieResponse.body);
+            // Find user's review in the movie's reviews
+            final userEmail = await _authService.getUserEmail();
+            final userReview = (movieData['reviews'] as List?)?.firstWhere(
+              (review) => review['createdBy'] == userEmail,
+              orElse: () => null,
+            );
+            
+            if (userReview != null) {
+              moviesWithDetails.add({
+                ...movieData,
+                'userRating': userReview['rating'],
+                'userReview': userReview['body'],
+              });
+            }
+          }
+        }
+        
+        ratedMovies.value = moviesWithDetails;
+      }
+    } catch (e) {
+      print('RatingController: Error fetching rated movies: $e');
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<List<Map<String, dynamic>>> getRatedMovies(AuthService authService) async {

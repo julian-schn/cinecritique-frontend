@@ -34,8 +34,9 @@ class RatingController {
       );
 
       if (response.statusCode == 200) {
-        // Get the list of rated movie IDs
-        final List<String> ratedMovieIds = List<String>.from(json.decode(response.body));
+        // Parse the response body as a List<dynamic>
+        final List<dynamic> ratedMovieIds = json.decode(response.body) as List<dynamic>;
+        print('RatingController: Found ${ratedMovieIds.length} rated movies');
         
         // Fetch details for each movie
         final List<Map<String, dynamic>> moviesWithDetails = [];
@@ -67,7 +68,10 @@ class RatingController {
           }
         }
         
+        print('RatingController: Successfully fetched ${moviesWithDetails.length} movies with details');
         ratedMovies.value = moviesWithDetails;
+      } else {
+        print('RatingController: Failed to fetch rated movies. Status: ${response.statusCode}');
       }
     } catch (e) {
       print('RatingController: Error fetching rated movies: $e');

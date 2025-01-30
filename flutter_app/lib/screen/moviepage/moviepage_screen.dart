@@ -17,6 +17,7 @@ import 'package:flutter_app/screen/favorite/favorite_controller.dart';
 import 'package:flutter_app/screen/recommendationns/recommenndations_page.dart';
 import 'package:flutter_app/screen/rating/rating_screen.dart';
 import 'package:flutter_app/screen/userprofile/userprofile_screen.dart';
+import 'package:flutter_app/services/rating_service.dart';
 
 class MoviePage extends StatefulWidget {
   final String imdbId;
@@ -389,12 +390,96 @@ class _MoviePageState extends State<MoviePage> {
                             );
                           },
                         ),
+                        // Add this widget after your existing movie details
+                        FutureBuilder<List<Map<String, dynamic>>>(
+                          future: RatingService(widget.authService).getReviews(widget.imdbId),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const CircularProgressIndicator();
+                            }
+                            
+                            return ReviewsList(
+                              reviews: snapshot.data ?? [],
+                              ratingService: RatingService(widget.authService),
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),
           ),
         ],
       ),
+    );
+  }
+}
+
+// Add this widget after your existing movie details
+class ReviewsList extends StatelessWidget {
+  final List<Map<String, dynamic>> reviews;
+  final RatingService ratingService;
+
+  const ReviewsList({
+    Key? key,
+    required this.reviews,
+    required this.ratingService,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Text(
+            'Reviews',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ),
+        if (reviews.isEmpty)
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text('No reviews yet'),
+          )
+        else
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: reviews.length,
+            itemBuilder: (context, index) {
+              final review = reviews[index];
+              return Card(
+                margin: const EdgeInsets.all(8.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            ratingService.formatUsername(review['createdBy'] ?? 'Anonymous'),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Row(
+                            children: List.generate(
+                              review['rating'] ?? 0,
+                              (index) => const Icon(Icons.star, color: Colors.amber),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(review['body'] ?? 'No comment'),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+      ],
     );
   }
 }

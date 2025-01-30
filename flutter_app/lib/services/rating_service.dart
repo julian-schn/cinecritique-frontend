@@ -22,27 +22,26 @@ class RatingService {
       }
       print('RatingService: Token retrieved successfully');
 
-      final url = '$_baseUrl/movie/$imdbId';
-      print('RatingService: Making GET request to: $url');
+      // First fetch the movie data
+      final movieUrl = 'https://cinecritique.mi.hdm-stuttgart.de/api/movies/$imdbId';
+      print('RatingService: Making GET request to: $movieUrl');
 
       final response = await http.get(
-        Uri.parse(url),
+        Uri.parse(movieUrl),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
 
-      print('RatingService: Get reviews response status: ${response.statusCode}');
-      print('RatingService: Get reviews response body: ${response.body}');
-
       if (response.statusCode == 200) {
-        final List<dynamic> reviewsJson = json.decode(response.body);
-        print('RatingService: Successfully parsed ${reviewsJson.length} reviews');
-        return reviewsJson.cast<Map<String, dynamic>>();
+        final movieData = json.decode(response.body);
+        // Extract the reviews array from the movie data
+        final List<dynamic> reviews = movieData['reviews'] ?? [];
+        print('RatingService: Successfully parsed ${reviews.length} reviews');
+        return reviews.cast<Map<String, dynamic>>();
       } else {
-        print('RatingService: Failed to get reviews: ${response.statusCode}');
-        print('RatingService: Error response: ${response.body}');
+        print('RatingService: Failed to get movie data: ${response.statusCode}');
         return [];
       }
     } catch (e, stackTrace) {

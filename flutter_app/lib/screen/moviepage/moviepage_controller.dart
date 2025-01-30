@@ -36,3 +36,4 @@ class MoviePageController {
       return null;
     }
   }
+}

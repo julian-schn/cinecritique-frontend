@@ -15,6 +15,8 @@ class Sidebar extends StatefulWidget {
   final VoidCallback onLogoutPressed;
   final String currentPage;
 
+  static bool isExpandedGlobal = true;
+
   const Sidebar({
     required this.authService,
     required this.onHomePressed,
@@ -34,11 +36,18 @@ class Sidebar extends StatefulWidget {
 }
 
 class _SidebarState extends State<Sidebar> {
-  bool isExpanded = true;
+  late bool isExpanded;
+
+  @override
+  void initState() {
+    super.initState();
+    isExpanded = Sidebar.isExpandedGlobal;
+  }
 
   void toggleSidebar() {
     setState(() {
       isExpanded = !isExpanded;
+      Sidebar.isExpandedGlobal = isExpanded;
     });
   }
 

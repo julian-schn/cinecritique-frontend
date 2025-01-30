@@ -244,8 +244,13 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                                     _isClickInsideSearchResults = true;
                                                   });
                                                 },
+                                                onTapUp: (_) {
+                                                  setState(() {
+                                                    _isClickInsideSearchResults = false;
+                                                  });
+                                                },
                                                 onTap: () {
-                                                  // Nichts tun, nur den Klick abfangen
+                                                  // Nothing to do here
                                                 },
                                                 child: FavoriteToggle(
                                                   iconSize: 35,

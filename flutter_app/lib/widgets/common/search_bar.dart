@@ -187,7 +187,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                   },
                   child: Container(
                     padding: const EdgeInsets.all(8.0),
-                    height: 400,
+                    height: 375,
                     child: ListView.builder(
                       controller: _scrollController,
                       shrinkWrap: true,

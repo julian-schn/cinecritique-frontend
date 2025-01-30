@@ -1,39 +1,28 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_app/services/movie_service.dart';
+import 'package:flutter_app/services/auth_service.dart';
 
 class MoviePageController {
-  Future<Map<String, dynamic>?> fetchMovieDetails(String imdbId) async {
+  final MovieService _movieService = MovieService(AuthService());
+
+  Future<Map<String, dynamic>> fetchMovieDetails(String imdbId) async {
     try {
-      final response = await http
-          .get(Uri.parse('https://cinecritique.mi.hdm-stuttgart.de/api/movies/$imdbId'))
-          .timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final data = json.decode(utf8.decode(response.bodyBytes));
-
-        // Überprüfen und Umwandeln von 'reviewIds' und 'createdBy'
-        if (data['reviewIds'] != null) {
-          data['reviewIds'] = List<Map<String, dynamic>>.from(data['reviewIds']).map((review) {
-            // Wir nehmen 'createdBy' direkt, ohne nach 'user' oder 'username' zu suchen
-            if (review['createdBy'] != null) {
-              review['createdBy'] = review['createdBy'];
-            }
-            return review;
-          }).toList();
-        }
-
-        if (data['backdrops'] != null) {
-          data['backdrops'] = List<String>.from(data['backdrops']);
-        }
-
-        return data;
-      } else {
-        print('Fehler: ${response.statusCode}');
-        return null;
-      }
+      final movie = await _movieService.getMovie(imdbId);
+      return movie;
     } catch (e) {
-      print('Fehler beim Abrufen der Filmdaten: $e');
-      return null;
+      print('Error fetching movie details: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getReviews(String imdbId) async {
+    try {
+      final movie = await _movieService.getMovie(imdbId);
+      return List<Map<String, dynamic>>.from(movie['reviewIds'] ?? []);
+    } catch (e) {
+      print('Error fetching reviews: $e');
+      return [];
     }
   }
 }

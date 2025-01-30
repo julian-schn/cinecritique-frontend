@@ -380,7 +380,7 @@ class _MoviePageState extends State<MoviePage> {
                                     return const SizedBox.shrink();
                                   }
                                   return SizedBox(
-                                    width: 300,
+                                    width: 400,
                                     child: CreateRatingWidget(
                                       imdbId: widget.imdbId,
                                       authService: widget.authService,

@@ -41,7 +41,6 @@ class RatingController {
         final userEmail = await _authService.getUserEmail();
         
         for (var movieId in ratedMovieIds) {
-          // Get movie details
           final movieResponse = await http.get(
             Uri.parse('https://cinecritique.mi.hdm-stuttgart.de/api/movies/$movieId'),
             headers: {
@@ -59,10 +58,10 @@ class RatingController {
             // Find user's review
             final userReview = reviews.firstWhere(
               (review) => review['createdBy'] == userEmail,
-              orElse: () => null,
+              orElse: () => <String, dynamic>{},
             );
             
-            if (userReview != null) {
+            if (userReview.isNotEmpty) {
               moviesWithDetails.add({
                 ...movieData,
                 'userRating': userReview['rating'],

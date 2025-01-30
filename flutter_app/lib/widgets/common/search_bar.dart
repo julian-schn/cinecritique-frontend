@@ -142,7 +142,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
           }
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 64.0, vertical: 5.0),
+          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 5.0),
           child: Column(
             children: [
               TextField(

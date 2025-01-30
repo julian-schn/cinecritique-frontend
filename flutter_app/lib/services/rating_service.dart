@@ -36,10 +36,29 @@ class RatingService {
 
       if (response.statusCode == 200) {
         final movieData = json.decode(response.body);
+        print('RatingService: Movie data received: $movieData');
+        
         // Extract the reviews array from the movie data
-        final List<dynamic> reviews = movieData['reviews'] ?? [];
+        final List<dynamic> reviewIds = movieData['reviewIds'] ?? [];
+        print('RatingService: Found ${reviewIds.length} reviewIds');
+        
+        final List<Map<String, dynamic>> reviews = reviewIds.map((review) {
+          if (review is Map<String, dynamic>) {
+            return {
+              'rating': review['rating'] ?? 0,
+              'body': review['body'] ?? '',
+              'createdBy': review['createdBy'] ?? 'Unknown',
+            };
+          }
+          return {
+            'rating': 0,
+            'body': '',
+            'createdBy': 'Unknown',
+          };
+        }).toList();
+        
         print('RatingService: Successfully parsed ${reviews.length} reviews');
-        return reviews.cast<Map<String, dynamic>>();
+        return reviews;
       } else {
         print('RatingService: Failed to get movie data: ${response.statusCode}');
         return [];

@@ -187,9 +187,13 @@ class _MoviePageState extends State<MoviePage> {
                             Positioned(
                               bottom: 16,
                               left: 16,
-                              child: DisplayRatingWidget(
-                                imdbId: widget.imdbId,
-                                authService: widget.authService,
+                              child: Row(
+                                children: [
+                                  DisplayRatingWidget(
+                                    averageRating: movieData?['rating'] ?? 0.0,
+                                  ),
+                                  const SizedBox(width: 24),
+                                ],
                               ),
                             ),
                             Positioned(
@@ -362,47 +366,44 @@ class _MoviePageState extends State<MoviePage> {
                             ],
                           ),
                         ),
-                        // Add CreateRatingWidget and ShowRatingWidget after the backdrops section
-                        ValueListenableBuilder<bool>(
-                          valueListenable: widget.authService.isLoggedIn,
-                          builder: (context, isLoggedIn, _) {
-                            if (!isLoggedIn) {
-                              return const SizedBox.shrink();
-                            }
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                CreateRatingWidget(
-                                  imdbId: widget.imdbId,
-                                  authService: widget.authService,
-                                  onRatingSubmitted: () {
-                                    setState(() {
-                                      // Refresh the reviews when a new rating is submitted
-                                      _fetchMovieDetails();
-                                    });
-                                  },
+                        // Rating section with CreateRatingWidget and ShowRatingWidget
+                        Container(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // CreateRatingWidget on the left
+                              ValueListenableBuilder<bool>(
+                                valueListenable: widget.authService.isLoggedIn,
+                                builder: (context, isLoggedIn, _) {
+                                  if (!isLoggedIn) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  return SizedBox(
+                                    width: 300,
+                                    child: CreateRatingWidget(
+                                      imdbId: widget.imdbId,
+                                      authService: widget.authService,
+                                      onRatingSubmitted: () {
+                                        setState(() {
+                                          _fetchMovieDetails();
+                                        });
+                                      },
+                                    ),
+                                  );
+                                },
+                              ),
+                              // ShowRatingWidget on the right
+                              Expanded(
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: ShowRatingWidget(
+                                    reviews: movieData?['reviewIds'] ?? [],
+                                  ),
                                 ),
-                                ShowRatingWidget(
-                                  imdbId: widget.imdbId,
-                                  authService: widget.authService,
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                        // Add this widget after your existing movie details
-                        FutureBuilder<List<Map<String, dynamic>>>(
-                          future: RatingService(widget.authService).getReviews(widget.imdbId),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return const CircularProgressIndicator();
-                            }
-                            
-                            return ReviewsList(
-                              reviews: snapshot.data ?? [],
-                              ratingService: RatingService(widget.authService),
-                            );
-                          },
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),

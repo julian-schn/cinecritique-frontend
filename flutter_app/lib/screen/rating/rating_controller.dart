@@ -34,13 +34,13 @@ class RatingController {
       );
 
       if (response.statusCode == 200) {
-        // Parse the response body as a List<dynamic>
         final List<dynamic> ratedMovieIds = json.decode(response.body) as List<dynamic>;
         print('RatingController: Found ${ratedMovieIds.length} rated movies');
+        print('RatingController: Movie IDs: $ratedMovieIds'); // Debug print
         
         // Fetch details for each movie
         final List<Map<String, dynamic>> moviesWithDetails = [];
-        for (String movieId in ratedMovieIds) {
+        for (var movieId in ratedMovieIds) { // Removed String type constraint
           final movieResponse = await http.get(
             Uri.parse('https://cinecritique.mi.hdm-stuttgart.de/api/movies/$movieId'),
             headers: {
@@ -50,21 +50,28 @@ class RatingController {
           );
           
           if (movieResponse.statusCode == 200) {
-            final movieData = json.decode(movieResponse.body);
-            // Find user's review in the movie's reviews
+            final movieData = json.decode(movieResponse.body) as Map<String, dynamic>;
             final userEmail = await _authService.getUserEmail();
-            final userReview = (movieData['reviews'] as List?)?.firstWhere(
-              (review) => review['createdBy'] == userEmail,
-              orElse: () => null,
-            );
             
-            if (userReview != null) {
-              moviesWithDetails.add({
-                ...movieData,
-                'userRating': userReview['rating'],
-                'userReview': userReview['body'],
-              });
+            try {
+              final reviews = movieData['reviews'] as List<dynamic>? ?? [];
+              final userReview = reviews.firstWhere(
+                (review) => review['createdBy'] == userEmail,
+                orElse: () => null,
+              );
+              
+              if (userReview != null) {
+                moviesWithDetails.add({
+                  ...movieData,
+                  'userRating': userReview['rating'],
+                  'userReview': userReview['body'],
+                });
+              }
+            } catch (e) {
+              print('RatingController: Error processing movie $movieId: $e');
             }
+          } else {
+            print('RatingController: Failed to fetch movie $movieId: ${movieResponse.statusCode}');
           }
         }
         

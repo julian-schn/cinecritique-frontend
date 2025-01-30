@@ -29,7 +29,7 @@ class FavoriteController {
       print('FavoriteController: Get favorites response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final List<Map<String, dynamic>> favorites = List<Map<String, dynamic>>.from(json.decode(response.body));
+        final List<Map<String, dynamic>> favorites = List<Map<String, dynamic>>.from(json.decode(utf8.decode(response.bodyBytes)));
         print('FavoriteController: Successfully fetched ${favorites.length} favorites');
         return favorites;
       }

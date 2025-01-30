@@ -23,9 +23,12 @@ class ShowRatingWidget extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           if (reviews.isEmpty)
-            const Text(
-              "Noch keine Bewertungen.",
-              style: TextStyle(fontSize: 16, color: Colors.white70),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0, top: 8.0),
+              child: const Text(
+                "Noch keine Bewertungen.",
+                style: TextStyle(fontSize: 16, color: Colors.white70),
+              ),
             ),
           ...reviews.map((review) {
             final int rating = review['rating'] ?? 0;

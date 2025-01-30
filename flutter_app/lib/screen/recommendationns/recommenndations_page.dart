@@ -8,6 +8,7 @@ import 'package:flutter_app/widgets/movie/movie_card.dart';
 import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
 import 'package:flutter_app/screen/favorite/favorite_screen.dart';
 import 'package:flutter_app/screen/rating/rating_screen.dart';
+import 'package:flutter_app/screen/userprofile/userprofile_screen.dart';
 
 class RecommendationsPage extends StatefulWidget {
   final AuthService authService;
@@ -127,7 +128,14 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
               );
             },
             onProfilPressed: () {
-              print("Profile page not implemented yet");
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => UserProfileScreen(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
             },
             onLoginPressed: () {
               widget.authService.login();

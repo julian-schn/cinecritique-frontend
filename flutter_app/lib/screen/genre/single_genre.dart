@@ -11,6 +11,7 @@ import 'package:flutter_app/services/auth_service.dart'; // Import AuthService
 import 'package:flutter_app/screen/recommendationns/recommenndations_page.dart';
 import 'package:flutter_app/screen/favorite/favorite_screen.dart';
 import 'package:flutter_app/screen/rating/rating_screen.dart';
+import 'package:flutter_app/screen/userprofile/userprofile_screen.dart';
 
 class GenreDetailPage extends StatefulWidget {
   final String genre;
@@ -119,7 +120,14 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
               );
             },
             onProfilPressed: () {
-              print("Profile page not implemented yet");
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => UserProfileScreen(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
             },
             onLoginPressed: () {
               widget.authService.login();

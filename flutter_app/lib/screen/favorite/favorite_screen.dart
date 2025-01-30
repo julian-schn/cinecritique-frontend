@@ -9,6 +9,7 @@ import 'package:flutter_app/screen/favorite/favorite_controller.dart';
 import 'package:flutter_app/widgets/common/search_bar.dart';
 import 'package:flutter_app/screen/recommendationns/recommenndations_page.dart';
 import 'package:flutter_app/screen/rating/rating_screen.dart';
+import 'package:flutter_app/screen/userprofile/userprofile_screen.dart';
 
 class FavoriteScreen extends StatefulWidget {
   final AuthService authService;
@@ -108,7 +109,14 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               );
             },
             onProfilPressed: () {
-              print("Profile page not implemented yet");
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => UserProfileScreen(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
             },
             onLoginPressed: () {
               widget.authService.login();

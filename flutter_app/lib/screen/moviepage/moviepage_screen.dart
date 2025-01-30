@@ -16,6 +16,7 @@ import 'package:flutter_app/screen/favorite/favorite_screen.dart';
 import 'package:flutter_app/screen/favorite/favorite_controller.dart';
 import 'package:flutter_app/screen/recommendationns/recommenndations_page.dart';
 import 'package:flutter_app/screen/rating/rating_screen.dart';
+import 'package:flutter_app/screen/userprofile/userprofile_screen.dart';
 
 class MoviePage extends StatefulWidget {
   final String imdbId;
@@ -125,7 +126,14 @@ class _MoviePageState extends State<MoviePage> {
               );
             },
             onProfilPressed: () {
-              print("Profile page not implemented yet");
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => UserProfileScreen(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
             },
             onLoginPressed: () {
               widget.authService.login();

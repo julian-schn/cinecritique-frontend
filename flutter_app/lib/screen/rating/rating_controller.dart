@@ -38,7 +38,7 @@ class RatingController {
         print('RatingController: Found ${ratedMovieIds.length} rated movies');
         
         final List<Map<String, dynamic>> moviesWithDetails = [];
-        final userEmail = await _authService.getUserEmail();
+        final userName = await _authService.getUsername();
         
         for (var movieId in ratedMovieIds) {
           final movieResponse = await http.get(
@@ -57,7 +57,7 @@ class RatingController {
             
             // Find user's review
             final userReview = reviews.firstWhere(
-              (review) => review['createdBy'] == userEmail,
+              (review) => review['createdBy'] == userName,
               orElse: () => <String, dynamic>{},
             );
             

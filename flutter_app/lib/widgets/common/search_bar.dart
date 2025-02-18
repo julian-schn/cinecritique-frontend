@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
 import 'package:flutter_app/widgets/common/toggle_favorite.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_app/services/auth_service.dart'; // Importiere AuthService
+import 'package:flutter_app/services/auth_service.dart';
 
 class CustomSearchBar extends StatefulWidget implements PreferredSizeWidget {
   final AuthService authService;
@@ -13,12 +13,12 @@ class CustomSearchBar extends StatefulWidget implements PreferredSizeWidget {
   final Function(bool) onSearchResultsUpdated; // Callback für Suchergebnisse
 
   const CustomSearchBar({
-    super.key,
+    Key? key,
     required this.authService,
     required this.onSearchStart,
     required this.onSearchEnd,
     required this.onSearchResultsUpdated,
-  });
+  }) : super(key: key);
 
   @override
   _CustomSearchBarState createState() => _CustomSearchBarState();
@@ -28,14 +28,16 @@ class CustomSearchBar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _CustomSearchBarState extends State<CustomSearchBar> {
-  TextEditingController _controller = TextEditingController();
-  FocusNode _focusNode = FocusNode();
+  final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
   List<Map<String, dynamic>> _movies = [];
   bool _isLoading = false;
   Timer? _debounce;
 
-  Map<int, bool> _isHovered = {};
+  final Map<int, bool> _isHovered = {};
   final ScrollController _scrollController = ScrollController();
+  // Wir nutzen diese Variable weiterhin, damit beim Verlassen des Textfeldes
+  // nicht sofort geschlossen wird, wenn man innerhalb der Suchergebnisse klickt.
   bool _isClickInsideSearchResults = false;
 
   @override
@@ -43,7 +45,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
     super.initState();
     _focusNode.addListener(() {
       if (!_focusNode.hasFocus && !_isClickInsideSearchResults) {
-        Future.delayed(Duration(milliseconds: 100), () {
+        Future.delayed(const Duration(milliseconds: 100), () {
           if (mounted && !_isClickInsideSearchResults) {
             setState(() {
               _movies = [];
@@ -133,6 +135,8 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
+          // Klick außerhalb des Suchbereichs schließt die Suchergebnisse,
+          // sofern kein Klick innerhalb der Ergebnisse registriert wurde.
           if (!_focusNode.hasPrimaryFocus && !_isClickInsideSearchResults) {
             FocusScope.of(context).requestFocus(FocusNode());
             setState(() {
@@ -163,7 +167,8 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
-                    borderSide: const BorderSide(color: Colors.white, width: 1.0),
+                    borderSide:
+                        const BorderSide(color: Colors.white, width: 1.0),
                   ),
                   filled: true,
                   fillColor: const Color(0xFF121212),
@@ -210,9 +215,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                               },
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: _isHovered[index] == true
-                                      ? Color(0xFF121212)
-                                      : Color(0xFF121212),
+                                  color: const Color(0xFF121212),
                                   borderRadius: BorderRadius.circular(10.0),
                                 ),
                                 child: ListTile(
@@ -233,33 +236,21 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                         )
                                       : null,
                                   trailing: ValueListenableBuilder<bool>(
-                                    valueListenable: widget.authService.isLoggedIn,
+                                    valueListenable:
+                                        widget.authService.isLoggedIn,
                                     builder: (context, isLoggedIn, _) {
                                       return isLoggedIn
                                           ? Padding(
-                                              padding: const EdgeInsets.only(right: 20.0),
-                                              child: GestureDetector(
-                                                onTapDown: (_) {
-                                                  setState(() {
-                                                    _isClickInsideSearchResults = true;
-                                                  });
-                                                },
-                                                onTapUp: (_) {
-                                                  setState(() {
-                                                    _isClickInsideSearchResults = false;
-                                                  });
-                                                },
-                                                onTap: () {
-                                                  // Nothing to do here
-                                                },
-                                                child: FavoriteToggle(
-                                                  iconSize: 35,
-                                                  imdbId: movie['imdbId'],
-                                                  authService: widget.authService,
-                                                ),
+                                              padding: const EdgeInsets.only(
+                                                  right: 20.0),
+                                              // Hier direkt das FavoriteToggle ohne extra GestureDetector
+                                              child: FavoriteToggle(
+                                                iconSize: 35,
+                                                imdbId: movie['imdbId'],
+                                                authService: widget.authService,
                                               ),
                                             )
-                                          : SizedBox.shrink();
+                                          : const SizedBox.shrink();
                                     },
                                   ),
                                   onTap: () {

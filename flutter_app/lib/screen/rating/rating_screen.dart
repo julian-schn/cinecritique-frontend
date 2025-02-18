@@ -37,8 +37,8 @@ class _RatingScreenState extends State<RatingScreen> {
     return Scaffold(
       body: Row(
         children: [
-          // -- Sidebar
-           Sidebar(
+          
+          Sidebar(
             authService: widget.authService,
             onHomePressed: () {
               Navigator.pushReplacement(
@@ -109,7 +109,7 @@ class _RatingScreenState extends State<RatingScreen> {
             currentPage: 'Bewertungen',
           ),
 
-          // -- Hauptbereich
+          
           Expanded(
             child: SingleChildScrollView(
               child: Padding(
@@ -118,7 +118,7 @@ class _RatingScreenState extends State<RatingScreen> {
                   crossAxisAlignment:
                       isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
                   children: [
-                    // Überschrift
+                    
                     Row(
                       children: [
                         Text(
@@ -141,7 +141,6 @@ class _RatingScreenState extends State<RatingScreen> {
                     ),
                     const SizedBox(height: 48),
 
-                    // Daten laden
                     FutureBuilder<List<Map<String, dynamic>>>(
                       future: _userReviewsFuture,
                       builder: (context, snapshot) {
@@ -168,19 +167,22 @@ class _RatingScreenState extends State<RatingScreen> {
 
                         final reviews = snapshot.data!;
 
-                        // -- Anzeige in Wrap
+                        
                         return Wrap(
+                          alignment: WrapAlignment.center, 
                           spacing: isSidebarExpanded ? 16.0 : 48.0,
                           runSpacing: 16.0,
                           children: reviews.map((reviewData) {
                             final imdbId = reviewData['imdbId'] ?? '';
                             final title = reviewData['movieTitle'] ?? 'Unbekannt';
                             final poster = reviewData['moviePoster'] ?? '';
-                            final ratingNum = (reviewData['reviewRating'] ?? 0).toDouble();
-                            final reviewText = reviewData['reviewBody'] ?? '';
+                            final ratingNum =
+                                (reviewData['reviewRating'] ?? 0).toDouble();
+                            final reviewText =
+                                reviewData['reviewBody'] ?? '';
 
                             return Container(
-                              width: 250, // wie auf der Favoriten-Page
+                              width: 250, 
                               margin: const EdgeInsets.all(8.0),
                               child: Card(
                                 color: const Color(0xFF1C1C1C),
@@ -203,7 +205,7 @@ class _RatingScreenState extends State<RatingScreen> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
-                                      // Poster
+                                      
                                       ClipRRect(
                                         borderRadius: const BorderRadius.only(
                                           topLeft: Radius.circular(12.0),
@@ -211,7 +213,7 @@ class _RatingScreenState extends State<RatingScreen> {
                                         ),
                                         child: Image.network(
                                           poster,
-                                          height: 200, // ggf. anpassen
+                                          height: 200, 
                                           width: double.infinity,
                                           fit: BoxFit.cover,
                                           errorBuilder: (context, error, stackTrace) {
@@ -224,16 +226,16 @@ class _RatingScreenState extends State<RatingScreen> {
                                         ),
                                       ),
 
-                                      // Roter Balken unter dem Poster
+                                     
                                       Container(
                                         height: 4,
                                         color: Colors.redAccent,
                                         margin: const EdgeInsets.only(bottom: 10.0),
                                       ),
 
-                                      // Titel in fixem Container (damit Sterne immer gleiche Höhe)
+                                      
                                       Container(
-                                        height: 48, // ggf. anpassen
+                                        height: 48,
                                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                         alignment: Alignment.topCenter,
                                         child: Text(
@@ -248,26 +250,26 @@ class _RatingScreenState extends State<RatingScreen> {
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
-                                      // Kleiner Abstand zum Sterne-Row
+
                                       const SizedBox(height: 4),
 
-                                      // Sterne
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: List.generate(5, (index) {
                                           return Icon(
-                                            index < ratingNum ? Icons.star : Icons.star_border,
+                                            index < ratingNum
+                                                ? Icons.star
+                                                : Icons.star_border,
                                             color: Colors.white,
                                             size: 23,
                                           );
                                         }),
                                       ),
-                                      // Kleiner Abstand vor dem Review-Text
-                                      const SizedBox(height: 6),
 
-                                      // Review-Text in fixem Container -> gleicher Startpunkt
+                                      const SizedBox(height: 8),
+
                                       Container(
-                                        height: 60, // ggf. anpassen
+                                        height: 62,
                                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                         alignment: Alignment.topCenter,
                                         child: Text(
@@ -282,7 +284,6 @@ class _RatingScreenState extends State<RatingScreen> {
                                         ),
                                       ),
 
-                                      // Unterkante der Card
                                       const SizedBox(height: 10),
                                     ],
                                   ),

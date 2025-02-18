@@ -7,7 +7,6 @@ class RatingController {
 
   RatingController(this._authService);
 
-  /// Ruft alle Reviews des aktuell angemeldeten Nutzers ab und kombiniert sie mit den entsprechenden Filmdetails.
   Future<List<Map<String, dynamic>>> getUserReviewsWithMovieDetails() async {
     print('RatingController: Starting to fetch user reviews with movie details');
     try {
@@ -17,7 +16,6 @@ class RatingController {
         return [];
       }
 
-      // API-Aufruf an den neuen Endpoint, der alle Reviews des Users liefert.
       final reviewsResponse = await http.get(
         Uri.parse('https://cinecritique.mi.hdm-stuttgart.de/api/reviews/all'),
         headers: {
@@ -53,12 +51,10 @@ class RatingController {
         );
 
         if (movieResponse.statusCode == 200) {
-          // <-- UTF-8 bei den Filmdetails
           final movieData = json.decode(
             utf8.decode(movieResponse.bodyBytes),
           ) as Map<String, dynamic>;
 
-          // Kombiniere die relevanten Filmdetails mit den Review-Daten
           final combinedData = {
             'imdbId': imdbId,
             'movieTitle': movieData['title'],
@@ -74,7 +70,6 @@ class RatingController {
         }
       }
 
-      // Am Ende alphabetisch (case-insensitive) nach movieTitle sortieren
       reviewsWithMovieDetails.sort((a, b) {
         final titleA = (a['movieTitle'] ?? '').toLowerCase();
         final titleB = (b['movieTitle'] ?? '').toLowerCase();

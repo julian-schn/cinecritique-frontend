@@ -42,7 +42,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     });
 
     final favList = await _controller.getFavorites();
-    // Die `favList` ist hier bereits alphabetisch sortiert (siehe Controller).
     setState(() {
       favorites = favList;
       isLoading = false;
@@ -56,7 +55,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     return Scaffold(
       body: Row(
         children: [
-          // -- Sidebar
+          
           Sidebar(
             authService: widget.authService,
             onHomePressed: () {
@@ -127,7 +126,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             },
             currentPage: 'Favoriten',
           ),
-          // -- Hauptbereich
           Expanded(
             child: SingleChildScrollView(
               physics: _isSearching
@@ -137,7 +135,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                 crossAxisAlignment:
                     isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
                 children: [
-                  // -- Suchfeld
                   Padding(
                     padding: const EdgeInsets.only(bottom: 5.0),
                     child: CustomSearchBar(
@@ -159,7 +156,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                       },
                     ),
                   ),
-                  // -- Überschrift
                   Padding(
                     padding: EdgeInsets.only(
                       left: isSidebarExpanded
@@ -191,7 +187,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                       ],
                     ),
                   ),
-                  // -- Content / Favoritenliste
                   if (isLoading)
                     const Center(child: CircularProgressIndicator())
                   else if (favorites.isEmpty)

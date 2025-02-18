@@ -329,7 +329,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               );
             },
             onProfilPressed: () {
-              // Already on profile page
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => UserProfileScreen(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
             },
             onLoginPressed: () {
               widget.authService.login();

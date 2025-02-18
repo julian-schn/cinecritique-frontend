@@ -26,7 +26,7 @@ class _RatingScreenState extends State<RatingScreen> {
   void initState() {
     super.initState();
     _controller = RatingController(widget.authService);
-    // Holt alle Reviews + Filmdetails (z. B. mit utf8-Decode im Controller)
+    // Holt alle Reviews + Filmdetails
     _userReviewsFuture = _controller.getUserReviewsWithMovieDetails();
   }
 
@@ -38,39 +38,66 @@ class _RatingScreenState extends State<RatingScreen> {
       body: Row(
         children: [
           // -- Sidebar
-          Sidebar(
+           Sidebar(
             authService: widget.authService,
             onHomePressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
+                MaterialPageRoute(
+                  builder: (context) => HomeScreen(
+                    authService: widget.authService,
+                  ),
+                ),
               );
             },
             onGenresPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
+                MaterialPageRoute(
+                  builder: (context) => GenrePage(
+                    authService: widget.authService,
+                  ),
+                ),
               );
             },
             onFavoritesPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => FavoriteScreen(authService: widget.authService)),
+                MaterialPageRoute(
+                  builder: (context) => FavoriteScreen(
+                    authService: widget.authService,
+                  ),
+                ),
               );
             },
             onRecommendationsPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => RecommendationsPage(authService: widget.authService)),
+                MaterialPageRoute(
+                  builder: (context) => RecommendationsPage(
+                    authService: widget.authService,
+                  ),
+                ),
               );
             },
             onRatingsPressed: () {
-              // Already on ratings page
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RatingScreen(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
             },
             onProfilPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => UserProfileScreen(authService: widget.authService)),
+                MaterialPageRoute(
+                  builder: (context) => UserProfileScreen(
+                    authService: widget.authService,
+                  ),
+                ),
               );
             },
             onLoginPressed: () {
@@ -139,9 +166,9 @@ class _RatingScreenState extends State<RatingScreen> {
                           );
                         }
 
-                        final reviews = snapshot.data!; // ggf. bereits sortiert im Controller
+                        final reviews = snapshot.data!;
 
-                        // Wrap: alle Cards in gleicher Größe
+                        // -- Anzeige in Wrap
                         return Wrap(
                           spacing: isSidebarExpanded ? 16.0 : 48.0,
                           runSpacing: 16.0,
@@ -174,7 +201,6 @@ class _RatingScreenState extends State<RatingScreen> {
                                     );
                                   },
                                   child: Column(
-                                    mainAxisSize: MainAxisSize.min,
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
                                       // Poster
@@ -205,9 +231,9 @@ class _RatingScreenState extends State<RatingScreen> {
                                         margin: const EdgeInsets.only(bottom: 10.0),
                                       ),
 
-                                      // Titel in fixem Container
+                                      // Titel in fixem Container (damit Sterne immer gleiche Höhe)
                                       Container(
-                                        height: 60, // 2 Zeilen + Puffer (ggf. anpassen)
+                                        height: 48, // ggf. anpassen
                                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                         alignment: Alignment.topCenter,
                                         child: Text(
@@ -222,9 +248,10 @@ class _RatingScreenState extends State<RatingScreen> {
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
-                                      const SizedBox(height: 8),
+                                      // Kleiner Abstand zum Sterne-Row
+                                      const SizedBox(height: 4),
 
-                                      // Sterne (stets 5 anzeigen)
+                                      // Sterne
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: List.generate(5, (index) {
@@ -235,26 +262,27 @@ class _RatingScreenState extends State<RatingScreen> {
                                           );
                                         }),
                                       ),
-                                      const SizedBox(height: 8),
+                                      // Kleiner Abstand vor dem Review-Text
+                                      const SizedBox(height: 4),
 
-                                      // Review-Text in fixem Container
+                                      // Review-Text in fixem Container -> gleicher Startpunkt
                                       Container(
-                                        height: 80, // Platz für ~3 Zeilen + Ellipsis (ggf. anpassen)
+                                        height: 60, // ggf. anpassen
                                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                        child: Center(
-                                          child: Text(
-                                            reviewText,
-                                            style: GoogleFonts.inter(
-                                              color: Colors.grey[300],
-                                              fontSize: 14,
-                                            ),
-                                            maxLines: 3,
-                                            overflow: TextOverflow.ellipsis,
-                                            textAlign: TextAlign.center,
+                                        alignment: Alignment.topCenter,
+                                        child: Text(
+                                          reviewText,
+                                          style: GoogleFonts.inter(
+                                            color: Colors.grey[300],
+                                            fontSize: 14,
                                           ),
+                                          maxLines: 3,
+                                          overflow: TextOverflow.ellipsis,
+                                          textAlign: TextAlign.center,
                                         ),
                                       ),
 
+                                      // Unterkante der Card
                                       const SizedBox(height: 10),
                                     ],
                                   ),

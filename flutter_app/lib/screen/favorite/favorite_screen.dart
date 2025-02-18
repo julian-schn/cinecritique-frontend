@@ -80,7 +80,14 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               );
             },
             onFavoritesPressed: () {
-              // Already on favorites page
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FavoriteScreen(
+                    authService: widget.authService,
+                  ),
+                ),
+              );
             },
             onRecommendationsPressed: () {
               Navigator.pushReplacement(

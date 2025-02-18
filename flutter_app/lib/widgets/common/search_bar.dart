@@ -34,19 +34,16 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
   bool _isLoading = false;
   Timer? _debounce;
 
-  final Map<int, bool> _isHovered = {};
   final ScrollController _scrollController = ScrollController();
-  // Wir nutzen diese Variable weiterhin, damit beim Verlassen des Textfeldes
-  // nicht sofort geschlossen wird, wenn man innerhalb der Suchergebnisse klickt.
-  bool _isClickInsideSearchResults = false;
 
   @override
   void initState() {
     super.initState();
     _focusNode.addListener(() {
-      if (!_focusNode.hasFocus && !_isClickInsideSearchResults) {
+      // Wenn das Textfeld den Fokus verliert, werden die Suchergebnisse geschlossen.
+      if (!_focusNode.hasFocus) {
         Future.delayed(const Duration(milliseconds: 100), () {
-          if (mounted && !_isClickInsideSearchResults) {
+          if (mounted) {
             setState(() {
               _movies = [];
             });
@@ -78,7 +75,8 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
       _isLoading = true;
     });
 
-    final url = 'https://cinecritique.mi.hdm-stuttgart.de/api/movies?search=$query';
+    final url =
+        'https://cinecritique.mi.hdm-stuttgart.de/api/movies?search=$query';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -132,13 +130,13 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 7.0),
+      // Äußerer GestureDetector: Schließt die Suchergebnisse, wenn außerhalb getippt wird.
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
-          // Klick außerhalb des Suchbereichs schließt die Suchergebnisse,
-          // sofern kein Klick innerhalb der Ergebnisse registriert wurde.
-          if (!_focusNode.hasPrimaryFocus && !_isClickInsideSearchResults) {
-            FocusScope.of(context).requestFocus(FocusNode());
+          // Falls Textfeld nicht fokussiert ist, Suchergebnisse schließen.
+          if (!_focusNode.hasPrimaryFocus) {
+            FocusScope.of(context).unfocus();
             setState(() {
               _movies = [];
             });
@@ -180,15 +178,10 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                   color: Colors.white,
                 ),
               if (_movies.isNotEmpty)
-                NotificationListener<ScrollNotification>(
-                  onNotification: (scrollNotification) {
-                    if (scrollNotification is ScrollUpdateNotification) {
-                      if (_scrollController.position.pixels ==
-                          _scrollController.position.maxScrollExtent) {
-                        return true;
-                      }
-                    }
-                    return false;
+                // Dieser GestureDetector umschließt die Suchergebnisse und fängt alle Taps darin ab.
+                GestureDetector(
+                  onTap: () {
+                    // Leerer onTap: Damit Taps innerhalb des Bereichs nicht an den äußeren Detector weitergereicht werden.
                   },
                   child: Container(
                     padding: const EdgeInsets.all(8.0),
@@ -202,69 +195,51 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                         final movie = _movies[index];
                         return Column(
                           children: [
-                            MouseRegion(
-                              onEnter: (_) {
-                                setState(() {
-                                  _isHovered[index] = true;
-                                });
-                              },
-                              onExit: (_) {
-                                setState(() {
-                                  _isHovered[index] = false;
-                                });
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF121212),
-                                  borderRadius: BorderRadius.circular(10.0),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF121212),
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              child: ListTile(
+                                contentPadding:
+                                    const EdgeInsets.symmetric(vertical: 8.0),
+                                title: Text(
+                                  movie['title'],
+                                  style: const TextStyle(color: Colors.white),
                                 ),
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 8.0),
-                                  title: Text(
-                                    movie['title'],
-                                    style: TextStyle(
-                                      color: _isHovered[index] == true
-                                          ? Colors.redAccent
-                                          : Colors.white,
-                                    ),
-                                  ),
-                                  leading: movie['poster'] != null
-                                      ? Image.network(
-                                          movie['poster'],
-                                          fit: BoxFit.cover,
-                                        )
-                                      : null,
-                                  trailing: ValueListenableBuilder<bool>(
-                                    valueListenable:
-                                        widget.authService.isLoggedIn,
-                                    builder: (context, isLoggedIn, _) {
-                                      return isLoggedIn
-                                          ? Padding(
-                                              padding: const EdgeInsets.only(
-                                                  right: 20.0),
-                                              // Hier direkt das FavoriteToggle ohne extra GestureDetector
-                                              child: FavoriteToggle(
-                                                iconSize: 35,
-                                                imdbId: movie['imdbId'],
-                                                authService: widget.authService,
-                                              ),
-                                            )
-                                          : const SizedBox.shrink();
-                                    },
-                                  ),
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => MoviePage(
-                                          imdbId: movie['imdbId'],
-                                          authService: widget.authService,
-                                        ),
-                                      ),
-                                    );
+                                leading: movie['poster'] != null
+                                    ? Image.network(
+                                        movie['poster'],
+                                        fit: BoxFit.cover,
+                                      )
+                                    : null,
+                                trailing: ValueListenableBuilder<bool>(
+                                  valueListenable: widget.authService.isLoggedIn,
+                                  builder: (context, isLoggedIn, _) {
+                                    return isLoggedIn
+                                        ? Padding(
+                                            padding: const EdgeInsets.only(
+                                                right: 20.0),
+                                            child: FavoriteToggle(
+                                              iconSize: 35,
+                                              imdbId: movie['imdbId'],
+                                              authService: widget.authService,
+                                            ),
+                                          )
+                                        : const SizedBox.shrink();
                                   },
                                 ),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MoviePage(
+                                        imdbId: movie['imdbId'],
+                                        authService: widget.authService,
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                             const SizedBox(height: 10),

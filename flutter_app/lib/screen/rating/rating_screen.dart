@@ -26,7 +26,6 @@ class _RatingScreenState extends State<RatingScreen> {
   void initState() {
     super.initState();
     _controller = RatingController(widget.authService);
-    // Holt alle Reviews + Filmdetails
     _userReviewsFuture = _controller.getUserReviewsWithMovieDetails();
   }
 
@@ -37,16 +36,13 @@ class _RatingScreenState extends State<RatingScreen> {
     return Scaffold(
       body: Row(
         children: [
-          
           Sidebar(
             authService: widget.authService,
             onHomePressed: () {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => HomeScreen(
-                    authService: widget.authService,
-                  ),
+                  builder: (context) => HomeScreen(authService: widget.authService),
                 ),
               );
             },
@@ -54,9 +50,7 @@ class _RatingScreenState extends State<RatingScreen> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => GenrePage(
-                    authService: widget.authService,
-                  ),
+                  builder: (context) => GenrePage(authService: widget.authService),
                 ),
               );
             },
@@ -64,9 +58,7 @@ class _RatingScreenState extends State<RatingScreen> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => FavoriteScreen(
-                    authService: widget.authService,
-                  ),
+                  builder: (context) => FavoriteScreen(authService: widget.authService),
                 ),
               );
             },
@@ -74,9 +66,7 @@ class _RatingScreenState extends State<RatingScreen> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => RecommendationsPage(
-                    authService: widget.authService,
-                  ),
+                  builder: (context) => RecommendationsPage(authService: widget.authService),
                 ),
               );
             },
@@ -84,9 +74,7 @@ class _RatingScreenState extends State<RatingScreen> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => RatingScreen(
-                    authService: widget.authService,
-                  ),
+                  builder: (context) => RatingScreen(authService: widget.authService),
                 ),
               );
             },
@@ -94,9 +82,7 @@ class _RatingScreenState extends State<RatingScreen> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => UserProfileScreen(
-                    authService: widget.authService,
-                  ),
+                  builder: (context) => UserProfileScreen(authService: widget.authService),
                 ),
               );
             },
@@ -108,8 +94,6 @@ class _RatingScreenState extends State<RatingScreen> {
             },
             currentPage: 'Bewertungen',
           ),
-
-          
           Expanded(
             child: SingleChildScrollView(
               child: Padding(
@@ -118,7 +102,6 @@ class _RatingScreenState extends State<RatingScreen> {
                   crossAxisAlignment:
                       isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
                   children: [
-                    
                     Row(
                       children: [
                         Text(
@@ -140,7 +123,6 @@ class _RatingScreenState extends State<RatingScreen> {
                       ],
                     ),
                     const SizedBox(height: 48),
-
                     FutureBuilder<List<Map<String, dynamic>>>(
                       future: _userReviewsFuture,
                       builder: (context, snapshot) {
@@ -167,22 +149,19 @@ class _RatingScreenState extends State<RatingScreen> {
 
                         final reviews = snapshot.data!;
 
-                        
                         return Wrap(
-                          alignment: WrapAlignment.center, 
+                          alignment: WrapAlignment.center,
                           spacing: isSidebarExpanded ? 16.0 : 48.0,
                           runSpacing: 16.0,
                           children: reviews.map((reviewData) {
                             final imdbId = reviewData['imdbId'] ?? '';
                             final title = reviewData['movieTitle'] ?? 'Unbekannt';
                             final poster = reviewData['moviePoster'] ?? '';
-                            final ratingNum =
-                                (reviewData['reviewRating'] ?? 0).toDouble();
-                            final reviewText =
-                                reviewData['reviewBody'] ?? '';
+                            final ratingNum = (reviewData['reviewRating'] ?? 0).toDouble();
+                            final reviewText = reviewData['reviewBody'] ?? '';
 
                             return Container(
-                              width: 250, 
+                              width: 250,
                               margin: const EdgeInsets.all(8.0),
                               child: Card(
                                 color: const Color(0xFF1C1C1C),
@@ -205,7 +184,6 @@ class _RatingScreenState extends State<RatingScreen> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
-                                      
                                       ClipRRect(
                                         borderRadius: const BorderRadius.only(
                                           topLeft: Radius.circular(12.0),
@@ -213,7 +191,7 @@ class _RatingScreenState extends State<RatingScreen> {
                                         ),
                                         child: Image.network(
                                           poster,
-                                          height: 200, 
+                                          height: 200,
                                           width: double.infinity,
                                           fit: BoxFit.cover,
                                           errorBuilder: (context, error, stackTrace) {
@@ -225,15 +203,11 @@ class _RatingScreenState extends State<RatingScreen> {
                                           },
                                         ),
                                       ),
-
-                                     
                                       Container(
                                         height: 4,
                                         color: Colors.redAccent,
                                         margin: const EdgeInsets.only(bottom: 10.0),
                                       ),
-
-                                      
                                       Container(
                                         height: 48,
                                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -250,24 +224,18 @@ class _RatingScreenState extends State<RatingScreen> {
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
-
                                       const SizedBox(height: 4),
-
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: List.generate(5, (index) {
                                           return Icon(
-                                            index < ratingNum
-                                                ? Icons.star
-                                                : Icons.star_border,
+                                            index < ratingNum ? Icons.star : Icons.star_border,
                                             color: Colors.white,
                                             size: 23,
                                           );
                                         }),
                                       ),
-
                                       const SizedBox(height: 8),
-
                                       Container(
                                         height: 62,
                                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -283,7 +251,6 @@ class _RatingScreenState extends State<RatingScreen> {
                                           textAlign: TextAlign.center,
                                         ),
                                       ),
-
                                       const SizedBox(height: 10),
                                     ],
                                   ),

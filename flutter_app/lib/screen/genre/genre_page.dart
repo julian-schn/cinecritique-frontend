@@ -36,7 +36,6 @@ class _GenrePageState extends State<GenrePage> {
         isLoading = false;
       });
     } catch (e) {
-      print('Fehler beim Abrufen der Genres: $e');
       setState(() {
         isLoading = false;
       });
@@ -92,21 +91,12 @@ class _GenrePageState extends State<GenrePage> {
       },
       currentPage: 'Genres',
     );
+
     final headerRow = Padding(
       padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
       child: Row(
-        children: [
-          if (isMobile)
-            Builder(
-              builder: (context) => IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
-              ),
-            ),
-          if (isMobile) const SizedBox(width: 8),
-          const Text(
+        children: const [
+          Text(
             'Genres',
             style: TextStyle(
               color: Colors.white,
@@ -114,7 +104,7 @@ class _GenrePageState extends State<GenrePage> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const Text(
+          Text(
             '.',
             style: TextStyle(
               color: Colors.redAccent,
@@ -125,6 +115,7 @@ class _GenrePageState extends State<GenrePage> {
         ],
       ),
     );
+
     final content = Padding(
       padding: const EdgeInsets.only(top: 50.0),
       child: isLoading
@@ -174,6 +165,7 @@ class _GenrePageState extends State<GenrePage> {
                   },
                 ),
     );
+
     if (isMobile) {
       return Scaffold(
         drawer: sidebar,

@@ -58,20 +58,12 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
   Widget build(BuildContext context) {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
     final bool isSidebarExpanded = MediaQuery.of(context).size.width > 800;
+
     final headerRow = Padding(
       padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
       child: Row(
         children: [
-          if (isMobile)
-            Builder(
-              builder: (context) => IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
-              ),
-            ),
-          if (isMobile) const SizedBox(width: 8),
+          // Burger-Menü wird hier NICHT in die Header-Zeile integriert!
           Text(
             widget.genre,
             style: const TextStyle(
@@ -91,6 +83,7 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
         ],
       ),
     );
+
     final content = SingleChildScrollView(
       child: Column(
         crossAxisAlignment: isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
@@ -129,6 +122,7 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
         ],
       ),
     );
+
     final sidebar = Sidebar(
       authService: widget.authService,
       onHomePressed: () {
@@ -175,12 +169,17 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
       },
       currentPage: 'Genre',
     );
+
     if (isMobile) {
       return Scaffold(
         drawer: sidebar,
         body: Stack(
           children: [
-            SingleChildScrollView(child: content),
+            Padding(
+              padding: const EdgeInsets.only(top: 50.0),
+              child: content,
+            ),
+            // Burger-Menü als Positioned-Element oben links (16px Abstand von oben und links)
             Positioned(
               top: 16,
               left: 16,
@@ -199,9 +198,7 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
         body: Row(
           children: [
             sidebar,
-            Expanded(
-              child: isLoading ? const Center(child: CircularProgressIndicator()) : content,
-            ),
+            Expanded(child: content),
           ],
         ),
       );

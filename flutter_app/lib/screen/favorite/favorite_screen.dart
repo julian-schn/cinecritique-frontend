@@ -54,49 +54,37 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       onHomePressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  HomeScreen(authService: widget.authService)),
+          MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
         );
       },
       onGenresPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  GenrePage(authService: widget.authService)),
+          MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
         );
       },
       onFavoritesPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  FavoriteScreen(authService: widget.authService)),
+          MaterialPageRoute(builder: (context) => FavoriteScreen(authService: widget.authService)),
         );
       },
       onRecommendationsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  RecommendationsPage(authService: widget.authService)),
+          MaterialPageRoute(builder: (context) => RecommendationsPage(authService: widget.authService)),
         );
       },
       onRatingsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  RatingScreen(authService: widget.authService)),
+          MaterialPageRoute(builder: (context) => RatingScreen(authService: widget.authService)),
         );
       },
       onProfilPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  UserProfileScreen(authService: widget.authService)),
+          MaterialPageRoute(builder: (context) => UserProfileScreen(authService: widget.authService)),
         );
       },
       onLoginPressed: () {
@@ -112,7 +100,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       padding: const EdgeInsets.only(bottom: 5.0),
       child: Row(
         children: [
-          // In dieser Variante wird das Burger-Menü NICHT in der Suchzeile eingebunden.
           Expanded(
             child: CustomSearchBar(
               authService: widget.authService,
@@ -168,13 +155,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     );
 
     final content = SingleChildScrollView(
-      physics: _isSearching
-          ? const NeverScrollableScrollPhysics()
-          : const ClampingScrollPhysics(),
+      physics: _isSearching ? const NeverScrollableScrollPhysics() : const ClampingScrollPhysics(),
       child: Column(
-        crossAxisAlignment: isSidebarExpanded
-            ? CrossAxisAlignment.start
-            : CrossAxisAlignment.center,
+        crossAxisAlignment: isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
         children: [
           searchRow,
           headerRow,
@@ -236,8 +219,10 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
         drawer: sidebar,
         body: Stack(
           children: [
-            content,
-            // Burger-Menü immer oben links, mit konstantem Abstand (16px von oben und 16px von links)
+            Padding(
+              padding: const EdgeInsets.only(top: 72.0),
+              child: content,
+            ),
             Positioned(
               top: 16,
               left: 16,

@@ -74,8 +74,7 @@ class _SidebarState extends State<Sidebar> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
-                mainAxisAlignment:
-                    isExpanded ? MainAxisAlignment.start : MainAxisAlignment.center,
+                mainAxisAlignment: isExpanded ? MainAxisAlignment.start : MainAxisAlignment.center,
                 children: [
                   RichText(
                     text: TextSpan(
@@ -164,14 +163,13 @@ class _SidebarState extends State<Sidebar> {
     );
   }
 
-  bool isMobile(BuildContext context) =>
-      MediaQuery.of(context).size.width < 600;
+  bool isMobile(BuildContext context) => MediaQuery.of(context).size.width < 600;
 
   @override
   Widget build(BuildContext context) {
     if (isMobile(context)) {
       return Drawer(
-        width: 300,
+        width: 250,
         child: Container(
           color: const Color(0xFF121212),
           child: buildSidebarContent(),
@@ -213,30 +211,32 @@ class _HoverMenuItemState extends State<HoverMenuItem> {
   @override
   Widget build(BuildContext context) {
     Color color = (widget.isSelected || isHovered) ? Colors.redAccent : Colors.white;
-    return MouseRegion(
-      onEnter: (_) => setState(() => isHovered = true),
-      onExit: (_) => setState(() => isHovered = false),
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          child: Row(
-            mainAxisAlignment:
-                widget.isExpanded ? MainAxisAlignment.start : MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(left: widget.isExpanded ? 24 : 0),
-                child: Icon(widget.icon, color: color, size: 24),
-              ),
-              if (widget.isExpanded)
+    return Material(
+      type: MaterialType.transparency,
+      child: MouseRegion(
+        onEnter: (_) => setState(() => isHovered = true),
+        onExit: (_) => setState(() => isHovered = false),
+        child: GestureDetector(
+          onTap: widget.onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            child: Row(
+              mainAxisAlignment: widget.isExpanded ? MainAxisAlignment.start : MainAxisAlignment.center,
+              children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 32),
-                  child: Text(
-                    widget.title,
-                    style: GoogleFonts.inter(color: color, fontSize: 16),
-                  ),
+                  padding: EdgeInsets.only(left: widget.isExpanded ? 24 : 0),
+                  child: Icon(widget.icon, color: color, size: 24),
                 ),
-            ],
+                if (widget.isExpanded)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 32),
+                    child: Text(
+                      widget.title,
+                      style: GoogleFonts.inter(color: color, fontSize: 16),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

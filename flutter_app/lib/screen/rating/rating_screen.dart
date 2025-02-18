@@ -41,51 +41,45 @@ class _RatingScreenState extends State<RatingScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => HomeScreen(authService: widget.authService),
-          ),
+              builder: (context) => HomeScreen(authService: widget.authService)),
         );
       },
       onGenresPressed: () {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => GenrePage(authService: widget.authService),
-          ),
+              builder: (context) => GenrePage(authService: widget.authService)),
         );
       },
       onFavoritesPressed: () {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                FavoriteScreen(authService: widget.authService),
-          ),
+              builder: (context) =>
+                  FavoriteScreen(authService: widget.authService)),
         );
       },
       onRecommendationsPressed: () {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                RecommendationsPage(authService: widget.authService),
-          ),
+              builder: (context) =>
+                  RecommendationsPage(authService: widget.authService)),
         );
       },
       onRatingsPressed: () {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => RatingScreen(authService: widget.authService),
-          ),
+              builder: (context) => RatingScreen(authService: widget.authService)),
         );
       },
       onProfilPressed: () {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                UserProfileScreen(authService: widget.authService),
-          ),
+              builder: (context) =>
+                  UserProfileScreen(authService: widget.authService)),
         );
       },
       onLoginPressed: () {
@@ -97,10 +91,11 @@ class _RatingScreenState extends State<RatingScreen> {
       currentPage: 'Bewertungen',
     );
 
-    final headerRow = Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        if (!isMobile)
+    // HeaderRow wird nun immer eingefügt, auch in der mobilen Variante
+    final headerRow = Padding(
+      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+      child: Row(
+        children: [
           Text(
             'Meine Bewertungen',
             style: GoogleFonts.inter(
@@ -109,7 +104,6 @@ class _RatingScreenState extends State<RatingScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-        if (!isMobile)
           Text(
             '.',
             style: GoogleFonts.inter(
@@ -118,18 +112,18 @@ class _RatingScreenState extends State<RatingScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-      ],
+        ],
+      ),
     );
 
     final content = SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Column(
-          crossAxisAlignment: isSidebarExpanded
-              ? CrossAxisAlignment.start
-              : CrossAxisAlignment.center,
+          crossAxisAlignment:
+              isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
           children: [
-            if (!isMobile) headerRow,
+            headerRow,
             const SizedBox(height: 48),
             FutureBuilder<List<Map<String, dynamic>>>(
               future: _userReviewsFuture,
@@ -279,8 +273,7 @@ class _RatingScreenState extends State<RatingScreen> {
         drawer: sidebar,
         body: Stack(
           children: [
-            content,
-            // Burger-Menü immer oben links, mit konstantem Abstand (16px von oben & 16px von links)
+            SingleChildScrollView(child: content),
             Positioned(
               top: 16,
               left: 16,

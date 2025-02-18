@@ -32,7 +32,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   bool _showDeleteModal = false;
   final TextEditingController _emailController = TextEditingController();
 
-  // GlobalKey zum Öffnen des Drawer (wird in der mobilen Variante benötigt)
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -53,10 +52,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         );
         return;
       }
-
       final userInfo = await _controller.getUserInfo();
       final profile = await widget.authService.getUserProfile();
-
       setState(() {
         _userInfo = userInfo;
         if (profile != null) {
@@ -92,13 +89,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   Future<void> _handleEmailUpdate() async {
     if (_newEmail == null || _newEmail!.isEmpty) return;
-
     try {
       final currentEmail = _userInfo?['email'];
       if (currentEmail == null) return;
-
       final success = await widget.authService.updateEmail(currentEmail, _newEmail!);
-
       if (success) {
         setState(() {
           _userInfo?['email'] = _newEmail!;
@@ -115,9 +109,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   Future<void> _handleDeleteProfile() async {
     _showAlert('Du hast dein Profil erfolgreich gelöscht.', 'success');
-
     await Future.delayed(const Duration(milliseconds: 500));
-
     try {
       final success = await widget.authService.deleteUserProfile();
       if (success) {
@@ -140,7 +132,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   Widget _buildProfileField(String label, String value, {bool canEdit = false}) {
     final isEditing = _editingField == label.toLowerCase();
-
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       child: Column(
@@ -260,9 +251,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   Widget _buildAlert() {
     if (_alertMessage == null) return const SizedBox.shrink();
-
     final backgroundColor = _alertType == 'success' ? Colors.green : Colors.red;
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       margin: const EdgeInsets.only(top: 16),
@@ -337,23 +326,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Überschrift mit Burger-Menü (nur in mobiler Darstellung, hier aber NICHT eingebettet)
+                  // Header without burger menu here – burger menu will be shown as positioned element
                   Row(
-                    children: [
-                      if (isMobile)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 16.0),
-                          child: IconButton(
-                            icon: const Icon(Icons.menu, color: Colors.white),
-                            onPressed: () {
-                              _scaffoldKey.currentState?.openDrawer();
-                            },
-                          ),
-                        ),
-                      if (isMobile) const SizedBox(width: 8),
+                    children: const [
                       Text(
                         'Profil Einstellungen',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 36,
                           fontWeight: FontWeight.bold,
@@ -361,7 +339,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       ),
                       Text(
                         '.',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           color: Colors.redAccent,
                           fontSize: 36,
                           fontWeight: FontWeight.bold,
@@ -373,7 +351,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1E1E1E),
+                      color: Color(0xFF1E1E1E),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
@@ -409,7 +387,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         body: Stack(
           children: [
             content,
-            // Burger-Menü immer oben links mit konstantem Abstand (16px von oben und links)
             Positioned(
               top: 16,
               left: 16,

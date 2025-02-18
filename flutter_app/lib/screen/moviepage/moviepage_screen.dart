@@ -9,7 +9,6 @@ import 'package:flutter_app/widgets/common/sidebar.dart';
 import 'package:flutter_app/services/auth_service.dart';
 import 'package:flutter_app/screen/genre/genre_page.dart';
 import 'package:flutter_app/screen/genre/single_genre.dart';
-import 'package:flutter_app/screen/login/login_screen.dart'; 
 import 'package:flutter_app/main.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_app/screen/favorite/favorite_screen.dart';
@@ -78,344 +77,361 @@ class _MoviePageState extends State<MoviePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      body: Row(
-        children: [
-          Sidebar(
-            authService: widget.authService,
-            onHomePressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
-              );
-            },
-            onGenresPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
-              );
-            },
-            onFavoritesPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => FavoriteScreen(
-                    authService: widget.authService,
-                  ),
-                ),
-              );
-            },
-            onRecommendationsPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RecommendationsPage(
-                    authService: widget.authService,
-                  ),
-                ),
-              );
-            },
-            onRatingsPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RatingScreen(
-                    authService: widget.authService,
-                  ),
-                ),
-              );
-            },
-            onProfilPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => UserProfileScreen(
-                    authService: widget.authService,
-                  ),
-                ),
-              );
-            },
-            onLoginPressed: () {
-              widget.authService.login();
-            },
-            onLogoutPressed: () {
-              widget.authService.logout();
-            },
-            currentPage: 'Moviepage',
+    // Prüfe, ob es sich um ein mobiles Gerät handelt (z. B. Breite < 600px)
+    final bool isMobile = MediaQuery.of(context).size.width < 600;
+
+    // Erstelle die Sidebar-Instanz
+    final sidebar = Sidebar(
+      authService: widget.authService,
+      onHomePressed: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(authService: widget.authService),
           ),
-          Expanded(
-            child: movieData == null
-                ? const Center(child: CircularProgressIndicator())
-                : SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Stack(
-                          children: [
-                            Image.network(
-                              currentBackdrop ?? 'https://via.placeholder.com/300x480',
-                              width: double.infinity,
-                              height: 480,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  color: Colors.grey,
-                                  child: const Icon(Icons.image, color: Colors.white),
-                                );
-                              },
+        );
+      },
+      onGenresPressed: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => GenrePage(authService: widget.authService),
+          ),
+        );
+      },
+      onFavoritesPressed: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FavoriteScreen(authService: widget.authService),
+          ),
+        );
+      },
+      onRecommendationsPressed: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RecommendationsPage(authService: widget.authService),
+          ),
+        );
+      },
+      onRatingsPressed: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RatingScreen(authService: widget.authService),
+          ),
+        );
+      },
+      onProfilPressed: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => UserProfileScreen(authService: widget.authService),
+          ),
+        );
+      },
+      onLoginPressed: () {
+        widget.authService.login();
+      },
+      onLogoutPressed: () {
+        widget.authService.logout();
+      },
+      currentPage: 'Moviepage',
+    );
+
+    // Hauptinhalt der MoviePage
+    final content = movieData == null
+        ? const Center(child: CircularProgressIndicator())
+        : SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Stack(
+                  children: [
+                    Image.network(
+                      currentBackdrop ?? 'https://via.placeholder.com/300x480',
+                      width: double.infinity,
+                      height: 480,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.grey,
+                          child: const Icon(Icons.image, color: Colors.white),
+                        );
+                      },
+                    ),
+                    Positioned(
+                      bottom: 50,
+                      left: 16,
+                      child: Text(
+                        movieData?['title'] ?? '',
+                        style: const TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          shadows: [
+                            Shadow(
+                              offset: Offset(0, 2),
+                              blurRadius: 4.0,
+                              color: Colors.black54,
                             ),
-                            Positioned(
-                              bottom: 50,
-                              left: 16,
-                              child: Text(
-                                movieData?['title'] ?? '',
-                                style: const TextStyle(
-                                  fontSize: 30,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  shadows: [
-                                    Shadow(
-                                      offset: Offset(0, 2),
-                                      blurRadius: 4.0,
-                                      color: Colors.black54,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 16,
-                              left: 16,
-                              child: Row(
-                                children: [
-                                  DisplayRatingWidget(
-                                    averageRating: movieData?['rating'] ?? 0.0,
-                                  ),
-                                  const SizedBox(width: 24),
-                                ],
-                              ),
-                            ),
-                            Positioned(
-                              right: 40,
-                              bottom: 35,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 22,
-                                    horizontal: 26,
-                                  ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 16,
+                      left: 16,
+                      child: Row(
+                        children: [
+                          DisplayRatingWidget(
+                            averageRating: movieData?['rating'] ?? 0.0,
+                          ),
+                          const SizedBox(width: 24),
+                        ],
+                      ),
+                    ),
+                    Positioned(
+                      right: 40,
+                      bottom: 35,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 22,
+                            horizontal: 26,
+                          ),
+                        ),
+                        onPressed: () {
+                          final trailerUrl = movieData?['trailerLink'];
+                          _launchURL(trailerUrl);
+                        },
+                        child: const Text(
+                          'Watch',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    // FavoriteToggle (nur angezeigt, wenn der User eingeloggt ist)
+                    Positioned(
+                      right: 160,
+                      bottom: 42,
+                      child: ValueListenableBuilder<bool>(
+                        valueListenable: widget.authService.isLoggedIn,
+                        builder: (context, isLoggedIn, _) {
+                          return isLoggedIn && isFavorited != null
+                              ? FavoriteToggle(
+                                  imdbId: widget.imdbId,
+                                  authService: widget.authService,
+                                  initiallyFavorited: isFavorited!,
+                                  onToggle: (bool newState) {
+                                    setState(() {
+                                      isFavorited = newState;
+                                    });
+                                  },
+                                )
+                              : const SizedBox.shrink();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const Divider(color: Colors.white, thickness: 2, height: 0),
+                // Genre-Buttons
+                if (movieData?['genres'] != null)
+                  Container(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Wrap(
+                      spacing: 8.0,
+                      runSpacing: 8.0,
+                      children: (movieData?['genres'] as List)
+                          .map((genre) => OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(color: Colors.white),
+                                  foregroundColor: Colors.white,
                                 ),
                                 onPressed: () {
-                                  final trailerUrl = movieData?['trailerLink'];
-                                  _launchURL(trailerUrl);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => GenreDetailPage(
+                                          genre: genre,
+                                          authService: widget.authService),
+                                    ),
+                                  );
                                 },
-                                child: const Text(
-                                  'Watch',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.white,
-                                  ),
+                                child: Text(
+                                  genre,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ))
+                          .toList(),
+                    ),
+                  ),
+                // Backdrops
+                if (movieData?['backdrops'] != null &&
+                    (movieData?['backdrops'] as List).isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: SizedBox(
+                        height: 150,
+                        width: 850,
+                        child: HorizontalBackdropList(
+                          backdrops: List<String>.from(movieData?['backdrops'] ?? []),
+                          onBackdropSelected: (String backdrop) {
+                            setState(() {
+                              currentBackdrop = backdrop;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                // Plot, Directed by, Released on und Cast
+                Container(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 5,
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 16.0),
+                          child: Text(
+                            movieData?['plot'] ??
+                                'Keine Beschreibung verfügbar.',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 150),
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(bottom: 8.0),
+                              child: Text(
+                                'Directed by',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey,
                                 ),
                               ),
                             ),
-                            // FavoriteToggle only shown when logged in
-                            Positioned(
-                              right: 160,
-                              bottom: 42,
-                              child: ValueListenableBuilder<bool>(
-                                valueListenable: widget.authService.isLoggedIn,
-                                builder: (context, isLoggedIn, _) {
-                                  return isLoggedIn && isFavorited != null
-                                      ? FavoriteToggle(
-                                          imdbId: widget.imdbId,
-                                          authService: widget.authService,
-                                          initiallyFavorited: isFavorited!,
-                                          onToggle: (bool newState) {
-                                            setState(() {
-                                              isFavorited = newState;
-                                            });
-                                          },
-                                        )
-                                      : SizedBox.shrink();
-                                },
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 16.0),
+                              child: Text(
+                                movieData?['director'] ?? 'Unbekannt',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.only(bottom: 8.0),
+                              child: Text(
+                                'Released on',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              movieData?['releaseDate'] ?? 'Unbekannt',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
                               ),
                             ),
                           ],
                         ),
-                        const Divider(color: Colors.white, thickness: 2, height: 0),
-                        // Genre-Buttons
-                        if (movieData?['genres'] != null)
-                          Container(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Wrap(
-                              spacing: 8.0,
-                              runSpacing: 8.0,
-                              children: (movieData?['genres'] as List)
-                                  .map((genre) => OutlinedButton(
-                                        style: OutlinedButton.styleFrom(
-                                          side: const BorderSide(color: Colors.white),
-                                          foregroundColor: Colors.white,
-                                        ),
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => GenreDetailPage(genre: genre, authService: widget.authService),
-                                            ),
-                                          );
-                                        },
-                                        child: Text(
-                                          genre,
-                                          style: const TextStyle(color: Colors.white),
-                                        ),
-                                      ))
-                                  .toList(),
-                            ),
-                          ),
-                          // Backdrops
-                        if (movieData?['backdrops'] != null &&
-                            (movieData?['backdrops'] as List).isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 16.0),
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: SizedBox(
-                                height: 150,
-                                width: 850,
-                                child: HorizontalBackdropList(
-                                  backdrops: List<String>.from(movieData?['backdrops'] ?? []),
-                                  onBackdropSelected: (String backdrop) {
-                                    setState(() {
-                                      currentBackdrop = backdrop;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ),
-                          ),
-
-                        // Plot, Directed by, Released on und Cast
-                        Container(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                flex: 5,
-                                child: Container(
-                                  margin: const EdgeInsets.only(bottom: 16.0),
-                                  child: Text(
-                                    movieData?['plot'] ?? 'Keine Beschreibung verfügbar.',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 150),
-                              Expanded(
-                                flex: 1,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Padding(
-                                      padding: EdgeInsets.only(bottom: 8.0),
-                                      child: Text(
-                                        'Directed by',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(bottom: 16.0),
-                                      child: Text(
-                                        movieData?['director'] ?? 'Unbekannt',
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                    const Padding(
-                                      padding: EdgeInsets.only(bottom: 8.0),
-                                      child: Text(
-                                        'Released on',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      movieData?['releaseDate'] ?? 'Unbekannt',
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        // Rating section with CreateRatingWidget and ShowRatingWidget
-                        Container(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // CreateRatingWidget on the left
-                              ValueListenableBuilder<bool>(
-                                valueListenable: widget.authService.isLoggedIn,
-                                builder: (context, isLoggedIn, _) {
-                                  if (!isLoggedIn) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  return SizedBox(
-                                    width: 400,
-                                    child: CreateRatingWidget(
-                                      imdbId: widget.imdbId,
-                                      authService: widget.authService,
-                                      onRatingSubmitted: () {
-                                        setState(() {
-                                          _fetchMovieDetails();
-                                        });
-                                      },
-                                    ),
-                                  );
-                                },
-                              ),
-                              // ShowRatingWidget on the right
-                              Expanded(
-                                child: Align(
-                                  alignment: Alignment.centerRight,
-                                  child: ShowRatingWidget(
-                                    reviews: movieData?['reviewIds'] ?? [],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-          ),
-        ],
-      ),
-    );
+                ),
+                // Rating-Section (CreateRatingWidget und ShowRatingWidget)
+                Container(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // CreateRatingWidget (nur wenn eingeloggt)
+                      ValueListenableBuilder<bool>(
+                        valueListenable: widget.authService.isLoggedIn,
+                        builder: (context, isLoggedIn, _) {
+                          if (!isLoggedIn) return const SizedBox.shrink();
+                          return SizedBox(
+                            width: 400,
+                            child: CreateRatingWidget(
+                              imdbId: widget.imdbId,
+                              authService: widget.authService,
+                              onRatingSubmitted: () {
+                                setState(() {
+                                  _fetchMovieDetails();
+                                });
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                      // ShowRatingWidget
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: ShowRatingWidget(
+                            reviews: movieData?['reviewIds'] ?? [],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+
+    // Responsive Darstellung: Mobile Variante mit Drawer, ansonsten Sidebar links in einem Row
+    if (isMobile) {
+      return Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          title: const Text('Moviepage'),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        drawer: sidebar,
+        body: content,
+      );
+    } else {
+      return Scaffold(
+        extendBodyBehindAppBar: true,
+        body: Row(
+          children: [
+            sidebar,
+            Expanded(child: content),
+          ],
+        ),
+      );
+    }
   }
 }
 
-// Add this widget after your existing movie details
+// Beispiel für die ReviewsList (unverändert)
 class ReviewsList extends StatelessWidget {
   final List<Map<String, dynamic>> reviews;
   final RatingService ratingService;

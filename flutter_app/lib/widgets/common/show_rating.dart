@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/services/rating_service.dart';
-import 'package:flutter_app/services/auth_service.dart';
 
 class ShowRatingWidget extends StatelessWidget {
   final List<Map<String, dynamic>> reviews;

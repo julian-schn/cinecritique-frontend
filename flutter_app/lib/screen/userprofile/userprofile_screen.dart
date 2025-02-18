@@ -44,19 +44,21 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       if (!widget.authService.isAuthenticated()) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(authService: widget.authService),
+          ),
         );
         return;
       }
 
       final userInfo = await _controller.getUserInfo();
       final profile = await widget.authService.getUserProfile();
-      
+
       setState(() {
         _userInfo = userInfo;
         if (profile != null) {
           _userInfo?.addAll({
-            'name': profile['firstName'] ?? '' + ' ' + profile['lastName'] ?? '',
+            'name': (profile['firstName'] ?? '') + ' ' + (profile['lastName'] ?? ''),
             'username': profile['username'] ?? '',
           });
         }
@@ -87,13 +89,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   Future<void> _handleEmailUpdate() async {
     if (_newEmail == null || _newEmail!.isEmpty) return;
-    
+
     try {
       final currentEmail = _userInfo?['email'];
       if (currentEmail == null) return;
 
       final success = await widget.authService.updateEmail(currentEmail, _newEmail!);
-      
+
       if (success) {
         setState(() {
           _userInfo?['email'] = _newEmail!;
@@ -110,9 +112,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   Future<void> _handleDeleteProfile() async {
     _showAlert('Du hast dein Profil erfolgreich gelöscht.', 'success');
-    
+
     await Future.delayed(const Duration(milliseconds: 500));
-    
+
     try {
       final success = await widget.authService.deleteUserProfile();
       if (success) {
@@ -120,7 +122,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         if (mounted) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
+            MaterialPageRoute(
+              builder: (context) => HomeScreen(authService: widget.authService),
+            ),
           );
         }
       } else {
@@ -273,147 +277,155 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Row(
-        children: [
-          Sidebar(
-            authService: widget.authService,
-            onHomePressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => HomeScreen(
-                    authService: widget.authService,
-                  ),
-                ),
-              );
-            },
-            onGenresPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => GenrePage(
-                    authService: widget.authService,
-                  ),
-                ),
-              );
-            },
-            onFavoritesPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => FavoriteScreen(
-                    authService: widget.authService,
-                  ),
-                ),
-              );
-            },
-            onRecommendationsPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RecommendationsPage(
-                    authService: widget.authService,
-                  ),
-                ),
-              );
-            },
-            onRatingsPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RatingScreen(
-                    authService: widget.authService,
-                  ),
-                ),
-              );
-            },
-            onProfilPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => UserProfileScreen(
-                    authService: widget.authService,
-                  ),
-                ),
-              );
-            },
-            onLoginPressed: () {
-              widget.authService.login();
-            },
-            onLogoutPressed: () {
-              widget.authService.logout();
-            },
-            currentPage: 'Profil',
+    // Prüfen, ob es sich um ein mobiles Gerät handelt (z.B. Breite < 600px)
+    final bool isMobile = MediaQuery.of(context).size.width < 600;
+
+    // Sidebar-Instanz
+    final sidebar = Sidebar(
+      authService: widget.authService,
+      onHomePressed: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(authService: widget.authService),
           ),
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(32.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                'Profil Einstellungen',
-                                style: GoogleFonts.inter(
-                                  color: Colors.white,
-                                  fontSize: 36,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                '.',
-                                style: GoogleFonts.inter(
-                                  color: Colors.redAccent,
-                                  fontSize: 36,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 48),
-                          Container(
-                            padding: const EdgeInsets.all(24),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF1E1E1E),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildProfileField(
-                                  'Dein Name',
-                                  _userInfo?['name'] ?? 'Not available',
-                                ),
-                                _buildProfileField(
-                                  'Dein Username',
-                                  _userInfo?['username'] ?? 'Not available',
-                                ),
-                                _buildProfileField(
-                                  'Email Adresse',
-                                  _userInfo?['email'] ?? 'Not available',
-                                  canEdit: true,
-                                ),
-                                _buildDeleteButton(),
-                                _buildAlert(),
-                              ],
-                            ),
-                          ),
-                        ],
+        );
+      },
+      onGenresPressed: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => GenrePage(authService: widget.authService),
+          ),
+        );
+      },
+      onFavoritesPressed: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FavoriteScreen(authService: widget.authService),
+          ),
+        );
+      },
+      onRecommendationsPressed: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                RecommendationsPage(authService: widget.authService),
+          ),
+        );
+      },
+      onRatingsPressed: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RatingScreen(authService: widget.authService),
+          ),
+        );
+      },
+      onProfilPressed: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => UserProfileScreen(authService: widget.authService),
+          ),
+        );
+      },
+      onLoginPressed: () {
+        widget.authService.login();
+      },
+      onLogoutPressed: () {
+        widget.authService.logout();
+      },
+      currentPage: 'Profil',
+    );
+
+    // Hauptinhalt
+    final content = _isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'Profil Einstellungen',
+                        style: GoogleFonts.inter(
+                          color: Colors.white,
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
+                      Text(
+                        '.',
+                        style: GoogleFonts.inter(
+                          color: Colors.redAccent,
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 48),
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E1E1E),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildProfileField(
+                          'Dein Name',
+                          _userInfo?['name'] ?? 'Not available',
+                        ),
+                        _buildProfileField(
+                          'Dein Username',
+                          _userInfo?['username'] ?? 'Not available',
+                        ),
+                        _buildProfileField(
+                          'Email Adresse',
+                          _userInfo?['email'] ?? 'Not available',
+                          canEdit: true,
+                        ),
+                        _buildDeleteButton(),
+                        _buildAlert(),
+                      ],
                     ),
                   ),
-          ),
-        ],
-      ),
-      // Show delete confirmation dialog
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: _showDeleteModal ? _buildDeleteConfirmationDialog() : null,
-    );
+                ],
+              ),
+            ),
+          );
+
+    // Je nach Gerätegröße: mobile Variante mit Drawer oder Desktop-Variante mit Sidebar im Row
+    if (isMobile) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Profil Einstellungen'),
+        ),
+        drawer: sidebar,
+        body: content,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: _showDeleteModal ? _buildDeleteConfirmationDialog() : null,
+      );
+    } else {
+      return Scaffold(
+        body: Row(
+          children: [
+            sidebar,
+            Expanded(child: content),
+          ],
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: _showDeleteModal ? _buildDeleteConfirmationDialog() : null,
+      );
+    }
   }
 
   @override

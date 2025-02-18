@@ -29,8 +29,20 @@ class FavoriteController {
       print('FavoriteController: Get favorites response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final List<Map<String, dynamic>> favorites = List<Map<String, dynamic>>.from(json.decode(utf8.decode(response.bodyBytes)));
+        final List<Map<String, dynamic>> favorites =
+            List<Map<String, dynamic>>.from(
+          json.decode(utf8.decode(response.bodyBytes)),
+        );
+
         print('FavoriteController: Successfully fetched ${favorites.length} favorites');
+
+        // **Alphabetisch (case-insensitive) nach 'title' sortieren**
+        favorites.sort((a, b) {
+          final titleA = (a['title'] ?? '').toLowerCase();
+          final titleB = (b['title'] ?? '').toLowerCase();
+          return titleA.compareTo(titleB);
+        });
+
         return favorites;
       }
     } catch (e) {
@@ -62,8 +74,7 @@ class FavoriteController {
       print('FavoriteController: Add favorite response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        // Don't try to parse as JSON if it's a plain text message
-        print('FavoriteController: Successfully processed add favorite response: ${response.body}');
+        print('FavoriteController: Successfully added favorite: ${response.body}');
         return true;
       }
       print('FavoriteController: Failed to add favorite. Status: ${response.statusCode}');
@@ -97,8 +108,7 @@ class FavoriteController {
       print('FavoriteController: Remove favorite response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        // Don't try to parse as JSON if it's a plain text message
-        print('FavoriteController: Successfully processed remove favorite response: ${response.body}');
+        print('FavoriteController: Successfully removed favorite: ${response.body}');
         return true;
       }
       print('FavoriteController: Failed to remove favorite. Status: ${response.statusCode}');
@@ -110,32 +120,3 @@ class FavoriteController {
     }
   }
 }
-
-/*  Endpoinnnt implementation for Favorites in backend
-
-        // Endpoint to add a movie to a users favoritelist
-    @PostMapping("/favorites/add")
-    @PreAuthorize("hasRole('client_user') or hasRole('client_admin')")
-    public ResponseEntity<String> addFavorite(Authentication authentication, @RequestParam String imdbId) {
-        String message = userService.addFavoriteMovie(authentication, imdbId);
-        return ResponseEntity.ok(message); // Return success or error message
-    }
-
-    // Endpoint to remove a movie from a users favoritelist
-    @DeleteMapping("/favorites/remove")
-    @PreAuthorize("hasRole('client_user') or hasRole('client_admin')")
-    public ResponseEntity<String> removeFavorite(Authentication authentication, @RequestParam String imdbId) {
-        String message = userService.removeFavoriteMovie(authentication, imdbId);
-        return ResponseEntity.ok(message); // Return success or error message
-    }
-
-    // Endpoint get a users favoritelist
-    @GetMapping("/favorites/all")
-    @PreAuthorize("hasRole('client_user') or hasRole('client_admin')")
-    public ResponseEntity<List<Movie>> getFavorites(Authentication authentication) {
-        List<Movie> favorites = userService.getFavoriteMovies(authentication);
-        return ResponseEntity.ok(favorites); // Return list of favorite movies
-    }
-
-
-*/

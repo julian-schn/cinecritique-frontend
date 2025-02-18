@@ -26,7 +26,7 @@ class _RatingScreenState extends State<RatingScreen> {
   void initState() {
     super.initState();
     _controller = RatingController(widget.authService);
-    // Holt alle Reviews + Filmdetails (bei Bedarf im Controller utf8-Decode)
+    // Holt alle Reviews + Filmdetails (z. B. mit utf8-Decode im Controller)
     _userReviewsFuture = _controller.getUserReviewsWithMovieDetails();
   }
 
@@ -114,7 +114,7 @@ class _RatingScreenState extends State<RatingScreen> {
                     ),
                     const SizedBox(height: 48),
 
-                    // FutureBuilder lädt Daten
+                    // Daten laden
                     FutureBuilder<List<Map<String, dynamic>>>(
                       future: _userReviewsFuture,
                       builder: (context, snapshot) {
@@ -139,9 +139,9 @@ class _RatingScreenState extends State<RatingScreen> {
                           );
                         }
 
-                        final reviews = snapshot.data!; // bereits sortiert aus dem Controller
+                        final reviews = snapshot.data!; // ggf. bereits sortiert im Controller
 
-                        // -- Anzeige in Wrap
+                        // Wrap: alle Cards in gleicher Größe
                         return Wrap(
                           spacing: isSidebarExpanded ? 16.0 : 48.0,
                           runSpacing: 16.0,
@@ -198,38 +198,33 @@ class _RatingScreenState extends State<RatingScreen> {
                                         ),
                                       ),
 
-                                      // roter Balken unter dem Poster
+                                      // Roter Balken unter dem Poster
                                       Container(
                                         height: 4,
                                         color: Colors.redAccent,
                                         margin: const EdgeInsets.only(bottom: 10.0),
                                       ),
 
-                                      // Container für den Filmtitel
+                                      // Titel in fixem Container
                                       Container(
-                                        height: 60, // hier kannst du experimentieren (z.B. 48, 60, 72)
+                                        height: 60, // 2 Zeilen + Puffer (ggf. anpassen)
                                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                        // Text oben zentrieren
-                                        child: Align(
-                                          alignment: Alignment.topCenter,
-                                          child: Text(
-                                            title,
-                                            textAlign: TextAlign.center,
-                                            style: GoogleFonts.inter(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
+                                        alignment: Alignment.topCenter,
+                                        child: Text(
+                                          title,
+                                          textAlign: TextAlign.center,
+                                          style: GoogleFonts.inter(
+                                            color: Colors.white,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
                                           ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
-
-                                      // etwas Abstand zu den Sternen
                                       const SizedBox(height: 8),
 
-                                      // Sterne (immer 5 anzeigen)
+                                      // Sterne (stets 5 anzeigen)
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: List.generate(5, (index) {
@@ -240,22 +235,23 @@ class _RatingScreenState extends State<RatingScreen> {
                                           );
                                         }),
                                       ),
-
-                                      // nochmal etwas Abstand
                                       const SizedBox(height: 8),
 
-                                      // Review-Text
-                                      Padding(
+                                      // Review-Text in fixem Container
+                                      Container(
+                                        height: 80, // Platz für ~3 Zeilen + Ellipsis (ggf. anpassen)
                                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                        child: Text(
-                                          reviewText,
-                                          style: GoogleFonts.inter(
-                                            color: Colors.grey[300],
-                                            fontSize: 14,
+                                        child: Center(
+                                          child: Text(
+                                            reviewText,
+                                            style: GoogleFonts.inter(
+                                              color: Colors.grey[300],
+                                              fontSize: 14,
+                                            ),
+                                            maxLines: 3,
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlign: TextAlign.center,
                                           ),
-                                          maxLines: 3,
-                                          overflow: TextOverflow.ellipsis,
-                                          textAlign: TextAlign.center,
                                         ),
                                       ),
 

@@ -42,7 +42,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     });
 
     final favList = await _controller.getFavorites();
-    
+    // Die `favList` ist hier bereits alphabetisch sortiert (siehe Controller).
     setState(() {
       favorites = favList;
       isLoading = false;
@@ -56,6 +56,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     return Scaffold(
       body: Row(
         children: [
+          // -- Sidebar
           Sidebar(
             authService: widget.authService,
             onHomePressed: () {
@@ -79,14 +80,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               );
             },
             onFavoritesPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => FavoriteScreen(
-                    authService: widget.authService,
-                  ),
-                ),
-              );
+              // Already on favorites page
             },
             onRecommendationsPressed: () {
               Navigator.pushReplacement(
@@ -126,14 +120,17 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             },
             currentPage: 'Favoriten',
           ),
+          // -- Hauptbereich
           Expanded(
             child: SingleChildScrollView(
               physics: _isSearching
-                  ? NeverScrollableScrollPhysics()
-                  : ClampingScrollPhysics(),
+                  ? const NeverScrollableScrollPhysics()
+                  : const ClampingScrollPhysics(),
               child: Column(
-                crossAxisAlignment: isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+                crossAxisAlignment:
+                    isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
                 children: [
+                  // -- Suchfeld
                   Padding(
                     padding: const EdgeInsets.only(bottom: 5.0),
                     child: CustomSearchBar(
@@ -155,12 +152,15 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                       },
                     ),
                   ),
+                  // -- Überschrift
                   Padding(
                     padding: EdgeInsets.only(
-                      left: isSidebarExpanded ? 20.0 : (MediaQuery.of(context).size.width - 1060) / 2,
+                      left: isSidebarExpanded
+                          ? 20.0
+                          : (MediaQuery.of(context).size.width - 1060) / 2,
                       right: 35.0,
                       top: 85.0,
-                      bottom: 8
+                      bottom: 8,
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -184,6 +184,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                       ],
                     ),
                   ),
+                  // -- Content / Favoritenliste
                   if (isLoading)
                     const Center(child: CircularProgressIndicator())
                   else if (favorites.isEmpty)
@@ -201,32 +202,35 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     )
                   else
                     Padding(
-                      padding: const EdgeInsets.only(left: 20.0, right: 35.0, top: 10, bottom: 1),
+                      padding:
+                          const EdgeInsets.only(left: 20.0, right: 35.0, top: 10, bottom: 1),
                       child: Center(
                         child: Wrap(
                           alignment: WrapAlignment.center,
                           spacing: isSidebarExpanded ? 16.0 : 48.0,
                           runSpacing: 16.0,
-                          children: favorites.map((movie) => Container(
-                            width: 250,
-                            height: 250,
-                            child: MovieCard(
-                              posterUrl: movie['poster'] ?? '',
-                              title: movie['title'] ?? 'Unbekannt',
-                              imdbId: movie['imdbId'] ?? '',
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => MoviePage(
-                                      imdbId: movie['imdbId'],
-                                      authService: widget.authService,
+                          children: favorites.map((movie) {
+                            return SizedBox(
+                              width: 250,
+                              height: 250,
+                              child: MovieCard(
+                                posterUrl: movie['poster'] ?? '',
+                                title: movie['title'] ?? 'Unbekannt',
+                                imdbId: movie['imdbId'] ?? '',
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MoviePage(
+                                        imdbId: movie['imdbId'],
+                                        authService: widget.authService,
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },
-                            ),
-                          )).toList(),
+                                  );
+                                },
+                              ),
+                            );
+                          }).toList(),
                         ),
                       ),
                     ),
@@ -238,4 +242,4 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       ),
     );
   }
-} 
+}

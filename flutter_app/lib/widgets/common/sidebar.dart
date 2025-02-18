@@ -94,94 +94,92 @@ class _SidebarState extends State<Sidebar> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      width: isExpanded ? 250 : 100,
-      color: const Color(0xFF121212),
-      child: ValueListenableBuilder<bool>(
-        valueListenable: widget.authService.isLoggedIn,
-        builder: (context, isLoggedIn, _) {
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: isExpanded
-                      ? MainAxisAlignment.start
-                      : MainAxisAlignment.center,
-                  children: [
-                    RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: isExpanded ? "CineCritique" : "CC",
-                            style: GoogleFonts.inter(
-                              color: Colors.white,
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                            ),
+  /// Extrahierte Methode für den Inhalt der Sidebar,
+  /// sodass wir diesen sowohl in der Desktop-Variante als auch im Drawer wiederverwenden.
+  Widget buildSidebarContent() {
+    return ValueListenableBuilder<bool>(
+      valueListenable: widget.authService.isLoggedIn,
+      builder: (context, isLoggedIn, _) {
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment:
+                    isExpanded ? MainAxisAlignment.start : MainAxisAlignment.center,
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: isExpanded ? "CineCritique" : "CC",
+                          style: GoogleFonts.inter(
+                            color: Colors.white,
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
                           ),
-                          TextSpan(
-                            text: ".",
-                            style: GoogleFonts.inter(
-                              color: Colors.redAccent,
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                            ),
+                        ),
+                        TextSpan(
+                          text: ".",
+                          style: GoogleFonts.inter(
+                            color: Colors.redAccent,
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 20),
+            ),
+            const SizedBox(height: 20),
+            buildMenuItem(
+              icon: Icons.home_outlined,
+              title: "Home",
+              onTap: widget.onHomePressed,
+            ),
+            buildMenuItem(
+              icon: Icons.category_outlined,
+              title: "Genres",
+              onTap: widget.onGenresPressed,
+            ),
+            if (isLoggedIn) ...[
               buildMenuItem(
-                icon: Icons.home_outlined,
-                title: "Home",
-                onTap: widget.onHomePressed,
+                icon: Icons.favorite_outline,
+                title: "Favoriten",
+                onTap: widget.onFavoritesPressed,
               ),
               buildMenuItem(
-                icon: Icons.category_outlined,
-                title: "Genres",
-                onTap: widget.onGenresPressed,
+                icon: Icons.star_outline,
+                title: "Bewertungen",
+                onTap: widget.onRatingsPressed,
               ),
-              if (isLoggedIn) ...[
-                buildMenuItem(
-                  icon: Icons.favorite_outline,
-                  title: "Favoriten",
-                  onTap: widget.onFavoritesPressed,
-                ),
-                buildMenuItem(
-                  icon: Icons.star_outline,
-                  title: "Bewertungen",
-                  onTap: widget.onRatingsPressed,
-                ),
-                buildMenuItem(
-                  icon: Icons.lightbulb_outline,
-                  title: "Empfehlungen",
-                  onTap: widget.onRecommendationsPressed,
-                ),
-                buildMenuItem(
-                  icon: Icons.account_circle_outlined,
-                  title: "Profil",
-                  onTap: widget.onProfilPressed,
-                ),
-              ],
-              const Spacer(),
               buildMenuItem(
-                icon: isLoggedIn ? Icons.logout : Icons.login,
-                title: isLoggedIn ? "Abmelden" : "Anmelden",
-                onTap: () async {
-                  if (isLoggedIn) {
-                    widget.onLogoutPressed();
-                  } else {
-                    widget.onLoginPressed();
-                  }
-                },
+                icon: Icons.lightbulb_outline,
+                title: "Empfehlungen",
+                onTap: widget.onRecommendationsPressed,
               ),
+              buildMenuItem(
+                icon: Icons.account_circle_outlined,
+                title: "Profil",
+                onTap: widget.onProfilPressed,
+              ),
+            ],
+            const Spacer(),
+            buildMenuItem(
+              icon: isLoggedIn ? Icons.logout : Icons.login,
+              title: isLoggedIn ? "Abmelden" : "Anmelden",
+              onTap: () async {
+                if (isLoggedIn) {
+                  widget.onLogoutPressed();
+                } else {
+                  widget.onLoginPressed();
+                }
+              },
+            ),
+            // Nur in der Desktop-Variante den Toggle-Button einblenden.
+            if (!isMobile(context))
               Align(
                 alignment: isExpanded ? Alignment.centerRight : Alignment.center,
                 child: IconButton(
@@ -192,10 +190,34 @@ class _SidebarState extends State<Sidebar> {
                   onPressed: toggleSidebar,
                 ),
               ),
-            ],
-          );
-        },
-      ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Hilfsmethode, um zu prüfen, ob es sich um ein mobiles Layout handelt.
+  bool isMobile(BuildContext context) =>
+      MediaQuery.of(context).size.width < 600;
+
+  @override
+  Widget build(BuildContext context) {
+    // Wenn es sich um ein mobiles Gerät handelt,
+    // geben wir den Sidebar-Inhalt als Drawer zurück.
+    if (isMobile(context)) {
+      return Drawer(
+        child: Container(
+          color: const Color(0xFF121212),
+          child: buildSidebarContent(),
+        ),
+      );
+    }
+    // Desktop-/Tablet-Variante: Sidebar als fester, animierter Container.
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      width: isExpanded ? 250 : 100,
+      color: const Color(0xFF121212),
+      child: buildSidebarContent(),
     );
   }
 }

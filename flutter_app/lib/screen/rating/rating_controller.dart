@@ -33,10 +33,9 @@ class RatingController {
       }
 
       // <-- UTF-8 bei den Reviews
-      final List<Map<String, dynamic>> reviews =
-          List<Map<String, dynamic>>.from(
-            json.decode(utf8.decode(reviewsResponse.bodyBytes)),
-          );
+      final List<Map<String, dynamic>> reviews = List<Map<String, dynamic>>.from(
+        json.decode(utf8.decode(reviewsResponse.bodyBytes)),
+      );
       print('RatingController: Successfully fetched ${reviews.length} reviews');
 
       final List<Map<String, dynamic>> reviewsWithMovieDetails = [];
@@ -74,6 +73,13 @@ class RatingController {
           print('RatingController: Failed to fetch movie details for imdbId: $imdbId');
         }
       }
+
+      // Am Ende alphabetisch (case-insensitive) nach movieTitle sortieren
+      reviewsWithMovieDetails.sort((a, b) {
+        final titleA = (a['movieTitle'] ?? '').toLowerCase();
+        final titleB = (b['movieTitle'] ?? '').toLowerCase();
+        return titleA.compareTo(titleB);
+      });
 
       return reviewsWithMovieDetails;
     } catch (e) {

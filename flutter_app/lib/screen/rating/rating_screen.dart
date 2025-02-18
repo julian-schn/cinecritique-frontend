@@ -205,24 +205,28 @@ class _RatingScreenState extends State<RatingScreen> {
                                         margin: const EdgeInsets.only(bottom: 10.0),
                                       ),
 
-                                      // Filmtitel
-                                      Padding(
+                                      // Filmtitel in Container mit fixer Höhe
+                                      Container(
+                                        height: 48, // ggf. anpassen, je nach Schriftgröße/Zeilen
                                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                        child: Text(
-                                          title,
-                                          textAlign: TextAlign.center,
-                                          style: GoogleFonts.inter(
-                                            color: Colors.white,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
+                                        child: Align(
+                                          alignment: Alignment.topCenter,
+                                          child: Text(
+                                            title,
+                                            textAlign: TextAlign.center,
+                                            style: GoogleFonts.inter(
+                                              color: Colors.white,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
                                       const SizedBox(height: 8),
 
-                                      // Sterne (stets 5 anzeigen)
+                                      // Sterne (5 anzeigen)
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: List.generate(5, (index) {

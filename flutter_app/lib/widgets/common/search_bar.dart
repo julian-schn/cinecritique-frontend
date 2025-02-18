@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
 import 'package:flutter_app/widgets/common/toggle_favorite.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_app/services/auth_service.dart';
+import 'package:flutter_app/services/auth_service.dart'; // Importiere AuthService
 
 class CustomSearchBar extends StatefulWidget implements PreferredSizeWidget {
   final AuthService authService;
@@ -13,12 +13,12 @@ class CustomSearchBar extends StatefulWidget implements PreferredSizeWidget {
   final Function(bool) onSearchResultsUpdated; // Callback für Suchergebnisse
 
   const CustomSearchBar({
-    Key? key,
+    super.key,
     required this.authService,
     required this.onSearchStart,
     required this.onSearchEnd,
     required this.onSearchResultsUpdated,
-  }) : super(key: key);
+  });
 
   @override
   _CustomSearchBarState createState() => _CustomSearchBarState();
@@ -28,11 +28,14 @@ class CustomSearchBar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _CustomSearchBarState extends State<CustomSearchBar> {
-  final TextEditingController _controller = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
+  TextEditingController _controller = TextEditingController();
+  FocusNode _focusNode = FocusNode();
   List<Map<String, dynamic>> _movies = [];
   bool _isLoading = false;
   Timer? _debounce;
+
+  // Wird nun ausschließlich über den Listener im Suchergebnisbereich gesteuert
+  bool _isClickInsideSearchResults = false; 
 
   final ScrollController _scrollController = ScrollController();
 
@@ -40,10 +43,9 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
   void initState() {
     super.initState();
     _focusNode.addListener(() {
-      // Wenn das Textfeld den Fokus verliert, werden die Suchergebnisse geschlossen.
-      if (!_focusNode.hasFocus) {
+      if (!_focusNode.hasFocus && !_isClickInsideSearchResults) {
         Future.delayed(const Duration(milliseconds: 100), () {
-          if (mounted) {
+          if (mounted && !_isClickInsideSearchResults) {
             setState(() {
               _movies = [];
             });
@@ -130,13 +132,11 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 7.0),
-      // Äußerer GestureDetector: Schließt die Suchergebnisse, wenn außerhalb getippt wird.
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
-          // Falls Textfeld nicht fokussiert ist, Suchergebnisse schließen.
-          if (!_focusNode.hasPrimaryFocus) {
-            FocusScope.of(context).unfocus();
+          if (!_focusNode.hasPrimaryFocus && !_isClickInsideSearchResults) {
+            FocusScope.of(context).requestFocus(FocusNode());
             setState(() {
               _movies = [];
             });
@@ -144,7 +144,8 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
           }
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 5.0),
+          padding:
+              const EdgeInsets.symmetric(horizontal: 32.0, vertical: 5.0),
           child: Column(
             children: [
               TextField(
@@ -154,7 +155,8 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                 decoration: InputDecoration(
                   hintText: 'Suche...',
                   hintStyle: const TextStyle(color: Colors.white),
-                  prefixIcon: const Icon(Icons.search, color: Colors.white),
+                  prefixIcon:
+                      const Icon(Icons.search, color: Colors.white),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
                     borderSide: const BorderSide(color: Colors.white),
@@ -178,10 +180,20 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                   color: Colors.white,
                 ),
               if (_movies.isNotEmpty)
-                // Dieser GestureDetector umschließt die Suchergebnisse und fängt alle Taps darin ab.
-                GestureDetector(
-                  onTap: () {
-                    // Leerer onTap: Damit Taps innerhalb des Bereichs nicht an den äußeren Detector weitergereicht werden.
+                // Mit Listener wird geprüft, ob Interaktionen im Bereich stattfinden
+                Listener(
+                  onPointerDown: (_) {
+                    setState(() {
+                      _isClickInsideSearchResults = true;
+                    });
+                  },
+                  onPointerUp: (_) {
+                    // Verzögerung, damit der Bereich nicht sofort schließt
+                    Future.delayed(const Duration(milliseconds: 300), () {
+                      setState(() {
+                        _isClickInsideSearchResults = false;
+                      });
+                    });
                   },
                   child: Container(
                     padding: const EdgeInsets.all(8.0),
@@ -195,51 +207,75 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                         final movie = _movies[index];
                         return Column(
                           children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF121212),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: ListTile(
-                                contentPadding:
-                                    const EdgeInsets.symmetric(vertical: 8.0),
-                                title: Text(
-                                  movie['title'],
-                                  style: const TextStyle(color: Colors.white),
+                            MouseRegion(
+                              onEnter: (_) {
+                                setState(() {
+                                  // Optional: Hover-Logik
+                                });
+                              },
+                              onExit: (_) {
+                                setState(() {
+                                  // Optional: Hover-Logik
+                                });
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF121212),
+                                  borderRadius:
+                                      BorderRadius.circular(10.0),
                                 ),
-                                leading: movie['poster'] != null
-                                    ? Image.network(
-                                        movie['poster'],
-                                        fit: BoxFit.cover,
-                                      )
-                                    : null,
-                                trailing: ValueListenableBuilder<bool>(
-                                  valueListenable: widget.authService.isLoggedIn,
-                                  builder: (context, isLoggedIn, _) {
-                                    return isLoggedIn
-                                        ? Padding(
-                                            padding: const EdgeInsets.only(
-                                                right: 20.0),
-                                            child: FavoriteToggle(
-                                              iconSize: 35,
-                                              imdbId: movie['imdbId'],
-                                              authService: widget.authService,
-                                            ),
-                                          )
-                                        : const SizedBox.shrink();
+                                child: ListTile(
+                                  contentPadding:
+                                      const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                  title: Text(
+                                    movie['title'],
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  leading: movie['poster'] != null &&
+                                          movie['poster'].isNotEmpty
+                                      ? Image.network(
+                                          movie['poster'],
+                                          fit: BoxFit.cover,
+                                        )
+                                      : null,
+                                  trailing:
+                                      ValueListenableBuilder<bool>(
+                                    valueListenable:
+                                        widget.authService.isLoggedIn,
+                                    builder:
+                                        (context, isLoggedIn, _) {
+                                      return isLoggedIn
+                                          ? Padding(
+                                              padding:
+                                                  const EdgeInsets.only(
+                                                      right: 20.0),
+                                              child: FavoriteToggle(
+                                                iconSize: 35,
+                                                imdbId: movie['imdbId'],
+                                                authService:
+                                                    widget.authService,
+                                              ),
+                                            )
+                                          : const SizedBox.shrink();
+                                    },
+                                  ),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            MoviePage(
+                                          imdbId: movie['imdbId'],
+                                          authService:
+                                              widget.authService,
+                                        ),
+                                      ),
+                                    );
                                   },
                                 ),
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MoviePage(
-                                        imdbId: movie['imdbId'],
-                                        authService: widget.authService,
-                                      ),
-                                    ),
-                                  );
-                                },
                               ),
                             ),
                             const SizedBox(height: 10),

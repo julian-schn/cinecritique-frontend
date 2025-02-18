@@ -96,13 +96,21 @@ class _RatingScreenState extends State<RatingScreen> {
           ),
           Expanded(
             child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(32.0),
-                child: Column(
-                  crossAxisAlignment:
-                      isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
-                  children: [
-                    Row(
+              child: Column(
+                crossAxisAlignment:
+                    isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(
+                      left: isSidebarExpanded
+                          ? 20.0
+                          : (MediaQuery.of(context).size.width - 1060) / 2,
+                      right: 35.0,
+                      top: 85.0,
+                      bottom: 8,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           'Meine Bewertungen',
@@ -122,147 +130,166 @@ class _RatingScreenState extends State<RatingScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 48),
-                    FutureBuilder<List<Map<String, dynamic>>>(
-                      future: _userReviewsFuture,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
-                        } else if (snapshot.hasError) {
-                          return Center(
+                  ),
+                  FutureBuilder<List<Map<String, dynamic>>>(
+                    future: _userReviewsFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Center(
                             child: Text(
                               'Fehler: ${snapshot.error}',
                               style: GoogleFonts.inter(color: Colors.white),
                             ),
-                          );
-                        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                          return Center(
+                          ),
+                        );
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: Center(
                             child: Text(
                               '...bisher hast du noch keine Reviews geschrieben',
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
                               ),
                             ),
-                          );
-                        }
+                          ),
+                        );
+                      }
 
-                        final reviews = snapshot.data!;
+                      final reviews = snapshot.data!;
 
-                        return Wrap(
-                          alignment: WrapAlignment.center,
-                          spacing: isSidebarExpanded ? 16.0 : 48.0,
-                          runSpacing: 16.0,
-                          children: reviews.map((reviewData) {
-                            final imdbId = reviewData['imdbId'] ?? '';
-                            final title = reviewData['movieTitle'] ?? 'Unbekannt';
-                            final poster = reviewData['moviePoster'] ?? '';
-                            final ratingNum = (reviewData['reviewRating'] ?? 0).toDouble();
-                            final reviewText = reviewData['reviewBody'] ?? '';
+                      return Padding(
+                        padding: const EdgeInsets.only(
+                          left: 20.0,
+                          right: 35.0,
+                          top: 10,
+                          bottom: 1,
+                        ),
+                        child: Center(
+                          child: Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: isSidebarExpanded ? 16.0 : 48.0,
+                            runSpacing: 16.0,
+                            children: reviews.map((reviewData) {
+                              final imdbId = reviewData['imdbId'] ?? '';
+                              final title = reviewData['movieTitle'] ?? 'Unbekannt';
+                              final poster = reviewData['moviePoster'] ?? '';
+                              final ratingNum =
+                                  (reviewData['reviewRating'] ?? 0).toDouble();
+                              final reviewText = reviewData['reviewBody'] ?? '';
 
-                            return Container(
-                              width: 250,
-                              margin: const EdgeInsets.all(8.0),
-                              child: Card(
-                                color: const Color(0xFF1C1C1C),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                ),
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => MoviePage(
-                                          imdbId: imdbId,
-                                          authService: widget.authService,
+                              return Container(
+                                width: 250,
+                                margin: const EdgeInsets.all(8.0),
+                                child: Card(
+                                  color: const Color(0xFF1C1C1C),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(12.0),
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => MoviePage(
+                                            imdbId: imdbId,
+                                            authService: widget.authService,
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  },
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      ClipRRect(
-                                        borderRadius: const BorderRadius.only(
-                                          topLeft: Radius.circular(12.0),
-                                          topRight: Radius.circular(12.0),
+                                      );
+                                    },
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: const BorderRadius.only(
+                                            topLeft: Radius.circular(12.0),
+                                            topRight: Radius.circular(12.0),
+                                          ),
+                                          child: Image.network(
+                                            poster,
+                                            height: 200,
+                                            width: double.infinity,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                              return Container(
+                                                height: 200,
+                                                color: Colors.grey[800],
+                                                child: const Icon(Icons.movie),
+                                              );
+                                            },
+                                          ),
                                         ),
-                                        child: Image.network(
-                                          poster,
-                                          height: 200,
-                                          width: double.infinity,
-                                          fit: BoxFit.cover,
-                                          errorBuilder: (context, error, stackTrace) {
-                                            return Container(
-                                              height: 200,
-                                              color: Colors.grey[800],
-                                              child: const Icon(Icons.movie),
+                                        Container(
+                                          height: 4,
+                                          color: Colors.redAccent,
+                                          margin: const EdgeInsets.only(bottom: 10.0),
+                                        ),
+                                        Container(
+                                          height: 48,
+                                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                          alignment: Alignment.topCenter,
+                                          child: Text(
+                                            title,
+                                            textAlign: TextAlign.center,
+                                            style: GoogleFonts.inter(
+                                              color: Colors.white,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: List.generate(5, (index) {
+                                            return Icon(
+                                              index < ratingNum
+                                                  ? Icons.star
+                                                  : Icons.star_border,
+                                              color: Colors.white,
+                                              size: 23,
                                             );
-                                          },
+                                          }),
                                         ),
-                                      ),
-                                      Container(
-                                        height: 4,
-                                        color: Colors.redAccent,
-                                        margin: const EdgeInsets.only(bottom: 10.0),
-                                      ),
-                                      Container(
-                                        height: 48,
-                                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                        alignment: Alignment.topCenter,
-                                        child: Text(
-                                          title,
-                                          textAlign: TextAlign.center,
-                                          style: GoogleFonts.inter(
-                                            color: Colors.white,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
+                                        const SizedBox(height: 8),
+                                        Container(
+                                          height: 62,
+                                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                          alignment: Alignment.topCenter,
+                                          child: Text(
+                                            reviewText,
+                                            style: GoogleFonts.inter(
+                                              color: Colors.grey[300],
+                                              fontSize: 14,
+                                            ),
+                                            maxLines: 3,
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlign: TextAlign.center,
                                           ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
                                         ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: List.generate(5, (index) {
-                                          return Icon(
-                                            index < ratingNum ? Icons.star : Icons.star_border,
-                                            color: Colors.white,
-                                            size: 23,
-                                          );
-                                        }),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Container(
-                                        height: 62,
-                                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                        alignment: Alignment.topCenter,
-                                        child: Text(
-                                          reviewText,
-                                          style: GoogleFonts.inter(
-                                            color: Colors.grey[300],
-                                            fontSize: 14,
-                                          ),
-                                          maxLines: 3,
-                                          overflow: TextOverflow.ellipsis,
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 10),
-                                    ],
+                                        const SizedBox(height: 10),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
-                          }).toList(),
-                        );
-                      },
-                    ),
-                  ],
-                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           ),

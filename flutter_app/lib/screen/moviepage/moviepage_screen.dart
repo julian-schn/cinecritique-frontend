@@ -39,6 +39,9 @@ class _MoviePageState extends State<MoviePage> {
   String? currentBackdrop;
   bool? isFavorited;
 
+  // GlobalKey zum Öffnen des Drawer (wird nur auf mobilen Geräten genutzt)
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     super.initState();
@@ -77,7 +80,7 @@ class _MoviePageState extends State<MoviePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Prüfe, ob es sich um ein mobiles Gerät handelt (z. B. Breite < 600px)
+    // Prüfe, ob es sich um ein mobiles Gerät handelt (Breite < 600px)
     final bool isMobile = MediaQuery.of(context).size.width < 600;
 
     // Erstelle die Sidebar-Instanz
@@ -147,6 +150,7 @@ class _MoviePageState extends State<MoviePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Das Header-Element als Stack mit dem Hintergrundbild
                 Stack(
                   children: [
                     Image.network(
@@ -156,30 +160,51 @@ class _MoviePageState extends State<MoviePage> {
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
+                          width: double.infinity,
+                          height: 480,
                           color: Colors.grey,
                           child: const Icon(Icons.image, color: Colors.white),
                         );
                       },
                     ),
+                    // Überschrift + (bei mobilen Geräten) Burger-Icon
                     Positioned(
                       bottom: 50,
                       left: 16,
-                      child: Text(
-                        movieData?['title'] ?? '',
-                        style: const TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          shadows: [
-                            Shadow(
-                              offset: Offset(0, 2),
-                              blurRadius: 4.0,
-                              color: Colors.black54,
+                      right: 16,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          if (isMobile)
+                            IconButton(
+                              icon: const Icon(Icons.menu, color: Colors.white),
+                              onPressed: () {
+                                _scaffoldKey.currentState?.openDrawer();
+                              },
                             ),
-                          ],
-                        ),
+                          if (isMobile) const SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              movieData?['title'] ?? '',
+                              style: const TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                shadows: [
+                                  Shadow(
+                                    offset: Offset(0, 2),
+                                    blurRadius: 4.0,
+                                    color: Colors.black54,
+                                  ),
+                                ],
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+                    // Weitere Positioned-Elemente (z. B. Rating, Trailer-Button, FavoriteToggle)
                     Positioned(
                       bottom: 16,
                       left: 16,
@@ -216,7 +241,6 @@ class _MoviePageState extends State<MoviePage> {
                         ),
                       ),
                     ),
-                    // FavoriteToggle (nur angezeigt, wenn der User eingeloggt ist)
                     Positioned(
                       right: 160,
                       bottom: 42,
@@ -405,21 +429,17 @@ class _MoviePageState extends State<MoviePage> {
             ),
           );
 
-    // Responsive Darstellung: Mobile Variante mit Drawer, ansonsten Sidebar links in einem Row
+    // Responsive Darstellung:
+    // Auf mobilen Geräten: Scaffold ohne AppBar – stattdessen wird der Burger-Button in der Überschrift (im Stack) genutzt.
+    // Auf Desktop: Sidebar links, Content rechts.
     if (isMobile) {
       return Scaffold(
-        extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          title: const Text('Moviepage'),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-        ),
+        key: _scaffoldKey,
         drawer: sidebar,
         body: content,
       );
     } else {
       return Scaffold(
-        extendBodyBehindAppBar: true,
         body: Row(
           children: [
             sidebar,

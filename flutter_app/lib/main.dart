@@ -57,34 +57,80 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  // KEY, um das Drawer zu öffnen/schließen
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   bool _isSearching = false; // Zustand für die Suche
 
+  // Hilfsmethoden für Navigation:
+  void _navigateHome() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HomeScreen(authService: widget.authService),
+      ),
+    );
+  }
+
+  void _navigateGenres() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => GenrePage(authService: widget.authService),
+      ),
+    );
+  }
+
+  void _navigateFavorites() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FavoriteScreen(authService: widget.authService),
+      ),
+    );
+  }
+
+  void _navigateRecommendations() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RecommendationsPage(authService: widget.authService),
+      ),
+    );
+  }
+
+  void _navigateRatings() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RatingScreen(authService: widget.authService),
+      ),
+    );
+  }
+
+  void _navigateProfile() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => UserProfileScreen(authService: widget.authService),
+      ),
+    );
+  }
+
+  void _login() {
+    widget.authService.login();
+  }
+
+  void _logout() {
+    widget.authService.logout();
+  }
+
+  /// Hier wird dein eigentlicher Content gebaut (Poster, Genre-Listen etc.).
   Widget _buildContent() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // CustomSearchBar
-        Padding(
-          padding: const EdgeInsets.only(bottom: 5.0),
-          child: CustomSearchBar(
-            authService: widget.authService,
-            onSearchStart: () {
-              setState(() {
-                _isSearching = true; // Suche gestartet
-              });
-            },
-            onSearchEnd: () {
-              setState(() {
-                _isSearching = false; // Suche beendet
-              });
-            },
-            onSearchResultsUpdated: (hasResults) {
-              setState(() {
-                _isSearching = hasResults;
-              });
-            },
-          ),
-        ),
+        // Vorher war hier CustomSearchBar, die wir jetzt in den oberen Container verschoben haben.
         const SizedBox(height: 20),
         MoviePosterCarousel(authService: widget.authService),
         const SizedBox(height: 20),
@@ -147,142 +193,117 @@ class _HomeScreenState extends State<HomeScreen> {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('CineCritique'),
-        // Bei mobilen Geräten wird automatisch das Hamburger-Icon angezeigt, wenn ein Drawer vorhanden ist
-      ),
-      // Bei mobilen Geräten Sidebar als Drawer nutzen
+      key: _scaffoldKey, // Wichtig, um das Drawer zu öffnen
+
+      // Für Mobile: Sidebar als Drawer
       drawer: isMobile
           ? Sidebar(
               authService: widget.authService,
-              onHomePressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HomeScreen(authService: widget.authService),
-                  ),
-                );
-              },
-              onGenresPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => GenrePage(authService: widget.authService),
-                  ),
-                );
-              },
-              onFavoritesPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FavoriteScreen(authService: widget.authService),
-                  ),
-                );
-              },
-              onRecommendationsPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => RecommendationsPage(authService: widget.authService),
-                  ),
-                );
-              },
-              onRatingsPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => RatingScreen(authService: widget.authService),
-                  ),
-                );
-              },
-              onProfilPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => UserProfileScreen(authService: widget.authService),
-                  ),
-                );
-              },
-              onLoginPressed: () {
-                widget.authService.login();
-              },
-              onLogoutPressed: () {
-                widget.authService.logout();
-              },
+              onHomePressed: _navigateHome,
+              onGenresPressed: _navigateGenres,
+              onFavoritesPressed: _navigateFavorites,
+              onRecommendationsPressed: _navigateRecommendations,
+              onRatingsPressed: _navigateRatings,
+              onProfilPressed: _navigateProfile,
+              onLoginPressed: _login,
+              onLogoutPressed: _logout,
               currentPage: 'Home',
             )
           : null,
+
+      // **Keine AppBar** mehr!
       body: isMobile
-          // Mobile: Content wird als ScrollView angezeigt (Drawer wird über die AppBar geöffnet)
           ? SingleChildScrollView(
-              physics: _isSearching ? const NeverScrollableScrollPhysics() : const ClampingScrollPhysics(),
-              child: _buildContent(),
+              physics: _isSearching
+                  ? const NeverScrollableScrollPhysics()
+                  : const ClampingScrollPhysics(),
+              child: Column(
+                children: [
+                  // Obere Zeile mit Burger-Icon + Suchleiste
+                  Container(
+                    color: const Color(0xFF121212),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      children: [
+                        // Burger-Icon, das den Drawer öffnet
+                        IconButton(
+                          icon: const Icon(Icons.menu, color: Colors.white),
+                          onPressed: () {
+                            _scaffoldKey.currentState?.openDrawer();
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        // Expanded, damit die Suchleiste den restlichen Platz einnimmt
+                        Expanded(
+                          child: CustomSearchBar(
+                            authService: widget.authService,
+                            onSearchStart: () {
+                              setState(() => _isSearching = true);
+                            },
+                            onSearchEnd: () {
+                              setState(() => _isSearching = false);
+                            },
+                            onSearchResultsUpdated: (hasResults) {
+                              setState(() => _isSearching = hasResults);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  _buildContent(),
+                ],
+              ),
             )
-          // Desktop/Tablet: Sidebar links, Content rechts
           : Row(
               children: [
+                // Sidebar bleibt bei großen Screens offen
                 Sidebar(
                   authService: widget.authService,
-                  onHomePressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HomeScreen(authService: widget.authService),
-                      ),
-                    );
-                  },
-                  onGenresPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => GenrePage(authService: widget.authService),
-                      ),
-                    );
-                  },
-                  onFavoritesPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => FavoriteScreen(authService: widget.authService),
-                      ),
-                    );
-                  },
-                  onRecommendationsPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => RecommendationsPage(authService: widget.authService),
-                      ),
-                    );
-                  },
-                  onRatingsPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => RatingScreen(authService: widget.authService),
-                      ),
-                    );
-                  },
-                  onProfilPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => UserProfileScreen(authService: widget.authService),
-                      ),
-                    );
-                  },
-                  onLoginPressed: () {
-                    widget.authService.login();
-                  },
-                  onLogoutPressed: () {
-                    widget.authService.logout();
-                  },
+                  onHomePressed: _navigateHome,
+                  onGenresPressed: _navigateGenres,
+                  onFavoritesPressed: _navigateFavorites,
+                  onRecommendationsPressed: _navigateRecommendations,
+                  onRatingsPressed: _navigateRatings,
+                  onProfilPressed: _navigateProfile,
+                  onLoginPressed: _login,
+                  onLogoutPressed: _logout,
                   currentPage: 'Home',
                 ),
                 Expanded(
                   child: SingleChildScrollView(
-                    physics: _isSearching ? const NeverScrollableScrollPhysics() : const ClampingScrollPhysics(),
-                    child: _buildContent(),
+                    physics: _isSearching
+                        ? const NeverScrollableScrollPhysics()
+                        : const ClampingScrollPhysics(),
+                    child: Column(
+                      children: [
+                        // Auch auf Desktop kann man die Suchleiste oben platzieren
+                        Container(
+                          color: const Color(0xFF121212),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: CustomSearchBar(
+                                  authService: widget.authService,
+                                  onSearchStart: () {
+                                    setState(() => _isSearching = true);
+                                  },
+                                  onSearchEnd: () {
+                                    setState(() => _isSearching = false);
+                                  },
+                                  onSearchResultsUpdated: (hasResults) {
+                                    setState(() => _isSearching = hasResults);
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        _buildContent(),
+                      ],
+                    ),
                   ),
                 ),
               ],

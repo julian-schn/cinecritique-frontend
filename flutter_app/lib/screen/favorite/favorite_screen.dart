@@ -29,6 +29,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
   late final FavoriteController _controller;
   bool _isSearching = false;
 
+  // GlobalKey zum Öffnen des Drawer (wird in der mobilen Variante benötigt)
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     super.initState();
@@ -77,7 +80,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => FavoriteScreen(authService: widget.authService),
+            builder: (context) =>
+                FavoriteScreen(authService: widget.authService),
           ),
         );
       },
@@ -85,7 +89,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => RecommendationsPage(authService: widget.authService),
+            builder: (context) =>
+                RecommendationsPage(authService: widget.authService),
           ),
         );
       },
@@ -114,8 +119,48 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       currentPage: 'Favoriten',
     );
 
-    // Baue den Hauptinhalt (Content) der Seite
-    Widget content = SingleChildScrollView(
+    // Überschrift mit Suchleiste
+    // Hier wird in der mobilen Variante das Burger-Icon direkt neben der Überschrift angezeigt.
+    final headerRow = Padding(
+      padding: EdgeInsets.only(
+        left: isSidebarExpanded ? 20.0 : (MediaQuery.of(context).size.width - 1060) / 2,
+        right: 35.0,
+        top: 85.0,
+        bottom: 8,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isMobile)
+            IconButton(
+              icon: const Icon(Icons.menu, color: Colors.white),
+              onPressed: () {
+                _scaffoldKey.currentState?.openDrawer();
+              },
+            ),
+          if (isMobile) const SizedBox(width: 8),
+          const Text(
+            'Meine Favoriten',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const Text(
+            '.',
+            style: TextStyle(
+              color: Colors.redAccent,
+              fontSize: 38,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    // Hauptinhalt (Content) der Seite
+    final content = SingleChildScrollView(
       physics: _isSearching
           ? const NeverScrollableScrollPhysics()
           : const ClampingScrollPhysics(),
@@ -123,6 +168,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
         crossAxisAlignment:
             isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
         children: [
+          // Suchleiste (wie gehabt)
           Padding(
             padding: const EdgeInsets.only(bottom: 5.0),
             child: CustomSearchBar(
@@ -144,37 +190,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               },
             ),
           ),
-          Padding(
-            padding: EdgeInsets.only(
-              left: isSidebarExpanded
-                  ? 20.0
-                  : (MediaQuery.of(context).size.width - 1060) / 2,
-              right: 35.0,
-              top: 85.0,
-              bottom: 8,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Text(
-                  'Meine Favoriten',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  '.',
-                  style: TextStyle(
-                    color: Colors.redAccent,
-                    fontSize: 38,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          headerRow,
           if (isLoading)
             const Center(child: CircularProgressIndicator())
           else if (favorites.isEmpty)
@@ -227,12 +243,10 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       ),
     );
 
-    // Je nach Gerät: mobile Variante mit Drawer oder Desktop mit Sidebar im Row
+    
     if (isMobile) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Meine Favoriten'),
-        ),
+        key: _scaffoldKey,
         drawer: sidebar,
         body: content,
       );

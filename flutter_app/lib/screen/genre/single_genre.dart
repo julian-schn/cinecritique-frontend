@@ -1,12 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/main.dart';
 import 'package:flutter_app/screen/genre/genre_page.dart';
 import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
 import 'package:flutter_app/widgets/common/sidebar.dart';
 import 'package:flutter_app/widgets/movie/movie_card.dart';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_app/services/auth_service.dart'; // Import AuthService
+import 'package:flutter_app/services/auth_service.dart';
 import 'package:flutter_app/screen/recommendationns/recommenndations_page.dart';
 import 'package:flutter_app/screen/favorite/favorite_screen.dart';
 import 'package:flutter_app/screen/rating/rating_screen.dart';
@@ -14,13 +14,8 @@ import 'package:flutter_app/screen/userprofile/userprofile_screen.dart';
 
 class GenreDetailPage extends StatefulWidget {
   final String genre;
-  final AuthService authService; // AuthService
-
-  const GenreDetailPage({
-    Key? key,
-    required this.genre,
-    required this.authService,
-  }) : super(key: key);
+  final AuthService authService;
+  const GenreDetailPage({Key? key, required this.genre, required this.authService}) : super(key: key);
 
   @override
   _GenreDetailPageState createState() => _GenreDetailPageState();
@@ -41,22 +36,18 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
       final response = await http.get(
         Uri.parse('https://cinecritique.mi.hdm-stuttgart.de/api/movies/genre/${widget.genre}'),
       );
-
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-
         setState(() {
           movies = List<Map<String, dynamic>>.from(data);
           isLoading = false;
         });
       } else {
-        print('Fehler: ${response.statusCode}');
         setState(() {
           isLoading = false;
         });
       }
     } catch (e) {
-      print('Fehler beim Abrufen der Filme für Genre: $e');
       setState(() {
         isLoading = false;
       });
@@ -65,45 +56,46 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Prüfe, ob es sich um ein mobiles Gerät handelt (z. B. Breite < 600px)
     final bool isMobile = MediaQuery.of(context).size.width < 600;
-    // Sidebar-Status abfragen (für feineres Layout)
     final bool isSidebarExpanded = MediaQuery.of(context).size.width > 800;
-
-    // Hauptinhalt der Seite
+    final headerRow = Padding(
+      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+      child: Row(
+        children: [
+          if (isMobile)
+            Builder(
+              builder: (context) => IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+              ),
+            ),
+          if (isMobile) const SizedBox(width: 8),
+          Text(
+            widget.genre,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const Text(
+            '.',
+            style: TextStyle(
+              color: Colors.redAccent,
+              fontSize: 38,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
     final content = SingleChildScrollView(
       child: Column(
         crossAxisAlignment: isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
         children: [
-          Padding(
-            padding: EdgeInsets.only(
-              left: isSidebarExpanded ? 20.0 : (MediaQuery.of(context).size.width - 1060) / 2,
-              right: 35.0,
-              top: 85.0,
-              bottom: 8,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  widget.genre,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Text(
-                  '.',
-                  style: TextStyle(
-                    color: Colors.redAccent,
-                    fontSize: 38,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          headerRow,
           Padding(
             padding: const EdgeInsets.only(left: 20.0, right: 35.0, top: 10, bottom: 1),
             child: Center(
@@ -137,56 +129,42 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
         ],
       ),
     );
-
-    // Erstelle die Sidebar-Instanz
     final sidebar = Sidebar(
       authService: widget.authService,
       onHomePressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => HomeScreen(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
         );
       },
       onGenresPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => GenrePage(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
         );
       },
       onFavoritesPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => FavoriteScreen(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => FavoriteScreen(authService: widget.authService)),
         );
       },
       onRecommendationsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => RecommendationsPage(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => RecommendationsPage(authService: widget.authService)),
         );
       },
       onRatingsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => RatingScreen(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => RatingScreen(authService: widget.authService)),
         );
       },
       onProfilPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => UserProfileScreen(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => UserProfileScreen(authService: widget.authService)),
         );
       },
       onLoginPressed: () {
@@ -197,17 +175,10 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
       },
       currentPage: 'Genre',
     );
-
-    // Responsive Darstellung: Auf mobilen Geräten Sidebar als Drawer, ansonsten Sidebar links
     if (isMobile) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.genre),
-        ),
         drawer: sidebar,
-        body: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : content,
+        body: isLoading ? const Center(child: CircularProgressIndicator()) : content,
       );
     } else {
       return Scaffold(
@@ -215,9 +186,7 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
           children: [
             sidebar,
             Expanded(
-              child: isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : content,
+              child: isLoading ? const Center(child: CircularProgressIndicator()) : content,
             ),
           ],
         ),

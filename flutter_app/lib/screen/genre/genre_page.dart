@@ -11,7 +11,6 @@ import 'package:flutter_app/screen/userprofile/userprofile_screen.dart';
 
 class GenrePage extends StatefulWidget {
   final AuthService authService;
-
   const GenrePage({Key? key, required this.authService}) : super(key: key);
 
   @override
@@ -46,60 +45,43 @@ class _GenrePageState extends State<GenrePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Prüfe, ob es sich um ein mobiles Gerät handelt (unter 600px)
     final bool isMobile = MediaQuery.of(context).size.width < 600;
-
-    // Erstelle die Sidebar-Instanz mit den gleichen Callback-Funktionen wie bei FavoriteScreen
     final sidebar = Sidebar(
       authService: widget.authService,
       onHomePressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => HomeScreen(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
         );
       },
       onGenresPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => GenrePage(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
         );
       },
       onFavoritesPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => FavoriteScreen(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => FavoriteScreen(authService: widget.authService)),
         );
       },
       onRecommendationsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) =>
-                RecommendationsPage(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => RecommendationsPage(authService: widget.authService)),
         );
       },
       onRatingsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => RatingScreen(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => RatingScreen(authService: widget.authService)),
         );
       },
       onProfilPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) =>
-                UserProfileScreen(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => UserProfileScreen(authService: widget.authService)),
         );
       },
       onLoginPressed: () {
@@ -108,10 +90,41 @@ class _GenrePageState extends State<GenrePage> {
       onLogoutPressed: () {
         widget.authService.logout();
       },
-      currentPage: 'Genres', // aktueller Menüpunkt
+      currentPage: 'Genres',
     );
-
-    // Hauptinhalt der Seite
+    final headerRow = Padding(
+      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+      child: Row(
+        children: [
+          if (isMobile)
+            Builder(
+              builder: (context) => IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+              ),
+            ),
+          if (isMobile) const SizedBox(width: 8),
+          const Text(
+            'Genres',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const Text(
+            '.',
+            style: TextStyle(
+              color: Colors.redAccent,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
     final content = Padding(
       padding: const EdgeInsets.only(top: 50.0),
       child: isLoading
@@ -128,8 +141,7 @@ class _GenrePageState extends State<GenrePage> {
                   itemBuilder: (context, index) {
                     final genre = genres[index];
                     return Padding(
-                      padding:
-                          const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+                      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -165,15 +177,15 @@ class _GenrePageState extends State<GenrePage> {
                   },
                 ),
     );
-
-    // Je nach Gerätegröße: mobile Variante mit Drawer oder Desktop-Variante mit fester Sidebar
     if (isMobile) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Genres'),
-        ),
         drawer: sidebar,
-        body: content,
+        body: Column(
+          children: [
+            headerRow,
+            Expanded(child: content),
+          ],
+        ),
       );
     } else {
       return Scaffold(

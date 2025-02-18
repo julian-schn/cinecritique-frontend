@@ -22,6 +22,9 @@ class _RatingScreenState extends State<RatingScreen> {
   late final RatingController _controller;
   late Future<List<Map<String, dynamic>>> _userReviewsFuture;
 
+  // GlobalKey zum Öffnen des Drawer
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     super.initState();
@@ -97,37 +100,49 @@ class _RatingScreenState extends State<RatingScreen> {
       currentPage: 'Bewertungen',
     );
 
-    // Baue den Hauptinhalt (Content) der Seite
+    // Header-Zeile mit Überschrift und (bei mobilen Geräten) Burger-Icon
+    final headerRow = Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        if (isMobile)
+          IconButton(
+            icon: const Icon(Icons.menu, color: Colors.white),
+            onPressed: () {
+              _scaffoldKey.currentState?.openDrawer();
+            },
+          ),
+        // Bei mobiler Darstellung ggf. etwas Padding zwischen Icon und Text:
+        if (isMobile) const SizedBox(width: 8),
+        Text(
+          'Meine Bewertungen',
+          style: GoogleFonts.inter(
+            color: Colors.white,
+            fontSize: 36,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          '.',
+          style: GoogleFonts.inter(
+            color: Colors.redAccent,
+            fontSize: 36,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+
+    // Hauptinhalt (Content) der Seite
     final content = SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Column(
+          // Passt die Ausrichtung an – wenn die Sidebar erweitert ist, linksbündig, sonst zentriert
           crossAxisAlignment:
               isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
           children: [
-            // Überschrift
-            Row(
-              children: [
-                Text(
-                  'Meine Bewertungen',
-                  style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  '.',
-                  style: GoogleFonts.inter(
-                    color: Colors.redAccent,
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
+            headerRow,
             const SizedBox(height: 48),
-
             // Reviews laden und anzeigen
             FutureBuilder<List<Map<String, dynamic>>>(
               future: _userReviewsFuture,
@@ -155,7 +170,7 @@ class _RatingScreenState extends State<RatingScreen> {
 
                 final reviews = snapshot.data!;
 
-                // Anzeige in einem Wrap
+                // Anzeige in einem Wrap – hier sind die Karten zentriert, wenn die Sidebar nicht erweitert ist
                 return Wrap(
                   spacing: isSidebarExpanded ? 16.0 : 48.0,
                   runSpacing: 16.0,
@@ -277,16 +292,15 @@ class _RatingScreenState extends State<RatingScreen> {
       ),
     );
 
-    // Je nach Gerät: mobile Variante mit Drawer oder Desktop mit Sidebar im Row
     if (isMobile) {
+      // Mobile: Scaffold ohne AppBar, Drawer bleibt verfügbar
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Meine Bewertungen'),
-        ),
+        key: _scaffoldKey,
         drawer: sidebar,
         body: content,
       );
     } else {
+      // Desktop: Sidebar links, Content rechts
       return Scaffold(
         body: Row(
           children: [

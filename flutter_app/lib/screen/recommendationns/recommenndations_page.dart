@@ -26,6 +26,9 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   bool isLoading = true;
   final ScrollController _scrollController = ScrollController();
 
+  // GlobalKey zum Öffnen des Drawer (nur in der mobilen Variante benötigt)
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     super.initState();
@@ -38,7 +41,6 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
     try {
       final movies = await _controller.fetchRecommendations(widget.authService);
       print('Received recommendations: ${movies.length} movies');
-      print('Recommended movies:');
       for (var movie in movies) {
         print('- ${movie['title']} (${movie['imdbId']})');
       }
@@ -48,7 +50,6 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       });
     } catch (e) {
       print('Error fetching recommendations: $e');
-      print('Stack trace: ${StackTrace.current}');
       setState(() {
         isLoading = false;
       });
@@ -73,10 +74,10 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Prüfe, ob es sich um ein mobiles Gerät handelt (z. B. Breite < 600px)
+    // Prüfen, ob es sich um ein mobiles Gerät handelt (Breite < 600px)
     final bool isMobile = MediaQuery.of(context).size.width < 600;
 
-    // Erstelle die Sidebar-Instanz
+    // Sidebar-Instanz
     final sidebar = Sidebar(
       authService: widget.authService,
       onHomePressed: () {
@@ -139,38 +140,47 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       currentPage: 'Empfehlungen',
     );
 
+    // Header-Zeile: Bei mobilen Geräten wird hier das Burger-Icon neben dem Titel angezeigt.
+    final headerRow = Padding(
+      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+      child: Row(
+        children: [
+          if (isMobile)
+            IconButton(
+              icon: const Icon(Icons.menu, color: Colors.white),
+              onPressed: () {
+                _scaffoldKey.currentState?.openDrawer();
+              },
+            ),
+          if (isMobile) const SizedBox(width: 8),
+          const Text(
+            'Empfehlungen',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const Text(
+            '.',
+            style: TextStyle(
+              color: Colors.redAccent,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+
     // Hauptinhalt der Seite
     final content = Padding(
       padding: const EdgeInsets.only(top: 50.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Titel
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-            child: Row(
-              children: const [
-                Text(
-                  'Empfehlungen',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  '.',
-                  style: TextStyle(
-                    color: Colors.redAccent,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          headerRow,
           const SizedBox(height: 14),
-          // Inhalt: Ladeanzeige, leere Liste oder horizontale Liste der empfohlenen Filme
           if (isLoading)
             const Center(child: CircularProgressIndicator())
           else if (recommendedMovies.isEmpty)
@@ -254,12 +264,12 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       ),
     );
 
-    // Responsive Darstellung: Bei mobilen Geräten Sidebar als Drawer, ansonsten als fester Bereich links
+    // Responsive Darstellung:
+    // - Mobile: Scaffold ohne AppBar, mit Drawer und HeaderRow (Burger-Icon neben Überschrift)
+    // - Desktop: Sidebar links, Content rechts
     if (isMobile) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Empfehlungen'),
-        ),
+        key: _scaffoldKey,
         drawer: sidebar,
         body: content,
       );

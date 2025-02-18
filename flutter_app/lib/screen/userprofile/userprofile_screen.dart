@@ -32,6 +32,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   bool _showDeleteModal = false;
   final TextEditingController _emailController = TextEditingController();
 
+  // GlobalKey zum Öffnen des Drawer (wird in der mobilen Variante benötigt)
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     super.initState();
@@ -311,8 +314,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                RecommendationsPage(authService: widget.authService),
+            builder: (context) => RecommendationsPage(authService: widget.authService),
           ),
         );
       },
@@ -350,8 +352,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Überschrift mit Burger-Icon (nur in mobiler Darstellung)
                   Row(
                     children: [
+                      if (isMobile)
+                        IconButton(
+                          icon: const Icon(Icons.menu, color: Colors.white),
+                          onPressed: () {
+                            _scaffoldKey.currentState?.openDrawer();
+                          },
+                        ),
+                      if (isMobile) const SizedBox(width: 8),
                       Text(
                         'Profil Einstellungen',
                         style: GoogleFonts.inter(
@@ -403,12 +414,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             ),
           );
 
-    // Je nach Gerätegröße: mobile Variante mit Drawer oder Desktop-Variante mit Sidebar im Row
+    // Responsive Darstellung: Mobile Variante mit Drawer, ansonsten Sidebar im Row
     if (isMobile) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Profil Einstellungen'),
-        ),
+        key: _scaffoldKey,
         drawer: sidebar,
         body: content,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

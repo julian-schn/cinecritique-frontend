@@ -26,7 +26,7 @@ class _RatingScreenState extends State<RatingScreen> {
   void initState() {
     super.initState();
     _controller = RatingController(widget.authService);
-    // Holt alle Reviews + Filmdetails (z. B. mit utf8-Decode im Controller)
+    // Holt alle Reviews + Filmdetails (bei Bedarf im Controller utf8-Decode)
     _userReviewsFuture = _controller.getUserReviewsWithMovieDetails();
   }
 
@@ -114,7 +114,7 @@ class _RatingScreenState extends State<RatingScreen> {
                     ),
                     const SizedBox(height: 48),
 
-                    // Daten laden
+                    // FutureBuilder lädt Daten
                     FutureBuilder<List<Map<String, dynamic>>>(
                       future: _userReviewsFuture,
                       builder: (context, snapshot) {
@@ -139,7 +139,7 @@ class _RatingScreenState extends State<RatingScreen> {
                           );
                         }
 
-                        final reviews = snapshot.data!;
+                        final reviews = snapshot.data!; // bereits sortiert aus dem Controller
 
                         // -- Anzeige in Wrap
                         return Wrap(
@@ -205,10 +205,11 @@ class _RatingScreenState extends State<RatingScreen> {
                                         margin: const EdgeInsets.only(bottom: 10.0),
                                       ),
 
-                                      // Filmtitel in Container mit fixer Höhe
+                                      // Container für den Filmtitel
                                       Container(
-                                        height: 48, // ggf. anpassen, je nach Schriftgröße/Zeilen
+                                        height: 60, // hier kannst du experimentieren (z.B. 48, 60, 72)
                                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                        // Text oben zentrieren
                                         child: Align(
                                           alignment: Alignment.topCenter,
                                           child: Text(
@@ -224,9 +225,11 @@ class _RatingScreenState extends State<RatingScreen> {
                                           ),
                                         ),
                                       ),
+
+                                      // etwas Abstand zu den Sternen
                                       const SizedBox(height: 8),
 
-                                      // Sterne (5 anzeigen)
+                                      // Sterne (immer 5 anzeigen)
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: List.generate(5, (index) {
@@ -237,6 +240,8 @@ class _RatingScreenState extends State<RatingScreen> {
                                           );
                                         }),
                                       ),
+
+                                      // nochmal etwas Abstand
                                       const SizedBox(height: 8),
 
                                       // Review-Text
@@ -253,6 +258,7 @@ class _RatingScreenState extends State<RatingScreen> {
                                           textAlign: TextAlign.center,
                                         ),
                                       ),
+
                                       const SizedBox(height: 10),
                                     ],
                                   ),

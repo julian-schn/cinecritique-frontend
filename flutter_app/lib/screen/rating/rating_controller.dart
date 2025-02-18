@@ -16,7 +16,7 @@ class RatingController {
         print('RatingController: No token available');
         return [];
       }
-      
+
       // API-Aufruf an den neuen Endpoint, der alle Reviews des Users liefert.
       final reviewsResponse = await http.get(
         Uri.parse('https://cinecritique.mi.hdm-stuttgart.de/api/reviews/all'),
@@ -32,15 +32,19 @@ class RatingController {
         return [];
       }
 
+      // <-- UTF-8 bei den Reviews
       final List<Map<String, dynamic>> reviews =
-          List<Map<String, dynamic>>.from(json.decode(utf8.decode(reviewsResponse.bodyBytes)));
+          List<Map<String, dynamic>>.from(
+            json.decode(utf8.decode(reviewsResponse.bodyBytes)),
+          );
       print('RatingController: Successfully fetched ${reviews.length} reviews');
 
-      List<Map<String, dynamic>> reviewsWithMovieDetails = [];
+      final List<Map<String, dynamic>> reviewsWithMovieDetails = [];
 
       // Für jedes Review die Filmdetails abrufen
       for (var review in reviews) {
         final imdbId = review['imdbId'];
+
         final movieResponse = await http.get(
           Uri.parse('https://cinecritique.mi.hdm-stuttgart.de/api/movies/$imdbId'),
           headers: {
@@ -48,19 +52,24 @@ class RatingController {
             'Content-Type': 'application/json',
           },
         );
+
         if (movieResponse.statusCode == 200) {
-          final movieData = json.decode(movieResponse.body) as Map<String, dynamic>;
+          // <-- UTF-8 bei den Filmdetails
+          final movieData = json.decode(
+            utf8.decode(movieResponse.bodyBytes),
+          ) as Map<String, dynamic>;
+
           // Kombiniere die relevanten Filmdetails mit den Review-Daten
-          Map<String, dynamic> combinedData = {
+          final combinedData = {
             'imdbId': imdbId,
             'movieTitle': movieData['title'],
             'moviePoster': movieData['poster'],
             'reviewBody': review['body'],
             'reviewRating': review['rating'],
-            // Füge ggf. weitere Felder hinzu
           };
+          print('RatingController: Added review for movie "${movieData['title']}"');
+
           reviewsWithMovieDetails.add(combinedData);
-          print('RatingController: Added review for movie "$movieData[\'title\']"');
         } else {
           print('RatingController: Failed to fetch movie details for imdbId: $imdbId');
         }

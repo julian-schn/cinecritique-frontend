@@ -10,16 +10,9 @@ import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/screen/rating/rating_controller.dart';
 
-// Import deines MovieCard-Widgets
-import 'package:flutter_app/widgets/movie/movie_card.dart';
-
 class RatingScreen extends StatefulWidget {
   final AuthService authService;
-
-  const RatingScreen({
-    Key? key,
-    required this.authService,
-  }) : super(key: key);
+  const RatingScreen({Key? key, required this.authService}) : super(key: key);
 
   @override
   _RatingScreenState createState() => _RatingScreenState();
@@ -33,7 +26,7 @@ class _RatingScreenState extends State<RatingScreen> {
   void initState() {
     super.initState();
     _controller = RatingController(widget.authService);
-    // Neue Methode, die die Reviews + Filmdetails holt
+    // Holt alle Reviews + Filmdetails (z. B. mit utf8-Decode im Controller)
     _userReviewsFuture = _controller.getUserReviewsWithMovieDetails();
   }
 
@@ -44,47 +37,31 @@ class _RatingScreenState extends State<RatingScreen> {
     return Scaffold(
       body: Row(
         children: [
-          // Sidebar einbinden
+          // -- Sidebar
           Sidebar(
             authService: widget.authService,
             onHomePressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => HomeScreen(
-                    authService: widget.authService,
-                  ),
-                ),
+                MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
               );
             },
             onGenresPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => GenrePage(
-                    authService: widget.authService,
-                  ),
-                ),
+                MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
               );
             },
             onFavoritesPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => FavoriteScreen(
-                    authService: widget.authService,
-                  ),
-                ),
+                MaterialPageRoute(builder: (context) => FavoriteScreen(authService: widget.authService)),
               );
             },
             onRecommendationsPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => RecommendationsPage(
-                    authService: widget.authService,
-                  ),
-                ),
+                MaterialPageRoute(builder: (context) => RecommendationsPage(authService: widget.authService)),
               );
             },
             onRatingsPressed: () {
@@ -93,11 +70,7 @@ class _RatingScreenState extends State<RatingScreen> {
             onProfilPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => UserProfileScreen(
-                    authService: widget.authService,
-                  ),
-                ),
+                MaterialPageRoute(builder: (context) => UserProfileScreen(authService: widget.authService)),
               );
             },
             onLoginPressed: () {
@@ -108,14 +81,17 @@ class _RatingScreenState extends State<RatingScreen> {
             },
             currentPage: 'Bewertungen',
           ),
+
+          // -- Hauptbereich
           Expanded(
             child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(32.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
                   children: [
-                    // Titelzeile
+                    // Überschrift
                     Row(
                       children: [
                         Text(
@@ -138,7 +114,7 @@ class _RatingScreenState extends State<RatingScreen> {
                     ),
                     const SizedBox(height: 48),
 
-                    // FutureBuilder statt ValueListenableBuilder
+                    // Daten laden
                     FutureBuilder<List<Map<String, dynamic>>>(
                       future: _userReviewsFuture,
                       builder: (context, snapshot) {
@@ -163,68 +139,120 @@ class _RatingScreenState extends State<RatingScreen> {
                           );
                         }
 
-                        final reviewList = snapshot.data!;
+                        final reviews = snapshot.data!;
+
+                        // -- Anzeige in Wrap
                         return Wrap(
                           spacing: isSidebarExpanded ? 16.0 : 48.0,
                           runSpacing: 16.0,
-                          children: reviewList.map((reviewData) {
+                          children: reviews.map((reviewData) {
                             final imdbId = reviewData['imdbId'] ?? '';
-                            final movieTitle = reviewData['movieTitle'] ?? 'Unbekannt';
-                            final posterUrl = reviewData['moviePoster'] ?? '';
-                            final userRating = (reviewData['reviewRating'] ?? 0).toDouble();
-                            final userReview = reviewData['reviewBody'] ?? '';
+                            final title = reviewData['movieTitle'] ?? 'Unbekannt';
+                            final poster = reviewData['moviePoster'] ?? '';
+                            final ratingNum = (reviewData['reviewRating'] ?? 0).toDouble();
+                            final reviewText = reviewData['reviewBody'] ?? '';
 
                             return Container(
-                              width: 240, // etwas schmaler
+                              width: 250, // wie auf der Favoriten-Page
                               margin: const EdgeInsets.all(8.0),
-                              // Wir bauen unsere Karte: zuerst das MovieCard-Widget,
-                              // anschließend Sterne & Review-Text
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Bestehendes MovieCard-Widget "geschrumpft" darstellen
-                                  Transform.scale(
-                                    scale: 0.9, // Karte etwas kleiner skalieren
-                                    child: MovieCard(
-                                      posterUrl: posterUrl,
-                                      title: movieTitle,
-                                      imdbId: imdbId,
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => MoviePage(
-                                              imdbId: imdbId,
-                                              authService: widget.authService,
-                                            ),
+                              child: Card(
+                                color: const Color(0xFF1C1C1C),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                ),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => MoviePage(
+                                          imdbId: imdbId,
+                                          authService: widget.authService,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      // Poster
+                                      ClipRRect(
+                                        borderRadius: const BorderRadius.only(
+                                          topLeft: Radius.circular(12.0),
+                                          topRight: Radius.circular(12.0),
+                                        ),
+                                        child: Image.network(
+                                          poster,
+                                          height: 200, // ggf. anpassen
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error, stackTrace) {
+                                            return Container(
+                                              height: 200,
+                                              color: Colors.grey[800],
+                                              child: const Icon(Icons.movie),
+                                            );
+                                          },
+                                        ),
+                                      ),
+
+                                      // roter Balken unter dem Poster
+                                      Container(
+                                        height: 4,
+                                        color: Colors.redAccent,
+                                        margin: const EdgeInsets.only(bottom: 10.0),
+                                      ),
+
+                                      // Filmtitel
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                        child: Text(
+                                          title,
+                                          textAlign: TextAlign.center,
+                                          style: GoogleFonts.inter(
+                                            color: Colors.white,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                        );
-                                      },
-                                    ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+
+                                      // Sterne (stets 5 anzeigen)
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: List.generate(5, (index) {
+                                          return Icon(
+                                            index < ratingNum ? Icons.star : Icons.star_border,
+                                            color: Colors.white,
+                                            size: 20,
+                                          );
+                                        }),
+                                      ),
+                                      const SizedBox(height: 8),
+
+                                      // Review-Text
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                        child: Text(
+                                          reviewText,
+                                          style: GoogleFonts.inter(
+                                            color: Colors.grey[300],
+                                            fontSize: 14,
+                                          ),
+                                          maxLines: 3,
+                                          overflow: TextOverflow.ellipsis,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10),
+                                    ],
                                   ),
-                                  const SizedBox(height: 8),
-                                  // Sterne: immer 5, in Weiß
-                                  Row(
-                                    children: List.generate(5, (index) {
-                                      return Icon(
-                                        index < userRating ? Icons.star : Icons.star_border,
-                                        color: Colors.white,
-                                        size: 20,
-                                      );
-                                    }),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  // Review-Text
-                                  Text(
-                                    userReview,
-                                    style: GoogleFonts.inter(
-                                      color: Colors.grey[300],
-                                      fontSize: 14,
-                                    ),
-                                    maxLines: 3,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
+                                ),
                               ),
                             );
                           }).toList(),

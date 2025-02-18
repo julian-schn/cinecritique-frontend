@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/services/auth_service.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_app/screen/favorite/favorite_screen.dart';
 
 class Sidebar extends StatefulWidget {
   final AuthService authService;

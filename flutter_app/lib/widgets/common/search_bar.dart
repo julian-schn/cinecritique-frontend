@@ -30,31 +30,11 @@ class CustomSearchBar extends StatefulWidget implements PreferredSizeWidget {
 class _CustomSearchBarState extends State<CustomSearchBar> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-
-  // Hier speichern wir unsere gefundenen Filme
+  final ScrollController _scrollController = ScrollController();
   List<Map<String, dynamic>> _movies = [];
+  Map<int, bool> _isHovered = {};
   bool _isLoading = false;
   Timer? _debounce;
-
-  // Für Hover-Effekte (wenn Du sie brauchst)
-  Map<int, bool> _isHovered = {};
-
-  // ScrollController für die Liste
-  final ScrollController _scrollController = ScrollController();
-
-  // KEY für den Container mit den Suchergebnissen
-  final GlobalKey _resultsKey = GlobalKey();
-
-  @override
-  void initState() {
-    super.initState();
-   
-    _focusNode.addListener(() {
-      if (!_focusNode.hasFocus) {
-        
-      }
-    });
-  }
 
   @override
   void dispose() {
@@ -66,7 +46,6 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
   }
 
   void _onSearchChanged(String query) {
-    // "Debounce": Suche erst ausführen, wenn der User kurz nichts eingibt.
     if (_debounce?.isActive ?? false) _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
       _searchMovies(query);
@@ -81,44 +60,35 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
       widget.onSearchResultsUpdated(false);
       return;
     }
-
     setState(() {
       _isLoading = true;
     });
-
     final url = 'https://cinecritique.mi.hdm-stuttgart.de/api/movies?search=$query';
-
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final data = json.decode(utf8.decode(response.bodyBytes)) as List<dynamic>;
-        List<Map<String, dynamic>> loadedMovies = data
-            .where((movie) =>
-                movie['title'] != null &&
-                movie['title'].toLowerCase().contains(query.toLowerCase()))
-            .map((movie) => {
-                  'poster': movie['poster'] ?? '',
-                  'title': movie['title'] ?? 'Unbekannt',
-                  'imdbId': movie['imdbId'] ?? '',
+        final loadedMovies = data
+            .where((m) => m['title'] != null && m['title'].toLowerCase().contains(query.toLowerCase()))
+            .map((m) => {
+                  'poster': m['poster'] ?? '',
+                  'title': m['title'] ?? 'Unbekannt',
+                  'imdbId': m['imdbId'] ?? '',
                 })
             .toList();
-
         setState(() {
           _movies = loadedMovies;
           _isLoading = false;
         });
-
         widget.onSearchResultsUpdated(_movies.isNotEmpty);
       } else {
-        print('Fehler: ${response.statusCode}');
         setState(() {
           _movies = [];
           _isLoading = false;
         });
         widget.onSearchResultsUpdated(false);
       }
-    } catch (e) {
-      print('Fehler bei der API-Anfrage: $e');
+    } catch (_) {
       setState(() {
         _movies = [];
         _isLoading = false;
@@ -129,171 +99,142 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      // Mit onTapDown bekommst Du die Details der Position
-      onTapDown: (TapDownDetails details) {
-        // 1) Falls keine Suchergebnisse angezeigt werden, muss man nichts schließen
-        if (_movies.isEmpty) return;
-
-        // 2) Versuche die Position des Results-Containers zu ermitteln
-        final box = _resultsKey.currentContext?.findRenderObject() as RenderBox?;
-        if (box != null) {
-          final offset = box.localToGlobal(Offset.zero);
-          final size = box.size;
-          // Erzeugt ein Rechteck (links oben = offset, Breite+Höhe = size)
-          final rect = offset & size;
-
-          // 3) Prüfen, ob der Klick "innerhalb" liegt
-          if (!rect.contains(details.globalPosition)) {
-            // -> Klick außerhalb => Suchergebnisse schließen
-            FocusScope.of(context).unfocus(); // Tastatur / Fokus weg
-            setState(() {
-              _movies = [];
-            });
-            widget.onSearchResultsUpdated(false);
-          }
-        }
-      },
-      behavior: HitTestBehavior.translucent,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 5.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _controller,
-              focusNode: _focusNode,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                hintText: 'Suche...',
-                hintStyle: const TextStyle(color: Colors.white),
-                prefixIcon: const Icon(Icons.search, color: Colors.white),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: const BorderSide(color: Colors.white),
+    return Stack(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 5.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _controller,
+                focusNode: _focusNode,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: 'Suche...',
+                  hintStyle: const TextStyle(color: Colors.white),
+                  prefixIcon: const Icon(Icons.search, color: Colors.white),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Colors.white),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Colors.white),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Colors.white, width: 1.0),
+                  ),
+                  filled: true,
+                  fillColor: const Color(0xFF121212),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: const BorderSide(color: Colors.white),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: const BorderSide(color: Colors.white, width: 1.0),
-                ),
-                filled: true,
-                fillColor: const Color(0xFF121212),
+                onChanged: _onSearchChanged,
               ),
-              onChanged: _onSearchChanged,
-            ),
-
-         
-            if (_isLoading) ...[
-              const SizedBox(height: 10),
-              const CircularProgressIndicator(color: Colors.white),
+              if (_isLoading) ...[
+                const SizedBox(height: 10),
+                const CircularProgressIndicator(color: Colors.white),
+              ],
             ],
-
-           
-            if (_movies.isNotEmpty)
-              Container(
-               
-                key: _resultsKey,
-                padding: const EdgeInsets.all(8.0),
-                height: 400,
-                child: NotificationListener<ScrollNotification>(
-                  onNotification: (scrollNotification) {
-                    // Beliebiges Scrollverhalten, hier z.B. um unendlich zu laden
-                    if (scrollNotification is ScrollUpdateNotification) {
-                      if (_scrollController.position.pixels ==
-                          _scrollController.position.maxScrollExtent) {
-                        // TODO: ggf. neue Seite laden ...
-                        return true;
-                      }
+          ),
+        ),
+        if (_movies.isNotEmpty) ...[
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: () {
+                FocusScope.of(context).unfocus();
+                setState(() {
+                  _movies = [];
+                });
+                widget.onSearchResultsUpdated(false);
+              },
+              child: Container(color: Colors.transparent),
+            ),
+          ),
+          Positioned(
+            left: 32,
+            right: 32,
+            top: kToolbarHeight + 10,
+            child: Container(
+              color: const Color(0xFF121212),
+              height: 400,
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (scrollNotification) {
+                  if (scrollNotification is ScrollUpdateNotification) {
+                    if (_scrollController.position.pixels ==
+                        _scrollController.position.maxScrollExtent) {
+                      return true;
                     }
-                    return false;
-                  },
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    shrinkWrap: true,
-                    physics: const ClampingScrollPhysics(),
-                    itemCount: _movies.length,
-                    itemBuilder: (context, index) {
-                      final movie = _movies[index];
-                      return Column(
-                        children: [
-                          MouseRegion(
-                            onEnter: (_) {
-                              setState(() {
-                                _isHovered[index] = true;
-                              });
-                            },
-                            onExit: (_) {
-                              setState(() {
-                                _isHovered[index] = false;
-                              });
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF121212),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: ListTile(
-                                contentPadding:
-                                    const EdgeInsets.symmetric(vertical: 8.0),
-                                title: Text(
-                                  movie['title'],
-                                  style: TextStyle(
-                                    color: _isHovered[index] == true
-                                        ? Colors.redAccent
-                                        : Colors.white,
-                                  ),
-                                ),
-                                leading: (movie['poster'] != null &&
-                                        movie['poster'].isNotEmpty)
-                                    ? Image.network(
-                                        movie['poster'],
-                                        fit: BoxFit.cover,
-                                      )
-                                    : null,
-                                trailing: ValueListenableBuilder<bool>(
-                                  valueListenable:
-                                      widget.authService.isLoggedIn,
-                                  builder: (context, isLoggedIn, _) {
-                                    return isLoggedIn
-                                        ? Padding(
-                                            padding: const EdgeInsets.only(
-                                                right: 20.0),
-                                            child: FavoriteToggle(
-                                              iconSize: 35,
-                                              imdbId: movie['imdbId'],
-                                              authService: widget.authService,
-                                            ),
-                                          )
-                                        : const SizedBox.shrink();
-                                  },
-                                ),
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MoviePage(
-                                        imdbId: movie['imdbId'],
-                                        authService: widget.authService,
-                                      ),
-                                    ),
-                                  );
-                                },
+                  }
+                  return false;
+                },
+                child: ListView.builder(
+                  controller: _scrollController,
+                  itemCount: _movies.length,
+                  itemBuilder: (context, index) {
+                    final movie = _movies[index];
+                    return Column(
+                      children: [
+                        MouseRegion(
+                          onEnter: (_) {
+                            setState(() {
+                              _isHovered[index] = true;
+                            });
+                          },
+                          onExit: (_) {
+                            setState(() {
+                              _isHovered[index] = false;
+                            });
+                          },
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.symmetric(vertical: 8.0),
+                            title: Text(
+                              movie['title'],
+                              style: TextStyle(
+                                color: _isHovered[index] == true ? Colors.redAccent : Colors.white,
                               ),
                             ),
+                            leading: movie['poster'].isNotEmpty
+                                ? Image.network(movie['poster'], fit: BoxFit.cover)
+                                : null,
+                            trailing: ValueListenableBuilder<bool>(
+                              valueListenable: widget.authService.isLoggedIn,
+                              builder: (context, isLoggedIn, _) {
+                                return isLoggedIn
+                                    ? Padding(
+                                        padding: const EdgeInsets.only(right: 20.0),
+                                        child: FavoriteToggle(
+                                          iconSize: 35,
+                                          imdbId: movie['imdbId'],
+                                          authService: widget.authService,
+                                        ),
+                                      )
+                                    : const SizedBox.shrink();
+                              },
+                            ),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => MoviePage(
+                                    imdbId: movie['imdbId'],
+                                    authService: widget.authService,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                          const SizedBox(height: 10),
-                        ],
-                      );
-                    },
-                  ),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                    );
+                  },
                 ),
               ),
-          ],
-        ),
-      ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

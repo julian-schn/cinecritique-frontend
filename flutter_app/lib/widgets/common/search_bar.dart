@@ -3,23 +3,15 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-// Dummy-Klassen, damit das Beispiel kompiliert
-class AuthService {
-  ValueNotifier<bool> isLoggedIn = ValueNotifier<bool>(true);
-}
-
-class MoviePage extends StatelessWidget {
-  final String imdbId;
-  final AuthService authService;
-  const MoviePage({super.key, required this.imdbId, required this.authService});
-  @override
-  Widget build(BuildContext context) => Scaffold(body: Text("MoviePage: $imdbId"));
-}
+// Alias für AuthService, damit es nicht zu Konflikten kommt
+import 'package:flutter_app/services/auth_service.dart' as auth;
+// Alias für MoviePage, damit es nicht zu Konflikten kommt
+import 'package:flutter_app/screen/moviepage/moviepage_screen.dart' as movie_page;
 
 class FavoriteToggle extends StatelessWidget {
   final double iconSize;
   final String imdbId;
-  final AuthService authService;
+  final auth.AuthService authService;
   const FavoriteToggle({super.key, required this.iconSize, required this.imdbId, required this.authService});
 
   @override
@@ -29,9 +21,8 @@ class FavoriteToggle extends StatelessWidget {
   }
 }
 
-// Dein eigentlicher SearchBar-Code
 class CustomSearchBar extends StatefulWidget implements PreferredSizeWidget {
-  final AuthService authService;
+  final auth.AuthService authService;
   final Function onSearchStart;
   final Function onSearchEnd;
   final Function(bool) onSearchResultsUpdated;
@@ -57,14 +48,12 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
   List<Map<String, dynamic>> _movies = [];
   bool _isLoading = false;
   Timer? _debounce;
-
-  // Scrollcontroller für die Liste
   final ScrollController _scrollController = ScrollController();
 
-  // Hoverstatus
+  // Hoverstatus für jeden Listeneintrag
   final Map<int, bool> _isHovered = {};
 
-  // Damit wir die Größe/Position der Suchergebnis-Box ermitteln können
+  // GlobalKey, um die Größe/Position der Ergebnisliste zu ermitteln
   final GlobalKey _resultsKey = GlobalKey();
 
   @override
@@ -72,7 +61,6 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
     super.initState();
     _focusNode.addListener(() {
       if (!_focusNode.hasFocus) {
-        // Leicht verzögert, damit Klicks innerhalb ggf. Zeit haben, verarbeitet zu werden
         Future.delayed(const Duration(milliseconds: 100), () {
           if (mounted) _closeSearchResults();
         });
@@ -147,18 +135,12 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    // Anstatt Stack + Gesturedetector => wir packen den gesamten Inhalt in einen
-    // GestureDetector, der onTapDown nutzt, um zu prüfen, wo geklickt wurde.
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTapDown: (details) {
-        // 1) Falls keine Filme angezeigt werden => nichts schließen
         if (_movies.isEmpty) return;
 
-        // 2) Position des Taps ermitteln
         final tapPosition = details.globalPosition;
-
-        // 3) Schauen, ob das Tap in der Box der Ergebnisliste war
         final renderBox = _resultsKey.currentContext?.findRenderObject() as RenderBox?;
         if (renderBox != null) {
           final boxOffset = renderBox.localToGlobal(Offset.zero);
@@ -167,17 +149,12 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
           final inRight = tapPosition.dx <= boxOffset.dx + boxSize.width;
           final inTop = tapPosition.dy >= boxOffset.dy;
           final inBottom = tapPosition.dy <= boxOffset.dy + boxSize.height;
-
           final insideBox = inLeft && inRight && inTop && inBottom;
           if (!insideBox) {
-            // => Klick außerhalb => schließen
             FocusScope.of(context).unfocus();
             _closeSearchResults();
-          } else {
-            // Klick innerhalb => NICHT schließen
           }
         } else {
-          // Falls wir die Box nicht ermitteln konnten, sicherheitshalber schließen
           FocusScope.of(context).unfocus();
           _closeSearchResults();
         }
@@ -185,7 +162,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Deine Suchleiste
+          // Suchleiste
           Container(
             padding: const EdgeInsets.only(top: 7.0),
             child: Container(
@@ -228,7 +205,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
           // Ergebnisliste
           if (_movies.isNotEmpty)
             Container(
-              key: _resultsKey, // <-- WICHTIG! Damit wir die Position/Größe auslesen können
+              key: _resultsKey,
               padding: const EdgeInsets.all(8.0),
               height: 400,
               child: ListView.builder(
@@ -266,11 +243,10 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                     ? Padding(
                                         padding: const EdgeInsets.only(right: 20.0),
                                         child: GestureDetector(
-                                          // Damit Klicks nur hier verarbeitet werden
                                           behavior: HitTestBehavior.opaque,
                                           onTap: () {
-                                            // Klick aufs Herz => NICHT schließen
-                                            // FavoriteToggle kümmert sich intern um den Toggle
+                                            // Klick aufs Herz => NICHT schließen.
+                                            // FavoriteToggle kümmert sich intern um den Toggle.
                                           },
                                           child: FavoriteToggle(
                                             iconSize: 35,
@@ -283,11 +259,10 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                               },
                             ),
                             onTap: () {
-                              // Klick auf den Film => Navigation
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => MoviePage(
+                                  builder: (context) => movie_page.MoviePage(
                                     imdbId: movie['imdbId'],
                                     authService: widget.authService,
                                   ),

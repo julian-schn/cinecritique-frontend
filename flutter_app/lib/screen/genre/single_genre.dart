@@ -15,7 +15,12 @@ import 'package:flutter_app/screen/favorite/favorite_screen.dart';
 class GenreDetailPage extends StatefulWidget {
   final String genre;
   final AuthService authService;
-  const GenreDetailPage({Key? key, required this.genre, required this.authService}) : super(key: key);
+
+  const GenreDetailPage({
+    Key? key,
+    required this.genre,
+    required this.authService,
+  }) : super(key: key);
 
   @override
   _GenreDetailPageState createState() => _GenreDetailPageState();
@@ -24,6 +29,11 @@ class GenreDetailPage extends StatefulWidget {
 class _GenreDetailPageState extends State<GenreDetailPage> {
   List<Map<String, dynamic>> movies = [];
   bool isLoading = true;
+
+  // Wie in FavoriteScreen:
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  // Falls du mal eine Suche einbauen möchtest, könntest du das hier nutzen
+  bool _isSearching = false;
 
   @override
   void initState() {
@@ -56,14 +66,83 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Genauso wie in FavoriteScreen:
     final bool isMobile = MediaQuery.of(context).size.width < 600;
     final bool isSidebarExpanded = MediaQuery.of(context).size.width > 800;
 
+    // Sidebar
+    final sidebar = Sidebar(
+      authService: widget.authService,
+      onHomePressed: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(authService: widget.authService),
+          ),
+        );
+      },
+      onGenresPressed: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => GenrePage(authService: widget.authService),
+          ),
+        );
+      },
+      onFavoritesPressed: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FavoriteScreen(authService: widget.authService),
+          ),
+        );
+      },
+      onRecommendationsPressed: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RecommendationsPage(authService: widget.authService),
+          ),
+        );
+      },
+      onRatingsPressed: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RatingScreen(authService: widget.authService),
+          ),
+        );
+      },
+      onProfilPressed: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => UserProfileScreen(authService: widget.authService),
+          ),
+        );
+      },
+      onLoginPressed: () {
+        widget.authService.login();
+      },
+      onLogoutPressed: () {
+        widget.authService.logout();
+      },
+      currentPage: 'Genre',
+    );
+
+    // Header-Zeile
     final headerRow = Padding(
-      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+      padding: EdgeInsets.only(
+        left: isSidebarExpanded
+            ? 20.0
+            : (MediaQuery.of(context).size.width - 1060) / 2,
+        right: 35.0,
+        top: 85.0,
+        bottom: 8,
+      ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Burger-Menü wird hier NICHT in die Header-Zeile integriert!
           Text(
             widget.genre,
             style: const TextStyle(
@@ -84,109 +163,97 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
       ),
     );
 
-    final content = SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
-        children: [
-          headerRow,
-          Padding(
-            padding: const EdgeInsets.only(left: 20.0, right: 35.0, top: 10, bottom: 1),
-            child: Center(
-              child: Wrap(
-                alignment: WrapAlignment.center,
-                spacing: isSidebarExpanded ? 16.0 : 48.0,
-                runSpacing: 16.0,
-                children: movies.map((movie) => Container(
-                  width: 250,
-                  height: 250,
-                  child: MovieCard(
-                    posterUrl: movie['poster'] ?? '',
-                    title: movie['title'] ?? 'Unbekannt',
-                    imdbId: movie['imdbId'] ?? '',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MoviePage(
-                            imdbId: movie['imdbId'],
-                            authService: widget.authService,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                )).toList(),
-              ),
+    // Hauptinhalt (Filmliste)
+    Widget movieContent;
+    if (isLoading) {
+      movieContent = const Center(child: CircularProgressIndicator());
+    } else if (movies.isEmpty) {
+      movieContent = const Padding(
+        padding: EdgeInsets.all(20.0),
+        child: Center(
+          child: Text(
+            'Keine Filme in diesem Genre gefunden.',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
             ),
           ),
+        ),
+      );
+    } else {
+      movieContent = Padding(
+        padding: const EdgeInsets.only(left: 20.0, right: 35.0, top: 10, bottom: 1),
+        child: Center(
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            spacing: isSidebarExpanded ? 16.0 : 48.0,
+            runSpacing: 16.0,
+            children: movies.map((movie) {
+              return SizedBox(
+                width: 250,
+                height: 250,
+                child: MovieCard(
+                  posterUrl: movie['poster'] ?? '',
+                  title: movie['title'] ?? 'Unbekannt',
+                  imdbId: movie['imdbId'] ?? '',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MoviePage(
+                          imdbId: movie['imdbId'],
+                          authService: widget.authService,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      );
+    }
+
+    // Gesamtes Layout in SingleChildScrollView (analog zu FavoriteScreen)
+    final content = SingleChildScrollView(
+      // If du mal eine Suche einbauen willst, kannst du hier _isSearching beachten
+      physics: _isSearching
+          ? const NeverScrollableScrollPhysics()
+          : const ClampingScrollPhysics(),
+      child: Column(
+        crossAxisAlignment: isSidebarExpanded
+            ? CrossAxisAlignment.start
+            : CrossAxisAlignment.center,
+        children: [
+          // Falls du irgendwann eine Suchleiste analog zu FavoriteScreen haben willst,
+          // könntest du hier ein "searchRow" einbauen.
+          headerRow,
+          movieContent,
         ],
       ),
     );
 
-    final sidebar = Sidebar(
-      authService: widget.authService,
-      onHomePressed: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
-        );
-      },
-      onGenresPressed: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
-        );
-      },
-      onFavoritesPressed: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => FavoriteScreen(authService: widget.authService)),
-        );
-      },
-      onRecommendationsPressed: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => RecommendationsPage(authService: widget.authService)),
-        );
-      },
-      onRatingsPressed: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => RatingScreen(authService: widget.authService)),
-        );
-      },
-      onProfilPressed: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => UserProfileScreen(authService: widget.authService)),
-        );
-      },
-      onLoginPressed: () {
-        widget.authService.login();
-      },
-      onLogoutPressed: () {
-        widget.authService.logout();
-      },
-      currentPage: 'Genre',
-    );
-
+    // Mobiles Layout
     if (isMobile) {
       return Scaffold(
+        key: _scaffoldKey,
         drawer: sidebar,
         body: Stack(
           children: [
+            // analog zu FavoriteScreen: top:72 => Platz für den Burger-Button
             Padding(
-              padding: const EdgeInsets.only(top: 50.0),
+              padding: const EdgeInsets.only(top: 72.0),
               child: content,
             ),
-            // Burger-Menü als Positioned-Element oben links (16px Abstand von oben und links)
+            // Burger-Menü
             Positioned(
               top: 16,
               left: 16,
               child: IconButton(
                 icon: const Icon(Icons.menu, color: Colors.white),
                 onPressed: () {
-                  Scaffold.of(context).openDrawer();
+                  _scaffoldKey.currentState?.openDrawer();
                 },
               ),
             ),
@@ -194,6 +261,7 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
         ),
       );
     } else {
+      // Desktop-Layout
       return Scaffold(
         body: Row(
           children: [

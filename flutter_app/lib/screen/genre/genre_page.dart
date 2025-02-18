@@ -8,6 +8,7 @@ import 'package:flutter_app/screen/recommendationns/recommenndations_page.dart';
 import 'package:flutter_app/screen/favorite/favorite_screen.dart';
 import 'package:flutter_app/screen/rating/rating_screen.dart';
 import 'package:flutter_app/screen/userprofile/userprofile_screen.dart';
+import 'package:flutter_app/widgets/widgets.dart';
 
 class GenrePage extends StatefulWidget {
   final AuthService authService;
@@ -21,6 +22,8 @@ class _GenrePageState extends State<GenrePage> {
   final GenreController _controller = GenreController();
   List<String> genres = [];
   bool isLoading = true;
+  bool _isSearching = false;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -44,7 +47,12 @@ class _GenrePageState extends State<GenrePage> {
 
   @override
   Widget build(BuildContext context) {
+    // Für mobile (unter 600px) / Desktop
     final bool isMobile = MediaQuery.of(context).size.width < 600;
+    // Nutze dieselbe Logik wie in FavoriteScreen:
+    final bool isSidebarExpanded = MediaQuery.of(context).size.width > 800;
+
+    // Sidebar
     final sidebar = Sidebar(
       authService: widget.authService,
       onHomePressed: () {
@@ -92,15 +100,54 @@ class _GenrePageState extends State<GenrePage> {
       currentPage: 'Genres',
     );
 
-    final headerRow = Padding(
-      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+    // Suchleiste analog zur FavoriteScreen
+    final searchRow = Padding(
+      padding: const EdgeInsets.only(bottom: 5.0),
       child: Row(
+        children: [
+          Expanded(
+            child: CustomSearchBar(
+              authService: widget.authService,
+              onSearchStart: () {
+                setState(() {
+                  _isSearching = true;
+                });
+              },
+              onSearchEnd: () {
+                setState(() {
+                  _isSearching = false;
+                });
+              },
+              onSearchResultsUpdated: (hasResults) {
+                setState(() {
+                  _isSearching = hasResults;
+                });
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+
+    // Header-Zeile oben (Titel)
+    final headerRow = Padding(
+      padding: EdgeInsets.only(
+        // Genauso wie bei FavoriteScreen
+        left: isSidebarExpanded
+            ? 20.0
+            : (MediaQuery.of(context).size.width - 1060) / 2,
+        right: 35.0,
+        top: 85.0,
+        bottom: 8,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: const [
           Text(
             'Genres',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 24,
+              fontSize: 36,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -108,7 +155,7 @@ class _GenrePageState extends State<GenrePage> {
             '.',
             style: TextStyle(
               color: Colors.redAccent,
-              fontSize: 24,
+              fontSize: 38,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -116,74 +163,104 @@ class _GenrePageState extends State<GenrePage> {
       ),
     );
 
-    final content = Padding(
-      padding: const EdgeInsets.only(top: 50.0),
-      child: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : genres.isEmpty
-              ? const Center(
-                  child: Text(
-                    'Keine Genres gefunden.',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                )
-              : ListView.builder(
-                  itemCount: genres.length,
-                  itemBuilder: (context, index) {
-                    final genre = genres[index];
-                    return Padding(
-                      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                genre,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const Text(
-                                '.',
-                                style: TextStyle(
-                                  color: Colors.redAccent,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 14),
-                          HorizontalMovieList(authService: widget.authService),
-                          const SizedBox(height: 20),
-                        ],
+    // Hauptinhalt
+    Widget mainContent;
+    if (isLoading) {
+      mainContent = const Center(child: CircularProgressIndicator());
+    } else if (genres.isEmpty) {
+      mainContent = const Padding(
+        padding: EdgeInsets.all(20.0),
+        child: Center(
+          child: Text(
+            'Keine Genres gefunden.',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+            ),
+          ),
+        ),
+      );
+    } else {
+      mainContent = ListView.builder(
+        itemCount: genres.length,
+        // Da wir SingleChildScrollView weiter außen nutzen, 
+        // kann hier shrinkWrap = true Sinn machen:
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemBuilder: (context, index) {
+          final genre = genres[index];
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+            child: Column(
+              crossAxisAlignment:
+                  isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      genre,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
-                    );
-                  },
+                    ),
+                    const Text(
+                      '.',
+                      style: TextStyle(
+                        color: Colors.redAccent,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 14),
+                HorizontalMovieList(authService: widget.authService),
+                const SizedBox(height: 20),
+              ],
+            ),
+          );
+        },
+      );
+    }
+
+    // Alles zusammenfassen in SingleChildScrollView
+    final content = SingleChildScrollView(
+      physics: _isSearching
+          ? const NeverScrollableScrollPhysics()
+          : const ClampingScrollPhysics(),
+      child: Column(
+        crossAxisAlignment:
+            isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+        children: [
+          searchRow,
+          headerRow,
+          mainContent,
+        ],
+      ),
     );
 
     if (isMobile) {
       return Scaffold(
+        key: _scaffoldKey,
         drawer: sidebar,
         body: Stack(
           children: [
-            Column(
-              children: [
-                headerRow,
-                Expanded(child: content),
-              ],
+            // analog zur FavoriteScreen: top-Padding 
+            // (hier mit 72 px oder was du gerne hättest?)
+            Padding(
+              padding: const EdgeInsets.only(top: 72.0),
+              child: content,
             ),
+            // Burger-Menü oben links
             Positioned(
               top: 16,
               left: 16,
               child: IconButton(
                 icon: const Icon(Icons.menu, color: Colors.white),
                 onPressed: () {
-                  Scaffold.of(context).openDrawer();
+                  _scaffoldKey.currentState?.openDrawer();
                 },
               ),
             ),

@@ -32,6 +32,7 @@ class _RatingScreenState extends State<RatingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Genau wie in FavoriteScreen:
     final bool isMobile = MediaQuery.of(context).size.width < 600;
     final bool isSidebarExpanded = MediaQuery.of(context).size.width > 800;
 
@@ -40,46 +41,37 @@ class _RatingScreenState extends State<RatingScreen> {
       onHomePressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (context) => HomeScreen(authService: widget.authService)),
+          MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
         );
       },
       onGenresPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (context) => GenrePage(authService: widget.authService)),
+          MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
         );
       },
       onFavoritesPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  FavoriteScreen(authService: widget.authService)),
+          MaterialPageRoute(builder: (context) => FavoriteScreen(authService: widget.authService)),
         );
       },
       onRecommendationsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  RecommendationsPage(authService: widget.authService)),
+          MaterialPageRoute(builder: (context) => RecommendationsPage(authService: widget.authService)),
         );
       },
       onRatingsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (context) => RatingScreen(authService: widget.authService)),
+          MaterialPageRoute(builder: (context) => RatingScreen(authService: widget.authService)),
         );
       },
       onProfilPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  UserProfileScreen(authService: widget.authService)),
+          MaterialPageRoute(builder: (context) => UserProfileScreen(authService: widget.authService)),
         );
       },
       onLoginPressed: () {
@@ -91,10 +83,19 @@ class _RatingScreenState extends State<RatingScreen> {
       currentPage: 'Bewertungen',
     );
 
-    // HeaderRow wird nun immer eingefügt, auch in der mobilen Variante
+    // Überschrift
     final headerRow = Padding(
-      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+      // wie bei FavoriteScreen: oben 85px, etc.
+      padding: EdgeInsets.only(
+        left: isSidebarExpanded
+            ? 20.0
+            : (MediaQuery.of(context).size.width - 1060) / 2,
+        right: 35.0,
+        top: 85.0,
+        bottom: 8,
+      ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             'Meine Bewertungen',
@@ -116,164 +117,172 @@ class _RatingScreenState extends State<RatingScreen> {
       ),
     );
 
-    final content = SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Column(
-          crossAxisAlignment:
-              isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
-          children: [
-            headerRow,
-            const SizedBox(height: 48),
-            FutureBuilder<List<Map<String, dynamic>>>(
-              future: _userReviewsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text(
-                      'Fehler: ${snapshot.error}',
-                      style: GoogleFonts.inter(color: Colors.white),
-                    ),
-                  );
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(
-                    child: Text(
-                      '...bisher hast du noch keine Reviews geschrieben',
-                      style: GoogleFonts.inter(
-                        color: Colors.white,
-                        fontSize: 18,
-                      ),
-                    ),
-                  );
-                }
-                final reviews = snapshot.data!;
-                return Center(
-                  child: Wrap(
-                    alignment: WrapAlignment.center,
-                    spacing: isSidebarExpanded ? 16.0 : 48.0,
-                    runSpacing: 16.0,
-                    children: reviews.map((reviewData) {
-                      final imdbId = reviewData['imdbId'] ?? '';
-                      final title = reviewData['movieTitle'] ?? 'Unbekannt';
-                      final poster = reviewData['moviePoster'] ?? '';
-                      final ratingNum = (reviewData['reviewRating'] ?? 0).toDouble();
-                      final reviewText = reviewData['reviewBody'] ?? '';
-                      return Container(
-                        width: 250,
-                        margin: const EdgeInsets.all(8.0),
-                        child: Card(
-                          color: const Color(0xFF1C1C1C),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                          ),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(12.0),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => MoviePage(
-                                    imdbId: imdbId,
-                                    authService: widget.authService,
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                ClipRRect(
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(12.0),
-                                    topRight: Radius.circular(12.0),
-                                  ),
-                                  child: Image.network(
-                                    poster,
-                                    height: 200,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(
-                                        height: 200,
-                                        color: Colors.grey[800],
-                                        child: const Icon(Icons.movie),
-                                      );
-                                    },
-                                  ),
-                                ),
-                                Container(
-                                  height: 4,
-                                  color: Colors.redAccent,
-                                  margin: const EdgeInsets.only(bottom: 10.0),
-                                ),
-                                Container(
-                                  height: 48,
-                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                  alignment: Alignment.topCenter,
-                                  child: Text(
-                                    title,
-                                    textAlign: TextAlign.center,
-                                    style: GoogleFonts.inter(
-                                      color: Colors.white,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: List.generate(5, (index) {
-                                    return Icon(
-                                      index < ratingNum ? Icons.star : Icons.star_border,
-                                      color: Colors.white,
-                                      size: 23,
-                                    );
-                                  }),
-                                ),
-                                const SizedBox(height: 8),
-                                Container(
-                                  height: 60,
-                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                  alignment: Alignment.topCenter,
-                                  child: Text(
-                                    reviewText,
-                                    style: GoogleFonts.inter(
-                                      color: Colors.grey[300],
-                                      fontSize: 14,
-                                    ),
-                                    maxLines: 3,
-                                    overflow: TextOverflow.ellipsis,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                              ],
-                            ),
+    final futureBuilder = FutureBuilder<List<Map<String, dynamic>>>(
+      future: _userReviewsFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text(
+              'Fehler: ${snapshot.error}',
+              style: GoogleFonts.inter(color: Colors.white),
+            ),
+          );
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(
+            child: Text(
+              '...bisher hast du noch keine Reviews geschrieben',
+              style: GoogleFonts.inter(
+                color: Colors.white,
+                fontSize: 18,
+              ),
+            ),
+          );
+        }
+        final reviews = snapshot.data!;
+        return Center(
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            spacing: isSidebarExpanded ? 16.0 : 48.0,
+            runSpacing: 16.0,
+            children: reviews.map((reviewData) {
+              final imdbId = reviewData['imdbId'] ?? '';
+              final title = reviewData['movieTitle'] ?? 'Unbekannt';
+              final poster = reviewData['moviePoster'] ?? '';
+              final ratingNum = (reviewData['reviewRating'] ?? 0).toDouble();
+              final reviewText = reviewData['reviewBody'] ?? '';
+
+              return Container(
+                width: 250,
+                margin: const EdgeInsets.all(8.0),
+                child: Card(
+                  color: const Color(0xFF1C1C1C),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12.0),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MoviePage(
+                            imdbId: imdbId,
+                            authService: widget.authService,
                           ),
                         ),
                       );
-                    }).toList(),
+                    },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Poster
+                        ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(12.0),
+                            topRight: Radius.circular(12.0),
+                          ),
+                          child: Image.network(
+                            poster,
+                            height: 200,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                height: 200,
+                                color: Colors.grey[800],
+                                child: const Icon(Icons.movie),
+                              );
+                            },
+                          ),
+                        ),
+                        Container(
+                          height: 4,
+                          color: Colors.redAccent,
+                          margin: const EdgeInsets.only(bottom: 10.0),
+                        ),
+                        Container(
+                          height: 48,
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          alignment: Alignment.topCenter,
+                          child: Text(
+                            title,
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.inter(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(5, (index) {
+                            return Icon(
+                              index < ratingNum ? Icons.star : Icons.star_border,
+                              color: Colors.white,
+                              size: 23,
+                            );
+                          }),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          height: 60,
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          alignment: Alignment.topCenter,
+                          child: Text(
+                            reviewText,
+                            style: GoogleFonts.inter(
+                              color: Colors.grey[300],
+                              fontSize: 14,
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                    ),
                   ),
-                );
-              },
-            ),
-          ],
-        ),
+                ),
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+
+    // Gesamter Inhalt
+    final content = SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment:
+            isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+        children: [
+          headerRow,
+          const SizedBox(height: 48),
+          futureBuilder,
+        ],
       ),
     );
 
+    // Mobiles Layout (Stack, top Padding usw.)
     if (isMobile) {
       return Scaffold(
         key: _scaffoldKey,
         drawer: sidebar,
         body: Stack(
           children: [
-            SingleChildScrollView(child: content),
+            // Padding top:72 => 
+            // so liegt der Header unter dem Burger-Menü
+            Padding(
+              padding: const EdgeInsets.only(top: 72.0),
+              child: content,
+            ),
             Positioned(
               top: 16,
               left: 16,
@@ -288,6 +297,7 @@ class _RatingScreenState extends State<RatingScreen> {
         ),
       );
     } else {
+      // Desktop Layout
       return Scaffold(
         body: Row(
           children: [

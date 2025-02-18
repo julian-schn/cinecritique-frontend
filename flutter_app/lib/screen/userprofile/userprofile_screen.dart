@@ -11,11 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 class UserProfileScreen extends StatefulWidget {
   final AuthService authService;
-
-  const UserProfileScreen({
-    Key? key,
-    required this.authService,
-  }) : super(key: key);
+  const UserProfileScreen({Key? key, required this.authService}) : super(key: key);
 
   @override
   _UserProfileScreenState createState() => _UserProfileScreenState();
@@ -269,7 +265,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // analog wie in FavoriteScreen
     final bool isMobile = MediaQuery.of(context).size.width < 600;
+    final bool isSidebarExpanded = MediaQuery.of(context).size.width > 800;
 
     final sidebar = Sidebar(
       authService: widget.authService,
@@ -318,7 +316,40 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       currentPage: 'Profil',
     );
 
-    final content = _isLoading
+    // Überschrift analog zu FavoriteScreen
+    final headerRow = Padding(
+      padding: EdgeInsets.only(
+        left: isSidebarExpanded
+            ? 20.0
+            : (MediaQuery.of(context).size.width - 1060) / 2,
+        right: 35.0,
+        top: 85.0,
+        bottom: 8,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Profil Einstellungen',
+            style: GoogleFonts.inter(
+              color: Colors.white,
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            '.',
+            style: GoogleFonts.inter(
+              color: Colors.redAccent,
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    final contentBody = _isLoading
         ? const Center(child: CircularProgressIndicator())
         : SingleChildScrollView(
             child: Padding(
@@ -326,59 +357,29 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header without burger menu here – burger menu will be shown as positioned element
-                  Row(
-                    children: const [
-                      Text(
-                        'Profil Einstellungen',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        '.',
-                        style: TextStyle(
-                          color: Colors.redAccent,
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                  _buildProfileField('Dein Name', _userInfo?['name'] ?? 'Not available'),
+                  _buildProfileField('Dein Username', _userInfo?['username'] ?? 'Not available'),
+                  _buildProfileField(
+                    'Email Adresse',
+                    _userInfo?['email'] ?? 'Not available',
+                    canEdit: true,
                   ),
-                  const SizedBox(height: 48),
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Color(0xFF1E1E1E),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildProfileField(
-                          'Dein Name',
-                          _userInfo?['name'] ?? 'Not available',
-                        ),
-                        _buildProfileField(
-                          'Dein Username',
-                          _userInfo?['username'] ?? 'Not available',
-                        ),
-                        _buildProfileField(
-                          'Email Adresse',
-                          _userInfo?['email'] ?? 'Not available',
-                          canEdit: true,
-                        ),
-                        _buildDeleteButton(),
-                        _buildAlert(),
-                      ],
-                    ),
-                  ),
+                  _buildDeleteButton(),
+                  _buildAlert(),
                 ],
               ),
             ),
           );
+
+    final content = SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+        children: [
+          headerRow,
+          contentBody,
+        ],
+      ),
+    );
 
     if (isMobile) {
       return Scaffold(
@@ -386,7 +387,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         drawer: sidebar,
         body: Stack(
           children: [
-            content,
+            // Platz für den Burger-Button
+            Padding(
+              padding: const EdgeInsets.only(top: 72.0),
+              child: content,
+            ),
+            // Burger-Menü oben links
             Positioned(
               top: 16,
               left: 16,
@@ -407,11 +413,20 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         body: Row(
           children: [
             sidebar,
-            Expanded(child: content),
+            Expanded(
+              child: Stack(
+                children: [
+                  content,
+                  if (_showDeleteModal)
+                    Center(
+                      child: _buildDeleteConfirmationDialog(),
+                    ),
+                ],
+              ),
+            ),
           ],
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: _showDeleteModal ? _buildDeleteConfirmationDialog() : null,
       );
     }
   }

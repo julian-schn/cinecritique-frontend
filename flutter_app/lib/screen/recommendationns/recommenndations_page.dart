@@ -24,6 +24,8 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   List<Map<String, dynamic>> recommendedMovies = [];
   bool isLoading = true;
   final ScrollController _scrollController = ScrollController();
+
+  // ScaffoldKey, so wie in FavoriteScreen
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -64,6 +66,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Prüfe, ob Mobil oder Desktop
     final bool isMobile = MediaQuery.of(context).size.width < 600;
 
     final sidebar = Sidebar(
@@ -113,6 +116,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       currentPage: 'Empfehlungen',
     );
 
+    // Header
     final headerRow = Padding(
       padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
       child: Row(
@@ -137,6 +141,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       ),
     );
 
+    // Hauptinhalt
     final content = Padding(
       padding: const EdgeInsets.only(top: 50.0),
       child: Column(
@@ -227,13 +232,21 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       ),
     );
 
+    // In einen SingleChildScrollView, wenn erwünscht, oder so belassen.
+    final mainContent = SingleChildScrollView(child: content);
+
+    // Mobiles Layout (analog zur FavoriteScreen)
     if (isMobile) {
       return Scaffold(
         key: _scaffoldKey,
         drawer: sidebar,
         body: Stack(
           children: [
-            SingleChildScrollView(child: content),
+            // top:72 => schiebt den Inhalt unter den Burger-Button
+            Padding(
+              padding: const EdgeInsets.only(top: 72.0),
+              child: mainContent,
+            ),
             Positioned(
               top: 16,
               left: 16,
@@ -248,11 +261,12 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
         ),
       );
     } else {
+      // Desktop
       return Scaffold(
         body: Row(
           children: [
             sidebar,
-            Expanded(child: content),
+            Expanded(child: mainContent),
           ],
         ),
       );

@@ -12,7 +12,6 @@ import 'package:flutter_app/screen/userprofile/userprofile_screen.dart';
 
 class RecommendationsPage extends StatefulWidget {
   final AuthService authService;
-
   const RecommendationsPage({Key? key, required this.authService})
       : super(key: key);
 
@@ -25,31 +24,22 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   List<Map<String, dynamic>> recommendedMovies = [];
   bool isLoading = true;
   final ScrollController _scrollController = ScrollController();
-
-  // GlobalKey zum Öffnen des Drawer (nur in der mobilen Variante benötigt)
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    print('Initializing recommendations page...');
     fetchRecommendations();
   }
 
   Future<void> fetchRecommendations() async {
-    print('Fetching recommendations...');
     try {
       final movies = await _controller.fetchRecommendations(widget.authService);
-      print('Received recommendations: ${movies.length} movies');
-      for (var movie in movies) {
-        print('- ${movie['title']} (${movie['imdbId']})');
-      }
       setState(() {
         recommendedMovies = movies;
         isLoading = false;
       });
     } catch (e) {
-      print('Error fetching recommendations: $e');
       setState(() {
         isLoading = false;
       });
@@ -74,61 +64,44 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Prüfen, ob es sich um ein mobiles Gerät handelt (Breite < 600px)
     final bool isMobile = MediaQuery.of(context).size.width < 600;
 
-    // Sidebar-Instanz
     final sidebar = Sidebar(
       authService: widget.authService,
       onHomePressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => HomeScreen(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
         );
       },
       onGenresPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => GenrePage(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
         );
       },
       onFavoritesPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) =>
-                FavoriteScreen(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => FavoriteScreen(authService: widget.authService)),
         );
       },
       onRecommendationsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) =>
-                RecommendationsPage(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => RecommendationsPage(authService: widget.authService)),
         );
       },
       onRatingsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => RatingScreen(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => RatingScreen(authService: widget.authService)),
         );
       },
       onProfilPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) =>
-                UserProfileScreen(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => UserProfileScreen(authService: widget.authService)),
         );
       },
       onLoginPressed: () {
@@ -140,20 +113,11 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       currentPage: 'Empfehlungen',
     );
 
-    // Header-Zeile: Bei mobilen Geräten wird hier das Burger-Icon neben dem Titel angezeigt.
     final headerRow = Padding(
       padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
       child: Row(
-        children: [
-          if (isMobile)
-            IconButton(
-              icon: const Icon(Icons.menu, color: Colors.white),
-              onPressed: () {
-                _scaffoldKey.currentState?.openDrawer();
-              },
-            ),
-          if (isMobile) const SizedBox(width: 8),
-          const Text(
+        children: const [
+          Text(
             'Empfehlungen',
             style: TextStyle(
               color: Colors.white,
@@ -161,7 +125,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const Text(
+          Text(
             '.',
             style: TextStyle(
               color: Colors.redAccent,
@@ -173,7 +137,6 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       ),
     );
 
-    // Hauptinhalt der Seite
     final content = Padding(
       padding: const EdgeInsets.only(top: 50.0),
       child: Column(
@@ -264,14 +227,25 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       ),
     );
 
-    // Responsive Darstellung:
-    // - Mobile: Scaffold ohne AppBar, mit Drawer und HeaderRow (Burger-Icon neben Überschrift)
-    // - Desktop: Sidebar links, Content rechts
     if (isMobile) {
       return Scaffold(
         key: _scaffoldKey,
         drawer: sidebar,
-        body: content,
+        body: Stack(
+          children: [
+            SingleChildScrollView(child: content),
+            Positioned(
+              top: 16,
+              left: 16,
+              child: IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white),
+                onPressed: () {
+                  _scaffoldKey.currentState?.openDrawer();
+                },
+              ),
+            ),
+          ],
+        ),
       );
     } else {
       return Scaffold(

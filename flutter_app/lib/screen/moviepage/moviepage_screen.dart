@@ -16,7 +16,6 @@ import 'package:flutter_app/screen/favorite/favorite_controller.dart';
 import 'package:flutter_app/screen/recommendationns/recommenndations_page.dart';
 import 'package:flutter_app/screen/rating/rating_screen.dart';
 import 'package:flutter_app/screen/userprofile/userprofile_screen.dart';
-import 'package:flutter_app/services/rating_service.dart';
 
 class MoviePage extends StatefulWidget {
   final String imdbId;
@@ -39,7 +38,6 @@ class _MoviePageState extends State<MoviePage> {
   String? currentBackdrop;
   bool? isFavorited;
 
-  // GlobalKey zum Öffnen des Drawer (wird nur auf mobilen Geräten genutzt)
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -80,58 +78,44 @@ class _MoviePageState extends State<MoviePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Prüfe, ob es sich um ein mobiles Gerät handelt (Breite < 600px)
     final bool isMobile = MediaQuery.of(context).size.width < 600;
 
-    // Erstelle die Sidebar-Instanz
     final sidebar = Sidebar(
       authService: widget.authService,
       onHomePressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => HomeScreen(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
         );
       },
       onGenresPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => GenrePage(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
         );
       },
       onFavoritesPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => FavoriteScreen(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => FavoriteScreen(authService: widget.authService)),
         );
       },
       onRecommendationsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => RecommendationsPage(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => RecommendationsPage(authService: widget.authService)),
         );
       },
       onRatingsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => RatingScreen(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => RatingScreen(authService: widget.authService)),
         );
       },
       onProfilPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => UserProfileScreen(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => UserProfileScreen(authService: widget.authService)),
         );
       },
       onLoginPressed: () {
@@ -143,14 +127,12 @@ class _MoviePageState extends State<MoviePage> {
       currentPage: 'Moviepage',
     );
 
-    // Hauptinhalt der MoviePage
     final content = movieData == null
         ? const Center(child: CircularProgressIndicator())
         : SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Das Header-Element als Stack mit dem Hintergrundbild
                 Stack(
                   children: [
                     Image.network(
@@ -167,7 +149,6 @@ class _MoviePageState extends State<MoviePage> {
                         );
                       },
                     ),
-                    // Überschrift + (bei mobilen Geräten) Burger-Icon
                     Positioned(
                       bottom: 50,
                       left: 16,
@@ -204,7 +185,6 @@ class _MoviePageState extends State<MoviePage> {
                         ],
                       ),
                     ),
-                    // Weitere Positioned-Elemente (z. B. Rating, Trailer-Button, FavoriteToggle)
                     Positioned(
                       bottom: 16,
                       left: 16,
@@ -223,10 +203,7 @@ class _MoviePageState extends State<MoviePage> {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 22,
-                            horizontal: 26,
-                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 26),
                         ),
                         onPressed: () {
                           final trailerUrl = movieData?['trailerLink'];
@@ -265,7 +242,6 @@ class _MoviePageState extends State<MoviePage> {
                   ],
                 ),
                 const Divider(color: Colors.white, thickness: 2, height: 0),
-                // Genre-Buttons
                 if (movieData?['genres'] != null)
                   Container(
                     padding: const EdgeInsets.all(16.0),
@@ -296,7 +272,6 @@ class _MoviePageState extends State<MoviePage> {
                           .toList(),
                     ),
                   ),
-                // Backdrops
                 if (movieData?['backdrops'] != null &&
                     (movieData?['backdrops'] as List).isNotEmpty)
                   Padding(
@@ -317,7 +292,6 @@ class _MoviePageState extends State<MoviePage> {
                       ),
                     ),
                   ),
-                // Plot, Directed by, Released on und Cast
                 Container(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -328,8 +302,7 @@ class _MoviePageState extends State<MoviePage> {
                         child: Container(
                           margin: const EdgeInsets.only(bottom: 16.0),
                           child: Text(
-                            movieData?['plot'] ??
-                                'Keine Beschreibung verfügbar.',
+                            movieData?['plot'] ?? 'Keine Beschreibung verfügbar.',
                             style: const TextStyle(
                               fontSize: 16,
                               color: Colors.white,
@@ -388,13 +361,11 @@ class _MoviePageState extends State<MoviePage> {
                     ],
                   ),
                 ),
-                // Rating-Section (CreateRatingWidget und ShowRatingWidget)
                 Container(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // CreateRatingWidget (nur wenn eingeloggt)
                       ValueListenableBuilder<bool>(
                         valueListenable: widget.authService.isLoggedIn,
                         builder: (context, isLoggedIn, _) {
@@ -413,7 +384,6 @@ class _MoviePageState extends State<MoviePage> {
                           );
                         },
                       ),
-                      // ShowRatingWidget
                       Expanded(
                         child: Align(
                           alignment: Alignment.centerRight,
@@ -429,14 +399,25 @@ class _MoviePageState extends State<MoviePage> {
             ),
           );
 
-    // Responsive Darstellung:
-    // Auf mobilen Geräten: Scaffold ohne AppBar – stattdessen wird der Burger-Button in der Überschrift (im Stack) genutzt.
-    // Auf Desktop: Sidebar links, Content rechts.
     if (isMobile) {
       return Scaffold(
         key: _scaffoldKey,
         drawer: sidebar,
-        body: content,
+        body: Stack(
+          children: [
+            SingleChildScrollView(child: content),
+            Positioned(
+              top: 16,
+              left: 16,
+              child: IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white),
+                onPressed: () {
+                  _scaffoldKey.currentState?.openDrawer();
+                },
+              ),
+            ),
+          ],
+        ),
       );
     } else {
       return Scaffold(
@@ -448,75 +429,5 @@ class _MoviePageState extends State<MoviePage> {
         ),
       );
     }
-  }
-}
-
-// Beispiel für die ReviewsList (unverändert)
-class ReviewsList extends StatelessWidget {
-  final List<Map<String, dynamic>> reviews;
-  final RatingService ratingService;
-
-  const ReviewsList({
-    Key? key,
-    required this.reviews,
-    required this.ratingService,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Text(
-            'Reviews',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-        ),
-        if (reviews.isEmpty)
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text('No reviews yet'),
-          )
-        else
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: reviews.length,
-            itemBuilder: (context, index) {
-              final review = reviews[index];
-              return Card(
-                margin: const EdgeInsets.all(8.0),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            ratingService.formatUsername(review['createdBy'] ?? 'Anonymous'),
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Row(
-                            children: List.generate(
-                              review['rating'] ?? 0,
-                              (index) => const Icon(Icons.star, color: Colors.amber),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(review['body'] ?? 'No comment'),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-      ],
-    );
   }
 }

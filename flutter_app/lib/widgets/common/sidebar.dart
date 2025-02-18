@@ -56,40 +56,12 @@ class _SidebarState extends State<Sidebar> {
     required VoidCallback onTap,
   }) {
     bool isSelected = widget.currentPage == title;
-
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          child: Row(
-            mainAxisAlignment:
-                isExpanded ? MainAxisAlignment.start : MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(left: isExpanded ? 24 : 0),
-                child: Icon(
-                  icon,
-                  color: isSelected ? Colors.redAccent : Colors.white,
-                  size: 24,
-                ),
-              ),
-              if (isExpanded)
-                Padding(
-                  padding: const EdgeInsets.only(left: 32),
-                  child: Text(
-                    title,
-                    style: GoogleFonts.inter(
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
+    return HoverMenuItem(
+      icon: icon,
+      title: title,
+      isSelected: isSelected,
+      isExpanded: isExpanded,
+      onTap: onTap,
     );
   }
 
@@ -199,7 +171,7 @@ class _SidebarState extends State<Sidebar> {
   Widget build(BuildContext context) {
     if (isMobile(context)) {
       return Drawer(
-        width: 200,
+        width: 300,
         child: Container(
           color: const Color(0xFF121212),
           child: buildSidebarContent(),
@@ -211,6 +183,63 @@ class _SidebarState extends State<Sidebar> {
       width: isExpanded ? 250 : 100,
       color: const Color(0xFF121212),
       child: buildSidebarContent(),
+    );
+  }
+}
+
+class HoverMenuItem extends StatefulWidget {
+  final IconData icon;
+  final String title;
+  final bool isSelected;
+  final bool isExpanded;
+  final VoidCallback onTap;
+
+  const HoverMenuItem({
+    Key? key,
+    required this.icon,
+    required this.title,
+    required this.isSelected,
+    required this.isExpanded,
+    required this.onTap,
+  }) : super(key: key);
+
+  @override
+  _HoverMenuItemState createState() => _HoverMenuItemState();
+}
+
+class _HoverMenuItemState extends State<HoverMenuItem> {
+  bool isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    Color color = (widget.isSelected || isHovered) ? Colors.redAccent : Colors.white;
+    return MouseRegion(
+      onEnter: (_) => setState(() => isHovered = true),
+      onExit: (_) => setState(() => isHovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          child: Row(
+            mainAxisAlignment:
+                widget.isExpanded ? MainAxisAlignment.start : MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(left: widget.isExpanded ? 24 : 0),
+                child: Icon(widget.icon, color: color, size: 24),
+              ),
+              if (widget.isExpanded)
+                Padding(
+                  padding: const EdgeInsets.only(left: 32),
+                  child: Text(
+                    widget.title,
+                    style: GoogleFonts.inter(color: color, fontSize: 16),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

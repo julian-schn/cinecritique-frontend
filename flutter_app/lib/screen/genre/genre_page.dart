@@ -166,10 +166,7 @@ class _GenrePageState extends State<GenrePage> {
                             ],
                           ),
                           const SizedBox(height: 14),
-                          HorizontalMovieList(
-                            genre: genre,
-                            authService: widget.authService,
-                          ),
+                          HorizontalMovieList(authService: widget.authService),
                           const SizedBox(height: 20),
                         ],
                       ),
@@ -180,10 +177,24 @@ class _GenrePageState extends State<GenrePage> {
     if (isMobile) {
       return Scaffold(
         drawer: sidebar,
-        body: Column(
+        body: Stack(
           children: [
-            headerRow,
-            Expanded(child: content),
+            Column(
+              children: [
+                headerRow,
+                Expanded(child: content),
+              ],
+            ),
+            Positioned(
+              top: 16,
+              left: 16,
+              child: IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+              ),
+            ),
           ],
         ),
       );

@@ -21,7 +21,6 @@ class RatingScreen extends StatefulWidget {
 class _RatingScreenState extends State<RatingScreen> {
   late final RatingController _controller;
   late Future<List<Map<String, dynamic>>> _userReviewsFuture;
-
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -41,37 +40,52 @@ class _RatingScreenState extends State<RatingScreen> {
       onHomePressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(authService: widget.authService),
+          ),
         );
       },
       onGenresPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => GenrePage(authService: widget.authService),
+          ),
         );
       },
       onFavoritesPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => FavoriteScreen(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) =>
+                FavoriteScreen(authService: widget.authService),
+          ),
         );
       },
       onRecommendationsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => RecommendationsPage(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) =>
+                RecommendationsPage(authService: widget.authService),
+          ),
         );
       },
       onRatingsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => RatingScreen(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => RatingScreen(authService: widget.authService),
+          ),
         );
       },
       onProfilPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => UserProfileScreen(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) =>
+                UserProfileScreen(authService: widget.authService),
+          ),
         );
       },
       onLoginPressed: () {
@@ -86,30 +100,24 @@ class _RatingScreenState extends State<RatingScreen> {
     final headerRow = Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        if (isMobile)
-          IconButton(
-            icon: const Icon(Icons.menu, color: Colors.white),
-            onPressed: () {
-              _scaffoldKey.currentState?.openDrawer();
-            },
+        if (!isMobile)
+          Text(
+            'Meine Bewertungen',
+            style: GoogleFonts.inter(
+              color: Colors.white,
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        if (isMobile) const SizedBox(width: 8),
-        Text(
-          'Meine Bewertungen',
-          style: GoogleFonts.inter(
-            color: Colors.white,
-            fontSize: 36,
-            fontWeight: FontWeight.bold,
+        if (!isMobile)
+          Text(
+            '.',
+            style: GoogleFonts.inter(
+              color: Colors.redAccent,
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        Text(
-          '.',
-          style: GoogleFonts.inter(
-            color: Colors.redAccent,
-            fontSize: 36,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
       ],
     );
 
@@ -117,10 +125,11 @@ class _RatingScreenState extends State<RatingScreen> {
       child: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Column(
-          crossAxisAlignment:
-              isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+          crossAxisAlignment: isSidebarExpanded
+              ? CrossAxisAlignment.start
+              : CrossAxisAlignment.center,
           children: [
-            headerRow,
+            if (!isMobile) headerRow,
             const SizedBox(height: 48),
             FutureBuilder<List<Map<String, dynamic>>>(
               future: _userReviewsFuture,
@@ -145,7 +154,6 @@ class _RatingScreenState extends State<RatingScreen> {
                     ),
                   );
                 }
-
                 final reviews = snapshot.data!;
                 return Center(
                   child: Wrap(
@@ -158,7 +166,6 @@ class _RatingScreenState extends State<RatingScreen> {
                       final poster = reviewData['moviePoster'] ?? '';
                       final ratingNum = (reviewData['reviewRating'] ?? 0).toDouble();
                       final reviewText = reviewData['reviewBody'] ?? '';
-
                       return Container(
                         width: 250,
                         margin: const EdgeInsets.all(8.0),
@@ -270,7 +277,22 @@ class _RatingScreenState extends State<RatingScreen> {
       return Scaffold(
         key: _scaffoldKey,
         drawer: sidebar,
-        body: content,
+        body: Stack(
+          children: [
+            content,
+            // Burger-Menü immer oben links, mit konstantem Abstand (16px von oben & 16px von links)
+            Positioned(
+              top: 16,
+              left: 16,
+              child: IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white),
+                onPressed: () {
+                  _scaffoldKey.currentState?.openDrawer();
+                },
+              ),
+            ),
+          ],
+        ),
       );
     } else {
       return Scaffold(

@@ -23,7 +23,6 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   final AuthService authService;
-
   const MyApp({Key? key, required this.authService}) : super(key: key);
 
   @override
@@ -49,7 +48,6 @@ class MyApp extends StatelessWidget {
 
 class HomeScreen extends StatefulWidget {
   final AuthService authService;
-
   const HomeScreen({Key? key, required this.authService}) : super(key: key);
 
   @override
@@ -57,12 +55,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // KEY, um das Drawer zu öffnen/schließen
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _isSearching = false;
 
-  bool _isSearching = false; // Zustand für die Suche
-
-  // Hilfsmethoden für Navigation:
+  // Navigation-Funktionen:
   void _navigateHome() {
     Navigator.pushReplacement(
       context,
@@ -94,7 +90,8 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => RecommendationsPage(authService: widget.authService),
+        builder: (context) =>
+            RecommendationsPage(authService: widget.authService),
       ),
     );
   }
@@ -112,7 +109,8 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => UserProfileScreen(authService: widget.authService),
+        builder: (context) =>
+            UserProfileScreen(authService: widget.authService),
       ),
     );
   }
@@ -125,12 +123,10 @@ class _HomeScreenState extends State<HomeScreen> {
     widget.authService.logout();
   }
 
-  /// Hier wird dein eigentlicher Content gebaut (Poster, Genre-Listen etc.).
   Widget _buildContent() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Vorher war hier CustomSearchBar, die wir jetzt in den oberen Container verschoben haben.
         const SizedBox(height: 20),
         MoviePosterCarousel(authService: widget.authService),
         const SizedBox(height: 20),
@@ -192,48 +188,38 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
 
-    return Scaffold(
-      key: _scaffoldKey, // Wichtig, um das Drawer zu öffnen
-
-      // Für Mobile: Sidebar als Drawer
-      drawer: isMobile
-          ? Sidebar(
-              authService: widget.authService,
-              onHomePressed: _navigateHome,
-              onGenresPressed: _navigateGenres,
-              onFavoritesPressed: _navigateFavorites,
-              onRecommendationsPressed: _navigateRecommendations,
-              onRatingsPressed: _navigateRatings,
-              onProfilPressed: _navigateProfile,
-              onLoginPressed: _login,
-              onLogoutPressed: _logout,
-              currentPage: 'Home',
-            )
-          : null,
-
-      // **Keine AppBar** mehr!
-      body: isMobile
-          ? SingleChildScrollView(
+    // Mobile-Variante: Wir verwenden einen Stack, um das Burger-Menü immer oben links
+    // (mit konstantem Abstand vom linken Rand) anzuzeigen, unabhängig vom restlichen Layout.
+    if (isMobile) {
+      return Scaffold(
+        key: _scaffoldKey,
+        drawer: Sidebar(
+          authService: widget.authService,
+          onHomePressed: _navigateHome,
+          onGenresPressed: _navigateGenres,
+          onFavoritesPressed: _navigateFavorites,
+          onRecommendationsPressed: _navigateRecommendations,
+          onRatingsPressed: _navigateRatings,
+          onProfilPressed: _navigateProfile,
+          onLoginPressed: _login,
+          onLogoutPressed: _logout,
+          currentPage: 'Home',
+        ),
+        body: Stack(
+          children: [
+            SingleChildScrollView(
               physics: _isSearching
                   ? const NeverScrollableScrollPhysics()
                   : const ClampingScrollPhysics(),
               child: Column(
                 children: [
-                  // Obere Zeile mit Burger-Icon + Suchleiste
+                  // Suchleiste und Content (ohne Burger-Menü)
                   Container(
                     color: const Color(0xFF121212),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
                     child: Row(
                       children: [
-                        // Burger-Icon, das den Drawer öffnet
-                        IconButton(
-                          icon: const Icon(Icons.menu, color: Colors.white),
-                          onPressed: () {
-                            _scaffoldKey.currentState?.openDrawer();
-                          },
-                        ),
-                        const SizedBox(width: 8),
-                        // Expanded, damit die Suchleiste den restlichen Platz einnimmt
+                        // Hier wird NUR die Suchleiste eingeblendet
                         Expanded(
                           child: CustomSearchBar(
                             authService: widget.authService,
@@ -254,60 +240,75 @@ class _HomeScreenState extends State<HomeScreen> {
                   _buildContent(),
                 ],
               ),
-            )
-          : Row(
-              children: [
-                // Sidebar bleibt bei großen Screens offen
-                Sidebar(
-                  authService: widget.authService,
-                  onHomePressed: _navigateHome,
-                  onGenresPressed: _navigateGenres,
-                  onFavoritesPressed: _navigateFavorites,
-                  onRecommendationsPressed: _navigateRecommendations,
-                  onRatingsPressed: _navigateRatings,
-                  onProfilPressed: _navigateProfile,
-                  onLoginPressed: _login,
-                  onLogoutPressed: _logout,
-                  currentPage: 'Home',
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    physics: _isSearching
-                        ? const NeverScrollableScrollPhysics()
-                        : const ClampingScrollPhysics(),
-                    child: Column(
-                      children: [
-                        // Auch auf Desktop kann man die Suchleiste oben platzieren
-                        Container(
-                          color: const Color(0xFF121212),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: CustomSearchBar(
-                                  authService: widget.authService,
-                                  onSearchStart: () {
-                                    setState(() => _isSearching = true);
-                                  },
-                                  onSearchEnd: () {
-                                    setState(() => _isSearching = false);
-                                  },
-                                  onSearchResultsUpdated: (hasResults) {
-                                    setState(() => _isSearching = hasResults);
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        _buildContent(),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
             ),
-    );
+            // Burger-Menü immer oben links, mit konstantem Abstand (16 px) vom Rand
+            Positioned(
+              top: 16,
+              left: 16,
+              child: IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white),
+                onPressed: () {
+                  _scaffoldKey.currentState?.openDrawer();
+                },
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      // Desktop-Variante: Sidebar links, Content rechts
+      return Scaffold(
+        body: Row(
+          children: [
+            Sidebar(
+              authService: widget.authService,
+              onHomePressed: _navigateHome,
+              onGenresPressed: _navigateGenres,
+              onFavoritesPressed: _navigateFavorites,
+              onRecommendationsPressed: _navigateRecommendations,
+              onRatingsPressed: _navigateRatings,
+              onProfilPressed: _navigateProfile,
+              onLoginPressed: _login,
+              onLogoutPressed: _logout,
+              currentPage: 'Home',
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                physics: _isSearching
+                    ? const NeverScrollableScrollPhysics()
+                    : const ClampingScrollPhysics(),
+                child: Column(
+                  children: [
+                    Container(
+                      color: const Color(0xFF121212),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: CustomSearchBar(
+                              authService: widget.authService,
+                              onSearchStart: () {
+                                setState(() => _isSearching = true);
+                              },
+                              onSearchEnd: () {
+                                setState(() => _isSearching = false);
+                              },
+                              onSearchResultsUpdated: (hasResults) {
+                                setState(() => _isSearching = hasResults);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _buildContent(),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
   }
 }

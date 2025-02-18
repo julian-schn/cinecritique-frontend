@@ -280,58 +280,44 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Prüfen, ob es sich um ein mobiles Gerät handelt (z.B. Breite < 600px)
     final bool isMobile = MediaQuery.of(context).size.width < 600;
 
-    // Sidebar-Instanz
     final sidebar = Sidebar(
       authService: widget.authService,
       onHomePressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => HomeScreen(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
         );
       },
       onGenresPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => GenrePage(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
         );
       },
       onFavoritesPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => FavoriteScreen(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => FavoriteScreen(authService: widget.authService)),
         );
       },
       onRecommendationsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => RecommendationsPage(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => RecommendationsPage(authService: widget.authService)),
         );
       },
       onRatingsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => RatingScreen(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => RatingScreen(authService: widget.authService)),
         );
       },
       onProfilPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => UserProfileScreen(authService: widget.authService),
-          ),
+          MaterialPageRoute(builder: (context) => UserProfileScreen(authService: widget.authService)),
         );
       },
       onLoginPressed: () {
@@ -343,7 +329,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       currentPage: 'Profil',
     );
 
-    // Hauptinhalt
     final content = _isLoading
         ? const Center(child: CircularProgressIndicator())
         : SingleChildScrollView(
@@ -352,15 +337,18 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Überschrift mit Burger-Icon (nur in mobiler Darstellung)
+                  // Überschrift mit Burger-Menü (nur in mobiler Darstellung, hier aber NICHT eingebettet)
                   Row(
                     children: [
                       if (isMobile)
-                        IconButton(
-                          icon: const Icon(Icons.menu, color: Colors.white),
-                          onPressed: () {
-                            _scaffoldKey.currentState?.openDrawer();
-                          },
+                        Padding(
+                          padding: const EdgeInsets.only(left: 16.0),
+                          child: IconButton(
+                            icon: const Icon(Icons.menu, color: Colors.white),
+                            onPressed: () {
+                              _scaffoldKey.currentState?.openDrawer();
+                            },
+                          ),
                         ),
                       if (isMobile) const SizedBox(width: 8),
                       Text(
@@ -414,12 +402,26 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             ),
           );
 
-    // Responsive Darstellung: Mobile Variante mit Drawer, ansonsten Sidebar im Row
     if (isMobile) {
       return Scaffold(
         key: _scaffoldKey,
         drawer: sidebar,
-        body: content,
+        body: Stack(
+          children: [
+            content,
+            // Burger-Menü immer oben links mit konstantem Abstand (16px von oben und links)
+            Positioned(
+              top: 16,
+              left: 16,
+              child: IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white),
+                onPressed: () {
+                  _scaffoldKey.currentState?.openDrawer();
+                },
+              ),
+            ),
+          ],
+        ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: _showDeleteModal ? _buildDeleteConfirmationDialog() : null,
       );

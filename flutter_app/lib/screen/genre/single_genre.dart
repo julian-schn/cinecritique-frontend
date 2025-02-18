@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/main.dart';
 import 'package:flutter_app/screen/genre/genre_page.dart';
 import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
+import 'package:flutter_app/screen/rating/rating_screen.dart';
+import 'package:flutter_app/screen/userprofile/userprofile_screen.dart';
 import 'package:flutter_app/widgets/common/sidebar.dart';
 import 'package:flutter_app/widgets/movie/movie_card.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_app/services/auth_service.dart';
 import 'package:flutter_app/screen/recommendationns/recommenndations_page.dart';
 import 'package:flutter_app/screen/favorite/favorite_screen.dart';
-import 'package:flutter_app/screen/rating/rating_screen.dart';
-import 'package:flutter_app/screen/userprofile/userprofile_screen.dart';
 
 class GenreDetailPage extends StatefulWidget {
   final String genre;
@@ -178,7 +178,21 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
     if (isMobile) {
       return Scaffold(
         drawer: sidebar,
-        body: isLoading ? const Center(child: CircularProgressIndicator()) : content,
+        body: Stack(
+          children: [
+            SingleChildScrollView(child: content),
+            Positioned(
+              top: 16,
+              left: 16,
+              child: IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+              ),
+            ),
+          ],
+        ),
       );
     } else {
       return Scaffold(

@@ -258,12 +258,12 @@ class _RatingScreenState extends State<RatingScreen> {
                                           return Icon(
                                             index < ratingNum ? Icons.star : Icons.star_border,
                                             color: Colors.white,
-                                            size: 20,
+                                            size: 23,
                                           );
                                         }),
                                       ),
                                       // Kleiner Abstand vor dem Review-Text
-                                      const SizedBox(height: 4),
+                                      const SizedBox(height: 6),
 
                                       // Review-Text in fixem Container -> gleicher Startpunkt
                                       Container(

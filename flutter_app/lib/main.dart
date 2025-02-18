@@ -11,6 +11,42 @@ import 'package:flutter_app/screen/favorite/favorite_screen.dart';
 import 'package:flutter_app/screen/rating/rating_screen.dart';
 import 'package:flutter_app/screen/userprofile/userprofile_screen.dart';
 
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // AuthService initialisieren
+  final authService = AuthService();
+  await authService.initialize();
+
+  runApp(MyApp(authService: authService));
+}
+
+class MyApp extends StatelessWidget {
+  final AuthService authService;
+
+  const MyApp({Key? key, required this.authService}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'CineCritique',
+      theme: ThemeData(
+        scaffoldBackgroundColor: const Color(0xFF121212),
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.white),
+        ),
+        scrollbarTheme: ScrollbarThemeData(
+          thumbColor:
+              MaterialStateProperty.all(const Color.fromARGB(214, 255, 82, 82)),
+          radius: const Radius.circular(10),
+        ),
+      ),
+      home: HomeScreen(authService: authService),
+    );
+  }
+}
+
 class HomeScreen extends StatefulWidget {
   final AuthService authService;
 

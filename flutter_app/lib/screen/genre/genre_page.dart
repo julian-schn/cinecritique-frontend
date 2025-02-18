@@ -46,48 +46,57 @@ class _GenrePageState extends State<GenrePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Für mobile (unter 600px) / Desktop
     final bool isMobile = MediaQuery.of(context).size.width < 600;
-    // Nutze dieselbe Logik wie in FavoriteScreen:
     final bool isSidebarExpanded = MediaQuery.of(context).size.width > 800;
 
-    // Sidebar
     final sidebar = Sidebar(
       authService: widget.authService,
       onHomePressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(authService: widget.authService),
+          ),
         );
       },
       onGenresPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => GenrePage(authService: widget.authService),
+          ),
         );
       },
       onFavoritesPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => FavoriteScreen(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => FavoriteScreen(authService: widget.authService),
+          ),
         );
       },
       onRecommendationsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => RecommendationsPage(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => RecommendationsPage(authService: widget.authService),
+          ),
         );
       },
       onRatingsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => RatingScreen(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => RatingScreen(authService: widget.authService),
+          ),
         );
       },
       onProfilPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => UserProfileScreen(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => UserProfileScreen(authService: widget.authService),
+          ),
         );
       },
       onLoginPressed: () {
@@ -97,40 +106,6 @@ class _GenrePageState extends State<GenrePage> {
         widget.authService.logout();
       },
       currentPage: 'Genres',
-    );
-
-    // Header-Zeile oben (Titel)
-    final headerRow = Padding(
-      padding: EdgeInsets.only(
-        // Genauso wie bei FavoriteScreen
-        left: isSidebarExpanded
-            ? 20.0
-            : (MediaQuery.of(context).size.width - 1060) / 2,
-        right: 35.0,
-        top: 85.0,
-        bottom: 8,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: const [
-          Text(
-            'Genres',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 36,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(
-            '.',
-            style: TextStyle(
-              color: Colors.redAccent,
-              fontSize: 38,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
     );
 
     // Hauptinhalt
@@ -153,8 +128,6 @@ class _GenrePageState extends State<GenrePage> {
     } else {
       mainContent = ListView.builder(
         itemCount: genres.length,
-        // Da wir SingleChildScrollView weiter außen nutzen, 
-        // kann hier shrinkWrap = true Sinn machen:
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemBuilder: (context, index) {
@@ -165,6 +138,7 @@ class _GenrePageState extends State<GenrePage> {
               crossAxisAlignment:
                   isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
               children: [
+                // Hier stand vorher die "Genres." Überschrift – entfernt!
                 Row(
                   children: [
                     Text(
@@ -195,20 +169,11 @@ class _GenrePageState extends State<GenrePage> {
       );
     }
 
-    // Alles zusammenfassen in SingleChildScrollView
     final content = SingleChildScrollView(
       physics: _isSearching
           ? const NeverScrollableScrollPhysics()
           : const ClampingScrollPhysics(),
-      child: Column(
-        crossAxisAlignment:
-            isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
-        children: [
-          
-          headerRow,
-          mainContent,
-        ],
-      ),
+      child: mainContent,
     );
 
     if (isMobile) {
@@ -217,13 +182,12 @@ class _GenrePageState extends State<GenrePage> {
         drawer: sidebar,
         body: Stack(
           children: [
-            // analog zur FavoriteScreen: top-Padding 
-            // (hier mit 72 px oder was du gerne hättest?)
+            // Wir verschieben den Inhalt nach unten,
+            // damit das Burger-Menü oben links sichtbar bleibt
             Padding(
               padding: const EdgeInsets.only(top: 72.0),
               child: content,
             ),
-            // Burger-Menü oben links
             Positioned(
               top: 16,
               left: 16,

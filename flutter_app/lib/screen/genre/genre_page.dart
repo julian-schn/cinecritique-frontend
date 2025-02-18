@@ -8,7 +8,6 @@ import 'package:flutter_app/screen/recommendationns/recommenndations_page.dart';
 import 'package:flutter_app/screen/favorite/favorite_screen.dart';
 import 'package:flutter_app/screen/rating/rating_screen.dart';
 import 'package:flutter_app/screen/userprofile/userprofile_screen.dart';
-import 'package:flutter_app/widgets/widgets.dart';
 
 class GenrePage extends StatefulWidget {
   final AuthService authService;
@@ -98,35 +97,6 @@ class _GenrePageState extends State<GenrePage> {
         widget.authService.logout();
       },
       currentPage: 'Genres',
-    );
-
-    // Suchleiste analog zur FavoriteScreen
-    final searchRow = Padding(
-      padding: const EdgeInsets.only(bottom: 5.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: CustomSearchBar(
-              authService: widget.authService,
-              onSearchStart: () {
-                setState(() {
-                  _isSearching = true;
-                });
-              },
-              onSearchEnd: () {
-                setState(() {
-                  _isSearching = false;
-                });
-              },
-              onSearchResultsUpdated: (hasResults) {
-                setState(() {
-                  _isSearching = hasResults;
-                });
-              },
-            ),
-          ),
-        ],
-      ),
     );
 
     // Header-Zeile oben (Titel)
@@ -234,7 +204,7 @@ class _GenrePageState extends State<GenrePage> {
         crossAxisAlignment:
             isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
         children: [
-          searchRow,
+          
           headerRow,
           mainContent,
         ],

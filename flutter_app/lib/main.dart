@@ -182,6 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
 
     if (isMobile) {
+      // Mobile Layout wie FavoriteScreen
       return Scaffold(
         key: _scaffoldKey,
         drawer: Sidebar(
@@ -198,38 +199,44 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         body: Stack(
           children: [
-            SingleChildScrollView(
-              physics: _isSearching
-                  ? const NeverScrollableScrollPhysics()
-                  : const ClampingScrollPhysics(),
-              child: Column(
-                children: [
-                  Container(
-                    color: const Color(0xFF121212),
-                    padding: const EdgeInsets.only(top: 72, right: 16, bottom: 8),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: CustomSearchBar(
-                            authService: widget.authService,
-                            onSearchStart: () {
-                              setState(() => _isSearching = true);
-                            },
-                            onSearchEnd: () {
-                              setState(() => _isSearching = false);
-                            },
-                            onSearchResultsUpdated: (hasResults) {
-                              setState(() => _isSearching = hasResults);
-                            },
+            // Inhalt nach unten verschoben, so dass das Burger-Menü Platz hat
+            Padding(
+              padding: const EdgeInsets.only(top: 72.0),
+              child: SingleChildScrollView(
+                physics: _isSearching
+                    ? const NeverScrollableScrollPhysics()
+                    : const ClampingScrollPhysics(),
+                child: Column(
+                  children: [
+                    // Suchleiste
+                    Container(
+                      color: const Color(0xFF121212),
+                      padding: const EdgeInsets.only(right: 16, bottom: 8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: CustomSearchBar(
+                              authService: widget.authService,
+                              onSearchStart: () {
+                                setState(() => _isSearching = true);
+                              },
+                              onSearchEnd: () {
+                                setState(() => _isSearching = false);
+                              },
+                              onSearchResultsUpdated: (hasResults) {
+                                setState(() => _isSearching = hasResults);
+                              },
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  _buildContent(),
-                ],
+                    _buildContent(),
+                  ],
+                ),
               ),
             ),
+            // Burger-Menü (Positioned, wie in FavoriteScreen)
             Positioned(
               top: 16,
               left: 16,
@@ -244,6 +251,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
     } else {
+      // Desktop Layout
       return Scaffold(
         body: Row(
           children: [

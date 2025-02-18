@@ -34,22 +34,25 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
   bool _isLoading = false;
   Timer? _debounce;
 
-  // Flag, um interne Klicks (z. B. auf Herz oder Scrollen) zu erkennen
-  bool _isClickInsideSearchResults = false; 
+  // Flag, um zu kennzeichnen, dass innerhalb der Suchergebnisse interagiert wird.
+  bool _isClickInsideSearchResults = false;
+
   final ScrollController _scrollController = ScrollController();
+
+  // Map um den Hoverstatus für jeden Listeneintrag zu speichern.
+  final Map<int, bool> _isHovered = {};
+
+  // Overlay, das den gesamten Bildschirm abdeckt, wenn Suchergebnisse offen sind.
+  OverlayEntry? _overlayEntry;
 
   @override
   void initState() {
     super.initState();
-    // Beim Verlust des Fokus wird geprüft, ob der Tap innerhalb der Ergebnisse lag.
     _focusNode.addListener(() {
       if (!_focusNode.hasFocus && !_isClickInsideSearchResults) {
         Future.delayed(const Duration(milliseconds: 100), () {
           if (mounted && !_isClickInsideSearchResults) {
-            setState(() {
-              _movies = [];
-            });
-            widget.onSearchResultsUpdated(false);
+            _closeSearchResults();
           }
         });
       }
@@ -58,18 +61,48 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
 
   @override
   void dispose() {
+    _removeOverlay();
     _controller.dispose();
     _focusNode.dispose();
     _scrollController.dispose();
+    _debounce?.cancel();
     super.dispose();
+  }
+
+  /// Fügt das Overlay hinzu, falls noch nicht vorhanden.
+  void _insertOverlay() {
+    if (_overlayEntry != null) return;
+    _overlayEntry = OverlayEntry(
+      builder: (context) => GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () {
+          // Klick außerhalb: Ergebnisse schließen.
+          _closeSearchResults();
+        },
+        child: Container(),
+      ),
+    );
+    Overlay.of(context)?.insert(_overlayEntry!);
+  }
+
+  /// Entfernt das Overlay, falls vorhanden.
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  /// Schließt die Suchergebnisse und entfernt ggf. das Overlay.
+  void _closeSearchResults() {
+    setState(() {
+      _movies = [];
+    });
+    widget.onSearchResultsUpdated(false);
+    _removeOverlay();
   }
 
   Future<void> _searchMovies(String query) async {
     if (query.length < 3) {
-      setState(() {
-        _movies = [];
-      });
-      widget.onSearchResultsUpdated(false);
+      _closeSearchResults();
       return;
     }
 
@@ -77,7 +110,8 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
       _isLoading = true;
     });
 
-    final url = 'https://cinecritique.mi.hdm-stuttgart.de/api/movies?search=$query';
+    final url =
+        'https://cinecritique.mi.hdm-stuttgart.de/api/movies?search=$query';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -101,21 +135,16 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
           _isLoading = false;
         });
         widget.onSearchResultsUpdated(_movies.isNotEmpty);
+
+        if (_movies.isNotEmpty) _insertOverlay();
+        else _removeOverlay();
       } else {
         print('Fehler: ${response.statusCode}');
-        setState(() {
-          _movies = [];
-          _isLoading = false;
-        });
-        widget.onSearchResultsUpdated(false);
+        _closeSearchResults();
       }
     } catch (e) {
       print('Fehler bei der API-Anfrage: $e');
-      setState(() {
-        _movies = [];
-        _isLoading = false;
-      });
-      widget.onSearchResultsUpdated(false);
+      _closeSearchResults();
     }
   }
 
@@ -130,21 +159,17 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 7.0),
-      // Der äußere GestureDetector fängt Klicks außerhalb des Suchergebnisbereichs ab.
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
-          // Wenn _isClickInsideSearchResults nicht aktiv ist, soll der Fokus entfernt und die Ergebnisse geschlossen werden.
           if (!_isClickInsideSearchResults) {
             FocusScope.of(context).unfocus();
-            setState(() {
-              _movies = [];
-            });
-            widget.onSearchResultsUpdated(false);
+            _closeSearchResults();
           }
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 5.0),
+          padding:
+              const EdgeInsets.symmetric(horizontal: 32.0, vertical: 5.0),
           child: Column(
             children: [
               TextField(
@@ -181,7 +206,6 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                   ),
                 ),
               if (_movies.isNotEmpty)
-                // Der Listener sorgt dafür, dass Pointer-Events im Ergebnisbereich als "intern" gewertet werden.
                 Listener(
                   onPointerDown: (_) {
                     setState(() {
@@ -189,7 +213,6 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                     });
                   },
                   onPointerUp: (_) {
-                    // Hier wird der Flag sofort wieder zurückgesetzt.
                     setState(() {
                       _isClickInsideSearchResults = false;
                     });
@@ -207,6 +230,16 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                         return Column(
                           children: [
                             MouseRegion(
+                              onEnter: (_) {
+                                setState(() {
+                                  _isHovered[index] = true;
+                                });
+                              },
+                              onExit: (_) {
+                                setState(() {
+                                  _isHovered[index] = false;
+                                });
+                              },
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: const Color(0xFF121212),
@@ -217,8 +250,10 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                       const EdgeInsets.symmetric(vertical: 8.0),
                                   title: Text(
                                     movie['title'],
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: _isHovered[index] == true
+                                          ? Colors.redAccent
+                                          : Colors.white,
                                     ),
                                   ),
                                   leading: (movie['poster'] != null &&
@@ -234,21 +269,16 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                     builder: (context, isLoggedIn, _) {
                                       return isLoggedIn
                                           ? Padding(
-                                              padding:
-                                                  const EdgeInsets.only(
-                                                      right: 20.0),
-                                              // Um das Verhalten gezielt zu steuern,
-                                              // wird hier der FavoriteToggle in einen GestureDetector verpackt.
+                                              padding: const EdgeInsets.only(
+                                                  right: 20.0),
                                               child: GestureDetector(
                                                 onTapDown: (_) {
-                                                  // Während des Tap wird der Flag aktiviert.
                                                   setState(() {
                                                     _isClickInsideSearchResults =
                                                         true;
                                                   });
                                                 },
                                                 onTapUp: (_) {
-                                                  // Nach dem Tap wird der Flag sofort wieder zurückgesetzt.
                                                   setState(() {
                                                     _isClickInsideSearchResults =
                                                         false;

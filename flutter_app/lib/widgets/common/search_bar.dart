@@ -1,5 +1,5 @@
-import 'dart:convert';
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
@@ -39,14 +39,15 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
   // Für Hover-Effekte
   Map<int, bool> _isHovered = {};
 
-  // Diese Variable steuert, ob gerade "innerhalb" der Suchergebnisse geklickt wurde.
+  // Diese Variable steuert, ob gerade "innerhalb" geklickt wurde.
   bool _isClickInsideSearchResults = false;
 
   @override
   void initState() {
     super.initState();
     _focusNode.addListener(() {
-      // Wenn der TextField-Fokus verloren geht und NICHT innerhalb geklickt wurde, Suchergebnisse schließen
+      // Falls Fokus auf dem TextField verloren geht und NICHT innerhalb geklickt wurde,
+      // schließen wir die Suchergebnisse.
       if (!_focusNode.hasFocus && !_isClickInsideSearchResults) {
         Future.delayed(const Duration(milliseconds: 100), () {
           if (mounted && !_isClickInsideSearchResults) {
@@ -65,11 +66,12 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
     _controller.dispose();
     _focusNode.dispose();
     _scrollController.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 
   void _onSearchChanged(String query) {
-    // Entprellen der Eingabe (debounce)
+    // "Debounce": Suche erst ausführen, wenn der User kurz nichts eingibt.
     if (_debounce?.isActive ?? false) _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
       _searchMovies(query);
@@ -93,7 +95,6 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
 
     try {
       final response = await http.get(Uri.parse(url));
-
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
 
@@ -101,13 +102,12 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
             .where((movie) =>
                 movie['title'] != null &&
                 movie['title'].toLowerCase().contains(query.toLowerCase()))
-            .map((movie) {
-          return {
-            'poster': movie['poster'] ?? '',
-            'title': movie['title'] ?? 'Unbekannt',
-            'imdbId': movie['imdbId'] ?? '',
-          };
-        }).toList();
+            .map((movie) => {
+                  'poster': movie['poster'] ?? '',
+                  'title': movie['title'] ?? 'Unbekannt',
+                  'imdbId': movie['imdbId'] ?? '',
+                })
+            .toList();
 
         setState(() {
           _movies = loadedMovies;
@@ -136,10 +136,9 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      // Mit diesem Behavior können auch "durchsichtige" Bereiche geklickt werden
+      // Oberster GestureDetector: Wenn außerhalb geklickt wurde, schließe.
       behavior: HitTestBehavior.translucent,
       onTap: () {
-        // Wenn NICHT innerhalb der Suchergebnisse geklickt wurde --> schließen
         if (!_isClickInsideSearchResults) {
           FocusScope.of(context).unfocus();
           setState(() {
@@ -147,7 +146,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
           });
           widget.onSearchResultsUpdated(false);
         }
-        // Flag zurücksetzen, damit es beim nächsten Klick wieder ausgewertet wird
+        // Danach zurücksetzen, damit der nächste Klick wieder geprüft wird
         _isClickInsideSearchResults = false;
       },
       child: Container(
@@ -181,17 +180,14 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
             ),
             if (_isLoading) ...[
               const SizedBox(height: 10),
-              const CircularProgressIndicator(
-                color: Colors.white,
-              ),
+              const CircularProgressIndicator(color: Colors.white),
             ],
             if (_movies.isNotEmpty)
-              // GestureDetector um die Ergebnisliste herum,
-              // damit wir Klicks innerhalb erkennen können.
+              // Innerer GestureDetector um die Ergebnisliste
               GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onTap: () {
-                  // Hier wird das Flag gesetzt, wenn man in den Ergebnis-Bereich klickt
+                  // Klick in den Ergebnisbereich
                   _isClickInsideSearchResults = true;
                 },
                 child: Container(
@@ -233,7 +229,8 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                   borderRadius: BorderRadius.circular(10.0),
                                 ),
                                 child: ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(vertical: 8.0),
+                                  contentPadding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
                                   title: Text(
                                     movie['title'],
                                     style: TextStyle(
@@ -242,22 +239,39 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                           : Colors.white,
                                     ),
                                   ),
-                                  leading: movie['poster'] != null
+                                  leading: (movie['poster'] != null &&
+                                          movie['poster'].isNotEmpty)
                                       ? Image.network(
                                           movie['poster'],
                                           fit: BoxFit.cover,
                                         )
                                       : null,
+
+                                  // Das entscheidende Stück:
+                                  // Wir umgeben die Herz-Icon-Logik mit einem GestureDetector,
+                                  // damit der Klick als "inside" erkannt wird.
                                   trailing: ValueListenableBuilder<bool>(
-                                    valueListenable: widget.authService.isLoggedIn,
+                                    valueListenable:
+                                        widget.authService.isLoggedIn,
                                     builder: (context, isLoggedIn, _) {
                                       return isLoggedIn
                                           ? Padding(
-                                              padding: const EdgeInsets.only(right: 20.0),
-                                              child: FavoriteToggle(
-                                                iconSize: 35,
-                                                imdbId: movie['imdbId'],
-                                                authService: widget.authService,
+                                              padding: const EdgeInsets.only(
+                                                  right: 20.0),
+                                              child: GestureDetector(
+                                                behavior:
+                                                    HitTestBehavior.opaque,
+                                                onTapDown: (_) {
+                                                  // -> "inside" markieren
+                                                  _isClickInsideSearchResults =
+                                                      true;
+                                                },
+                                                child: FavoriteToggle(
+                                                  iconSize: 35,
+                                                  imdbId: movie['imdbId'],
+                                                  authService:
+                                                      widget.authService,
+                                                ),
                                               ),
                                             )
                                           : const SizedBox.shrink();

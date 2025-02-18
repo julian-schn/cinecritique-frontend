@@ -33,25 +33,21 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
   List<Map<String, dynamic>> _movies = [];
   bool _isLoading = false;
   Timer? _debounce;
-
-  // Flag, um zu kennzeichnen, dass innerhalb der Suchergebnisse interagiert wird.
-  bool _isClickInsideSearchResults = false;
-
   final ScrollController _scrollController = ScrollController();
 
-  // Map um den Hoverstatus für jeden Listeneintrag zu speichern.
+  // Hier speichern wir den Hoverstatus für jeden Listeneintrag
   final Map<int, bool> _isHovered = {};
-
-  // Overlay, das den gesamten Bildschirm abdeckt, wenn Suchergebnisse offen sind.
-  OverlayEntry? _overlayEntry;
 
   @override
   void initState() {
     super.initState();
+    // Wenn das Textfeld den Fokus verliert, schließen wir die Suchergebnisse
+    // – solange nicht gerade in der Suchergebnis-Box interagiert wird.
     _focusNode.addListener(() {
-      if (!_focusNode.hasFocus && !_isClickInsideSearchResults) {
+      if (!_focusNode.hasFocus) {
+        // Kurz verzögert schließen, damit Klicks in der Suchergebnis-Box (z.B. auf das Herz) Zeit haben, verarbeitet zu werden.
         Future.delayed(const Duration(milliseconds: 100), () {
-          if (mounted && !_isClickInsideSearchResults) {
+          if (mounted) {
             _closeSearchResults();
           }
         });
@@ -61,43 +57,11 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
 
   @override
   void dispose() {
-    _removeOverlay();
     _controller.dispose();
     _focusNode.dispose();
     _scrollController.dispose();
     _debounce?.cancel();
     super.dispose();
-  }
-
-  /// Fügt das Overlay hinzu, falls noch nicht vorhanden.
-  void _insertOverlay() {
-    if (_overlayEntry != null) return;
-    _overlayEntry = OverlayEntry(
-      builder: (context) => GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () {
-          // Klick außerhalb: Ergebnisse schließen.
-          _closeSearchResults();
-        },
-        child: Container(),
-      ),
-    );
-    Overlay.of(context)?.insert(_overlayEntry!);
-  }
-
-  /// Entfernt das Overlay, falls vorhanden.
-  void _removeOverlay() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
-  }
-
-  /// Schließt die Suchergebnisse und entfernt ggf. das Overlay.
-  void _closeSearchResults() {
-    setState(() {
-      _movies = [];
-    });
-    widget.onSearchResultsUpdated(false);
-    _removeOverlay();
   }
 
   Future<void> _searchMovies(String query) async {
@@ -115,10 +79,8 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
 
     try {
       final response = await http.get(Uri.parse(url));
-
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-
         List<Map<String, dynamic>> loadedMovies = data.where((movie) {
           return movie['title'] != null &&
               movie['title'].toLowerCase().contains(query.toLowerCase());
@@ -135,9 +97,6 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
           _isLoading = false;
         });
         widget.onSearchResultsUpdated(_movies.isNotEmpty);
-
-        if (_movies.isNotEmpty) _insertOverlay();
-        else _removeOverlay();
       } else {
         print('Fehler: ${response.statusCode}');
         _closeSearchResults();
@@ -155,69 +114,77 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
     });
   }
 
+  void _closeSearchResults() {
+    if (mounted) {
+      setState(() {
+        _movies = [];
+      });
+      widget.onSearchResultsUpdated(false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 7.0),
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () {
-          if (!_isClickInsideSearchResults) {
-            FocusScope.of(context).unfocus();
-            _closeSearchResults();
-          }
-        },
-        child: Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 32.0, vertical: 5.0),
-          child: Column(
-            children: [
-              TextField(
-                controller: _controller,
-                focusNode: _focusNode,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: 'Suche...',
-                  hintStyle: const TextStyle(color: Colors.white),
-                  prefixIcon: const Icon(Icons.search, color: Colors.white),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: const BorderSide(color: Colors.white),
+    return Stack(
+      children: [
+        // Dieser Hintergrund fängt Klicks außerhalb der Suchleiste/Ergebnisse ab.
+        if (_movies.isNotEmpty)
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                // Klick außerhalb: Suchergebnisse schließen
+                FocusScope.of(context).unfocus();
+                _closeSearchResults();
+              },
+            ),
+          ),
+        // Hier befinden sich die Suchleiste und Suchergebnisse – sie liegen über dem Hintergrund.
+        Padding(
+          padding: const EdgeInsets.only(top: 7.0),
+          child: Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 32.0, vertical: 5.0),
+            child: Column(
+              children: [
+                TextField(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: 'Suche...',
+                    hintStyle: const TextStyle(color: Colors.white),
+                    prefixIcon:
+                        const Icon(Icons.search, color: Colors.white),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.white),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.white),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide:
+                          const BorderSide(color: Colors.white, width: 1.0),
+                    ),
+                    filled: true,
+                    fillColor: const Color(0xFF121212),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: const BorderSide(color: Colors.white),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide:
-                        const BorderSide(color: Colors.white, width: 1.0),
-                  ),
-                  filled: true,
-                  fillColor: const Color(0xFF121212),
+                  onChanged: _onSearchChanged,
                 ),
-                onChanged: _onSearchChanged,
-              ),
-              if (_isLoading)
-                const Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
+                if (_isLoading)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 10),
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-              if (_movies.isNotEmpty)
-                Listener(
-                  onPointerDown: (_) {
-                    setState(() {
-                      _isClickInsideSearchResults = true;
-                    });
-                  },
-                  onPointerUp: (_) {
-                    setState(() {
-                      _isClickInsideSearchResults = false;
-                    });
-                  },
-                  child: Container(
+                if (_movies.isNotEmpty)
+                  // Die Suchergebnisse stehen in einem Container, der
+                  // in dieser Hierarchie über dem Hintergrund liegt.
+                  Container(
                     padding: const EdgeInsets.all(8.0),
                     height: 400,
                     child: ListView.builder(
@@ -246,11 +213,12 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                   borderRadius: BorderRadius.circular(10.0),
                                 ),
                                 child: ListTile(
-                                  contentPadding:
-                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 8.0),
                                   title: Text(
                                     movie['title'],
                                     style: TextStyle(
+                                      // Beim Hover wird der Titel rot, ansonsten weiß
                                       color: _isHovered[index] == true
                                           ? Colors.redAccent
                                           : Colors.white,
@@ -272,17 +240,13 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                               padding: const EdgeInsets.only(
                                                   right: 20.0),
                                               child: GestureDetector(
-                                                onTapDown: (_) {
-                                                  setState(() {
-                                                    _isClickInsideSearchResults =
-                                                        true;
-                                                  });
-                                                },
-                                                onTapUp: (_) {
-                                                  setState(() {
-                                                    _isClickInsideSearchResults =
-                                                        false;
-                                                  });
+                                                // Durch diesen GestureDetector
+                                                // wird sichergestellt, dass Klicks
+                                                // auf das Herz nicht von unserem
+                                                // Hintergrund-GestureDetector abgefangen werden.
+                                                onTap: () {
+                                                  // Hier wird nur der Favoriten-Status gewechselt.
+                                                  // Der FavoriteToggle selbst kümmert sich um den Toggle.
                                                 },
                                                 child: FavoriteToggle(
                                                   iconSize: 35,
@@ -314,11 +278,11 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                       },
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 }

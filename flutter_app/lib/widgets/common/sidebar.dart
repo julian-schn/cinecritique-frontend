@@ -93,8 +93,6 @@ class _SidebarState extends State<Sidebar> {
     );
   }
 
-  /// Extrahierte Methode für den Inhalt der Sidebar,
-  /// sodass wir diesen sowohl in der Desktop-Variante als auch im Drawer wiederverwenden.
   Widget buildSidebarContent() {
     return ValueListenableBuilder<bool>(
       valueListenable: widget.authService.isLoggedIn,
@@ -177,7 +175,6 @@ class _SidebarState extends State<Sidebar> {
                 }
               },
             ),
-            // Nur in der Desktop-Variante den Toggle-Button einblenden.
             if (!isMobile(context))
               Align(
                 alignment: isExpanded ? Alignment.centerRight : Alignment.center,
@@ -195,23 +192,20 @@ class _SidebarState extends State<Sidebar> {
     );
   }
 
-  /// Hilfsmethode, um zu prüfen, ob es sich um ein mobiles Layout handelt.
   bool isMobile(BuildContext context) =>
       MediaQuery.of(context).size.width < 600;
 
   @override
   Widget build(BuildContext context) {
-    // Wenn es sich um ein mobiles Gerät handelt,
-    // geben wir den Sidebar-Inhalt als Drawer zurück.
     if (isMobile(context)) {
       return Drawer(
+        width: 200,
         child: Container(
           color: const Color(0xFF121212),
           child: buildSidebarContent(),
         ),
       );
     }
-    // Desktop-/Tablet-Variante: Sidebar als fester, animierter Container.
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       width: isExpanded ? 250 : 100,

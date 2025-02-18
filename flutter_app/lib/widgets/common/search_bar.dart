@@ -1,24 +1,24 @@
-import 'dart:async';
 import 'dart:convert';
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
-import 'package:flutter_app/services/auth_service.dart';
 import 'package:flutter_app/widgets/common/toggle_favorite.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_app/services/auth_service.dart'; // Importiere AuthService
 
 class CustomSearchBar extends StatefulWidget implements PreferredSizeWidget {
   final AuthService authService;
   final Function onSearchStart;
   final Function onSearchEnd;
-  final Function(bool) onSearchResultsUpdated;
+  final Function(bool) onSearchResultsUpdated; // Callback für Suchergebnisse
 
   const CustomSearchBar({
-    Key? key,
+    super.key,
     required this.authService,
     required this.onSearchStart,
     required this.onSearchEnd,
     required this.onSearchResultsUpdated,
-  }) : super(key: key);
+  });
 
   @override
   _CustomSearchBarState createState() => _CustomSearchBarState();
@@ -28,28 +28,39 @@ class CustomSearchBar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _CustomSearchBarState extends State<CustomSearchBar> {
-  final TextEditingController _controller = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
-  final ScrollController _scrollController = ScrollController();
+  TextEditingController _controller = TextEditingController();
+  FocusNode _focusNode = FocusNode();
   List<Map<String, dynamic>> _movies = [];
-  Map<int, bool> _isHovered = {};
   bool _isLoading = false;
   Timer? _debounce;
+
+  Map<int, bool> _isHovered = {};
+  final ScrollController _scrollController = ScrollController();
+  bool _isClickInsideSearchResults = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(() {
+      if (!_focusNode.hasFocus && !_isClickInsideSearchResults) {
+        Future.delayed(Duration(milliseconds: 100), () {
+          if (mounted && !_isClickInsideSearchResults) {
+            setState(() {
+              _movies = [];
+            });
+            widget.onSearchResultsUpdated(false);
+          }
+        });
+      }
+    });
+  }
 
   @override
   void dispose() {
     _controller.dispose();
     _focusNode.dispose();
     _scrollController.dispose();
-    _debounce?.cancel();
     super.dispose();
-  }
-
-  void _onSearchChanged(String query) {
-    if (_debounce?.isActive ?? false) _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      _searchMovies(query);
-    });
   }
 
   Future<void> _searchMovies(String query) async {
@@ -60,35 +71,46 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
       widget.onSearchResultsUpdated(false);
       return;
     }
+
     setState(() {
       _isLoading = true;
     });
+
     final url = 'https://cinecritique.mi.hdm-stuttgart.de/api/movies?search=$query';
+
     try {
       final response = await http.get(Uri.parse(url));
+
       if (response.statusCode == 200) {
-        final data = json.decode(utf8.decode(response.bodyBytes)) as List<dynamic>;
-        final loadedMovies = data
-            .where((m) => m['title'] != null && m['title'].toLowerCase().contains(query.toLowerCase()))
-            .map((m) => {
-                  'poster': m['poster'] ?? '',
-                  'title': m['title'] ?? 'Unbekannt',
-                  'imdbId': m['imdbId'] ?? '',
-                })
-            .toList();
+        List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+
+        List<Map<String, dynamic>> loadedMovies = data.where((movie) {
+          return movie['title'] != null &&
+              movie['title'].toLowerCase().contains(query.toLowerCase());
+        }).map((movie) {
+          return {
+            'poster': movie['poster'] ?? '',
+            'title': movie['title'] ?? 'Unbekannt',
+            'imdbId': movie['imdbId'] ?? '',
+          };
+        }).toList();
+
         setState(() {
           _movies = loadedMovies;
           _isLoading = false;
         });
+
         widget.onSearchResultsUpdated(_movies.isNotEmpty);
       } else {
+        print('Fehler: ${response.statusCode}');
         setState(() {
           _movies = [];
           _isLoading = false;
         });
         widget.onSearchResultsUpdated(false);
       }
-    } catch (_) {
+    } catch (e) {
+      print('Fehler bei der API-Anfrage: $e');
       setState(() {
         _movies = [];
         _isLoading = false;
@@ -97,14 +119,31 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
     }
   }
 
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      _searchMovies(query);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
+    return Padding(
+      padding: const EdgeInsets.only(top: 7.0),
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () {
+          if (!_focusNode.hasPrimaryFocus && !_isClickInsideSearchResults) {
+            FocusScope.of(context).requestFocus(FocusNode());
+            setState(() {
+              _movies = [];
+            });
+            widget.onSearchResultsUpdated(false);
+          }
+        },
+        child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 5.0),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: _controller,
@@ -131,110 +170,123 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                 ),
                 onChanged: _onSearchChanged,
               ),
-              if (_isLoading) ...[
-                const SizedBox(height: 10),
-                const CircularProgressIndicator(color: Colors.white),
-              ],
-            ],
-          ),
-        ),
-        if (_movies.isNotEmpty) ...[
-          Positioned.fill(
-            child: GestureDetector(
-              onTap: () {
-                FocusScope.of(context).unfocus();
-                setState(() {
-                  _movies = [];
-                });
-                widget.onSearchResultsUpdated(false);
-              },
-              child: Container(color: Colors.transparent),
-            ),
-          ),
-          Positioned(
-            left: 32,
-            right: 32,
-            top: kToolbarHeight + 10,
-            child: Container(
-              color: const Color(0xFF121212),
-              height: 400,
-              child: NotificationListener<ScrollNotification>(
-                onNotification: (scrollNotification) {
-                  if (scrollNotification is ScrollUpdateNotification) {
-                    if (_scrollController.position.pixels ==
-                        _scrollController.position.maxScrollExtent) {
-                      return true;
+              if (_isLoading)
+                const CircularProgressIndicator(
+                  color: Colors.white,
+                ),
+              if (_movies.isNotEmpty)
+                NotificationListener<ScrollNotification>(
+                  onNotification: (scrollNotification) {
+                    if (scrollNotification is ScrollUpdateNotification) {
+                      if (_scrollController.position.pixels ==
+                          _scrollController.position.maxScrollExtent) {
+                        return true;
+                      }
                     }
-                  }
-                  return false;
-                },
-                child: ListView.builder(
-                  controller: _scrollController,
-                  itemCount: _movies.length,
-                  itemBuilder: (context, index) {
-                    final movie = _movies[index];
-                    return Column(
-                      children: [
-                        MouseRegion(
-                          onEnter: (_) {
-                            setState(() {
-                              _isHovered[index] = true;
-                            });
-                          },
-                          onExit: (_) {
-                            setState(() {
-                              _isHovered[index] = false;
-                            });
-                          },
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.symmetric(vertical: 8.0),
-                            title: Text(
-                              movie['title'],
-                              style: TextStyle(
-                                color: _isHovered[index] == true ? Colors.redAccent : Colors.white,
-                              ),
-                            ),
-                            leading: movie['poster'].isNotEmpty
-                                ? Image.network(movie['poster'], fit: BoxFit.cover)
-                                : null,
-                            trailing: ValueListenableBuilder<bool>(
-                              valueListenable: widget.authService.isLoggedIn,
-                              builder: (context, isLoggedIn, _) {
-                                return isLoggedIn
-                                    ? Padding(
-                                        padding: const EdgeInsets.only(right: 20.0),
-                                        child: FavoriteToggle(
-                                          iconSize: 35,
+                    return false;
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(8.0),
+                    height: 400,
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      shrinkWrap: true,
+                      physics: const ClampingScrollPhysics(),
+                      itemCount: _movies.length,
+                      itemBuilder: (context, index) {
+                        final movie = _movies[index];
+                        return Column(
+                          children: [
+                            MouseRegion(
+                              onEnter: (_) {
+                                setState(() {
+                                  _isHovered[index] = true;
+                                });
+                              },
+                              onExit: (_) {
+                                setState(() {
+                                  _isHovered[index] = false;
+                                });
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: _isHovered[index] == true
+                                      ? Color(0xFF121212)
+                                      : Color(0xFF121212),
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 8.0),
+                                  title: Text(
+                                    movie['title'],
+                                    style: TextStyle(
+                                      color: _isHovered[index] == true
+                                          ? Colors.redAccent
+                                          : Colors.white,
+                                    ),
+                                  ),
+                                  leading: movie['poster'] != null
+                                      ? Image.network(
+                                          movie['poster'],
+                                          fit: BoxFit.cover,
+                                        )
+                                      : null,
+                                  trailing: ValueListenableBuilder<bool>(
+                                    valueListenable: widget.authService.isLoggedIn,
+                                    builder: (context, isLoggedIn, _) {
+                                      return isLoggedIn
+                                          ? Padding(
+                                              padding: const EdgeInsets.only(right: 20.0),
+                                              child: GestureDetector(
+                                                onTapDown: (_) {
+                                                  setState(() {
+                                                    _isClickInsideSearchResults = true;
+                                                  });
+                                                },
+                                                onTapUp: (_) {
+                                                  setState(() {
+                                                    _isClickInsideSearchResults = false;
+                                                  });
+                                                },
+                                                onTap: () {
+                                                  // Nothing to do here
+                                                },
+                                                child: FavoriteToggle(
+                                                  iconSize: 35,
+                                                  imdbId: movie['imdbId'],
+                                                  authService: widget.authService,
+                                                ),
+                                              ),
+                                            )
+                                          : SizedBox.shrink();
+                                    },
+                                  ),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => MoviePage(
                                           imdbId: movie['imdbId'],
                                           authService: widget.authService,
                                         ),
-                                      )
-                                    : const SizedBox.shrink();
-                              },
-                            ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => MoviePage(
-                                    imdbId: movie['imdbId'],
-                                    authService: widget.authService,
-                                  ),
+                                      ),
+                                    );
+                                  },
                                 ),
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                      ],
-                    );
-                  },
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
                 ),
-              ),
-            ),
+            ],
           ),
-        ],
-      ],
+        ),
+      ),
     );
   }
 }

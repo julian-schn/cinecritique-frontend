@@ -184,10 +184,8 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
             ),
           );
 
-    // Card-Größe je nach Bildschirmbreite (wie bei Favoriten)
     final double cardSize = isMobile ? 180.0 : 250.0;
 
-    // Inhalt (Liste der Filme)
     Widget movieContent;
     if (isLoading) {
       movieContent = const Center(child: CircularProgressIndicator());
@@ -225,7 +223,6 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
                   posterUrl: movie['poster'] ?? '',
                   title: movie['title'] ?? 'Unbekannt',
                   imdbId: movie['imdbId'] ?? '',
-                  // Hier genauso wie bei den Favoriten
                   cardWidth: cardSize,
                   cardHeight: cardSize,
                   onTap: () {
@@ -260,14 +257,12 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
       ),
     );
 
-    // Mobile Ansicht
     if (isMobile) {
       return Scaffold(
         key: _scaffoldKey,
         drawer: sidebar,
         body: Stack(
           children: [
-            // Abstand nach oben, damit das Menu-Icon nicht überlappt
             Padding(
               padding: const EdgeInsets.only(top: 72.0),
               child: content,
@@ -286,7 +281,6 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
         ),
       );
     }
-    // Desktop/Tablet Ansicht
     else {
       return Scaffold(
         body: Row(

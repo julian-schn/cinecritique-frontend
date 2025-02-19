@@ -10,14 +10,14 @@ class GenreCard extends StatelessWidget {
     super.key,
     required this.genre,
     this.onTap,
-    this.cardWidth = 250,  // Standardbreite, falls keine spezifische Breite übergeben wird
-    this.cardHeight = 140, // Standardhöhe
+    this.cardWidth = 250,  
+    this.cardHeight = 140, 
   });
 
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      cursor: SystemMouseCursors.click, // Ändert den Mauszeiger auf "Hand" beim Hover
+      cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: onTap,
         child: Container(
@@ -40,7 +40,7 @@ class GenreCard extends StatelessWidget {
               genre,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: cardHeight * 0.2, // Schriftgröße proportional zur Kartenhöhe
+                fontSize: cardHeight * 0.2, 
                 fontWeight: FontWeight.bold,
               ),
             ),

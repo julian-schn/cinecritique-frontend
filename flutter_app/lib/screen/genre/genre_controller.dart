@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class GenreController {
-  // Methode zum Abrufen aller Genres
   Future<List<String>> fetchAllGenres() async {
     try {
       final response = await http.get(

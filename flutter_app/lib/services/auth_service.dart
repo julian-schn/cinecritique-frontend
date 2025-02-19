@@ -75,8 +75,6 @@ class AuthService {
     return userInfo.value?.email;
   }
 
-  // ported methods from JavaScript implementation
-
   String getUsername() {
     if (isLoggedIn.value) {
       return userInfo.value?.name ?? 'Unknown User';
@@ -92,14 +90,13 @@ class AuthService {
     try {
       _credential = await _authenticator.credential;
       if (_credential != null) {
-        // The OpenID client library handles token refresh automatically
         var tokenResponse = await _credential!.getTokenResponse();
         return tokenResponse != null;
       }
       return false;
     } catch (e) {
       print('Fehler beim Token aktualisieren: $e');
-      login(); // Redirect to login if token refresh fails
+      login(); 
       return false;
     }
   }

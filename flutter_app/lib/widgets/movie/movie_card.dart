@@ -20,7 +20,7 @@ class MovieCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Bestimme die Höhe des Bildes, z. B. ca. 75% der Kartenhöhe
+   
     final double posterHeight = cardHeight * 0.75;
 
     return MouseRegion(
@@ -68,7 +68,7 @@ class MovieCard extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: cardHeight * 0.07, // Schriftgröße proportional
+                            fontSize: cardHeight * 0.07, 
                             fontWeight: FontWeight.bold,
                           ),
                         ),

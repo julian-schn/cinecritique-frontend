@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:openid_client/openid_client.dart';
 import 'package:openid_client/openid_client_browser.dart' as browser;
-import 'auth_service.dart';
 
 Future<Credential> authenticate(Client client,
     {List<String> scopes = const []}) async {

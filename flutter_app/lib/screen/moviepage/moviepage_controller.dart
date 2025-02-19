@@ -14,7 +14,6 @@ class MoviePageController {
         print('ReviewIds type: ${data['reviewIds']?.runtimeType}');
         print('ReviewIds content: ${data['reviewIds']}');
 
-        // Überprüfen und Umwandeln von 'reviewIds' und 'createdBy'
         if (data['reviewIds'] != null) {
           try {
             final reviews = List<Map<String, dynamic>>.from(data['reviewIds']);

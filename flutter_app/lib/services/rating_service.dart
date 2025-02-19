@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_app/services/auth_service.dart';
@@ -11,7 +10,6 @@ class RatingService {
     print('RatingService: Initialized with base URL: $_baseUrl');
   }
 
-  // Get all reviews for a movie
   Future<List<Map<String, dynamic>>> getReviews(String imdbId) async {
     print('RatingService: Fetching reviews for movie ID: $imdbId');
     try {
@@ -22,7 +20,6 @@ class RatingService {
       }
       print('RatingService: Token retrieved successfully');
 
-      // First fetch the movie data
       final movieUrl = 'https://cinecritique.mi.hdm-stuttgart.de/api/movies/$imdbId';
       print('RatingService: Making GET request to: $movieUrl');
 
@@ -38,7 +35,6 @@ class RatingService {
         final movieData = json.decode(response.body);
         print('RatingService: Movie data received: $movieData');
         
-        // Extract the reviews array from the movie data
         final List<dynamic> reviewIds = movieData['reviewIds'] ?? [];
         print('RatingService: Found ${reviewIds.length} reviewIds');
         
@@ -70,7 +66,6 @@ class RatingService {
     }
   }
 
-  // Create a new review
   Future<bool> createReview(String imdbId, String reviewText, int rating) async {
     print('RatingService: Creating review for movie ID: $imdbId');
     print('RatingService: Review details - Rating: $rating, Text length: ${reviewText.length}');
@@ -115,7 +110,6 @@ class RatingService {
     }
   }
 
-  // Delete a review
   Future<bool> deleteReview(String imdbId) async {
     print('RatingService: Deleting review for movie ID: $imdbId');
     try {
@@ -150,7 +144,6 @@ class RatingService {
     }
   }
 
-  // Calculate average rating from reviews
   double calculateAverageRating(List<Map<String, dynamic>> reviews) {
     print('RatingService: Calculating average rating for ${reviews.length} reviews');
     if (reviews.isEmpty) {
@@ -168,7 +161,6 @@ class RatingService {
     return average;
   }
 
-  // Format username from email
   String formatUsername(String email) {
     print('RatingService: Formatting username from email: $email');
     final username = email.split('@').first;
@@ -176,82 +168,3 @@ class RatingService {
     return username;
   }
 }
-
-/* Endpoint implementations for reviews in backend
-    // Endpoint to create a new review
-    @PostMapping("/create")
-    @PreAuthorize("hasRole('client_user') or hasRole('client_admin')")
-    public ResponseEntity<?> createReview(@RequestBody Review review, Authentication authentication) {
-        // Retrieve the user's email from the authentication object
-        String email = authentication.getName();
-        review.setCreatedBy(email); // Set the email of the authenticated user
-        review.setCreated(LocalDateTime.now()); // Set created timestamp
-        review.setUpdated(LocalDateTime.now()); // Set updated timestamp
-
-        // Check if the rating is provided and within a valid range
-        if (review.getRating() != null && (review.getRating() < 1 || review.getRating() > 5)) {
-            logger.error("Invalid rating value provided");
-            return new ResponseEntity<>("Rating must be between 1 and 5", HttpStatus.BAD_REQUEST);
-        }
-
-        logger.info("Creating review for movie with ID: " + review.getImdbId() + " by user: " + email);
-        Review createdReview = reviewService.createReview(review.getBody(), review.getRating(), review.getImdbId(), email);
-
-        // Check if the review was created successfully
-        if (createdReview != null) {
-            return new ResponseEntity<>(createdReview, HttpStatus.CREATED);
-        } else {
-            logger.error("Error occurred creating the review");
-            return new ResponseEntity<>("Could not create review. Check if the movie exists or if the user already reviewed it.", HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    // Endpoint to delete an existing review
-    @DeleteMapping("/remove")
-    @PreAuthorize("hasRole('client_user') or hasRole('client_admin')")
-    public ResponseEntity<String> deleteReview(@RequestParam String imdbId, Authentication authentication) {
-        String username = authentication.getName();
-        logger.info("Deleting review for user " + username + " on movie " + imdbId);
-
-        // Attempt to delete the review
-        if (reviewService.deleteReview(username, imdbId)) {
-            return new ResponseEntity<>("Review was deleted", HttpStatus.OK);
-        } else {
-            logger.error("Error occurred removing the review");
-            return new ResponseEntity<>("An error occurred removing the review. The review might not exist.", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-*/
-
-/* Movie endpoints for getting reviews (they are by movie)
-
-// Handles HTTP GET requests to /movies/bestrated, returns the best-rated movies
-    @GetMapping("/bestrated")
-    public ResponseEntity<List<Movie>> findBestMovies() {
-        logger.info("Finding best rated movies");
-        // Returns a list of the best-rated movies sorted by rating with an HTTP status of OK (200)
-        return new ResponseEntity<List<Movie>>(movieService.allMoviesSortedByRating(), HttpStatus.OK);
-    }
-
-    // Endpoint for paginated best rated list
-    @GetMapping("/bestrated/paginated")
-    public ResponseEntity<List<Movie>> findBestMovies(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        logger.info("Finding best rated movies (page: {}, size: {})", page, size);
-
-        // Pageable erstellen
-        Pageable pageable = PageRequest.of(page, size);
-
-        // Filme abrufen
-        Page<Movie> bestRatedMoviesPage = movieService.allMoviesSortedByRating(pageable);
-
-        // Nur die Inhalte der Seite extrahieren
-        List<Movie> bestRatedMovies = bestRatedMoviesPage.getContent();
-
-        return new ResponseEntity<>(bestRatedMovies, HttpStatus.OK);
-    }
-
-
-*/

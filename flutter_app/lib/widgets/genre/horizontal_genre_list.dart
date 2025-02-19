@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/screen/genre/single_genre.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'genre_card.dart'; // Dein GenreCard Widget
-import 'package:flutter_app/services/auth_service.dart'; // Import von AuthService
+import 'genre_card.dart'; 
+import 'package:flutter_app/services/auth_service.dart'; 
 
 class HorizontalGenreList extends StatefulWidget {
-  final AuthService authService; // AuthService als Parameter
+  final AuthService authService; 
 
   const HorizontalGenreList({super.key, required this.authService});
 
@@ -71,20 +71,17 @@ class _HorizontalGenreListState extends State<HorizontalGenreList> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    // Prüfe, ob es sich um ein mobiles Gerät handelt
     final bool isMobile = MediaQuery.of(context).size.width < 600;
     
-    // Passe die Höhe der Cards an, damit sie auf dem Handy kleiner sind.
-    // Die Pfeile und Abstände sollen jedoch überall gleich bleiben.
+   
     final double containerHeight = isMobile ? 100 : 140;
     final double cardWidth = isMobile ? 180 : 250;
     final double cardHeight = containerHeight;
 
-    // **Hier verwenden wir für beide Layouts die gleichen Werte**, 
-    // damit die Pfeile relativ gleich zum ersten/letzten Card liegen.
-    final double horizontalPadding = 50.0; // Gleicher Wert für Mobile und Desktop
-    final double arrowIconSize = 65;       // Gleicher Wert für Mobile und Desktop
-    final double scrollOffset = 400;       // Gleicher Wert für Mobile und Desktop
+    
+    final double horizontalPadding = 50.0; 
+    final double arrowIconSize = 65;       
+    final double scrollOffset = 400;      
 
     return Container(
       height: containerHeight,
@@ -100,7 +97,6 @@ class _HorizontalGenreListState extends State<HorizontalGenreList> {
                 final genre = genres[index];
                 return GestureDetector(
                   onTap: () {
-                    // Öffnet die GenreDetailPage mit dem entsprechenden Genre und authService
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -120,7 +116,6 @@ class _HorizontalGenreListState extends State<HorizontalGenreList> {
               },
             ),
           ),
-          // Pfeile zum Scrollen nach links
           Positioned(
             left: 0,
             top: containerHeight / 2 - arrowIconSize / 2,
@@ -142,7 +137,6 @@ class _HorizontalGenreListState extends State<HorizontalGenreList> {
               ),
             ),
           ),
-          // Pfeile zum Scrollen nach rechts
           Positioned(
             right: 0,
             top: containerHeight / 2 - arrowIconSize / 2,

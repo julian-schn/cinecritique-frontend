@@ -3,12 +3,12 @@ import 'package:flutter_app/widgets/common/backdrops.dart';
 
 class HorizontalBackdropList extends StatefulWidget {
   final List<String> backdrops;
-  final Function(String) onBackdropSelected;  // Neue callback Funktion
+  final Function(String) onBackdropSelected;  
 
   const HorizontalBackdropList({
     Key? key,
     required this.backdrops,
-    required this.onBackdropSelected,  // Neuer required Parameter
+    required this.onBackdropSelected,  
   }) : super(key: key);
 
   @override
@@ -50,7 +50,6 @@ class _HorizontalBackdropListState extends State<HorizontalBackdropList> {
                 child: BackdropCard(
                   backdropUrl: widget.backdrops[index],
                   onTap: () {
-                    // Ruft die callback Funktion mit dem ausgewählten Backdrop auf
                     widget.onBackdropSelected(widget.backdrops[index]);
                   },
                 ),

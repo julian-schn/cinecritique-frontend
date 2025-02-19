@@ -26,7 +26,6 @@ class _MoviePosterCarouselState extends State<MoviePosterCarousel> {
     super.initState();
     fetchMovies();
 
-    // Timer, um alle 15 Sekunden den Film zu wechseln
     _timer = Timer.periodic(const Duration(seconds: 15), (Timer timer) {
       setState(() {
         _currentIndex = (_currentIndex + 1) % movies.length;
@@ -50,7 +49,6 @@ class _MoviePosterCarouselState extends State<MoviePosterCarousel> {
           };
         }).toList();
 
-        // Zufällige Reihenfolge der Filme
         loadedMovies.shuffle(Random());
 
         setState(() {
@@ -92,7 +90,7 @@ class _MoviePosterCarouselState extends State<MoviePosterCarousel> {
               child: AnimatedSwitcher(
                 duration: const Duration(seconds: 1),
                 child: MouseRegion(
-                  cursor: SystemMouseCursors.click, // Ändert den Mauszeiger auf "Hand" beim Hover
+                  cursor: SystemMouseCursors.click, 
                   child: GestureDetector(
                     onTap: () {
                       final imdbId = movies[_currentIndex]['imdbId'];
@@ -102,14 +100,14 @@ class _MoviePosterCarouselState extends State<MoviePosterCarousel> {
                           MaterialPageRoute(
                             builder: (context) => MoviePage(
                               imdbId: imdbId,
-                              authService: widget.authService, // authService übergeben
+                              authService: widget.authService, 
                             ),
                           ),
                         );
                       }
                     },
                     child: ClipRRect(
-                      key: ValueKey<int>(_currentIndex), // Wichtiger Key für den Übergang
+                      key: ValueKey<int>(_currentIndex), 
                       borderRadius: BorderRadius.circular(18.0),
                       child: Image.network(
                         movies[_currentIndex]['poster'] ?? '',

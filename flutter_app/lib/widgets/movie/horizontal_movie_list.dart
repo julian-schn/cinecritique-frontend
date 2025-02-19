@@ -100,14 +100,12 @@ class _HorizontalMovieListState extends State<HorizontalMovieList> {
 
   @override
   Widget build(BuildContext context) {
-    // Für Mobile vs. Desktop: unterschiedliche Kartengrößen
     final bool isMobile = MediaQuery.of(context).size.width < 600;
     final double containerHeight = isMobile ? 180 : 250;
     final double cardWidth = isMobile ? 180 : 250;
     final double cardHeight = isMobile ? 180 : 250;
 
-    // **Hier verwenden wir dieselben Werte für Abstände/Pfeile**, 
-    // um das Layout möglichst ähnlich zu halten
+    
     final double horizontalPadding = 50.0;
     final double arrowIconSize = 65;
     final double scrollOffset = 400;

@@ -131,7 +131,7 @@ class _MoviePageState extends State<MoviePage> {
     final double watchButtonPaddingVertical = isMobile ? 16 : 22;
     final double watchButtonPaddingHorizontal = isMobile ? 20 : 26;
     final double watchButtonFontSize = isMobile ? 16 : 18;
-    final double heartRightMobile = 110;
+    final double heartRightMobile = 120;
     final double heartRightDesktop = 160;
     final double ratingScale = isMobile ? 0.9 : 1.0;
     final double plotFontSize = isMobile ? 14 : 16;
@@ -355,14 +355,16 @@ class _MoviePageState extends State<MoviePage> {
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    ValueListenableBuilder<bool>(
-                      valueListenable: widget.authService.isLoggedIn,
-                      builder: (context, isLoggedIn, _) {
-                        if (!isLoggedIn) return const SizedBox.shrink();
-                        return Transform.scale(
-                          scale: 0.95,
-                          child: SizedBox(
-                            width: 280,
+                    SizedBox(
+                      width: 280,
+                      child: ValueListenableBuilder<bool>(
+                        valueListenable: widget.authService.isLoggedIn,
+                        builder: (context, isLoggedIn, _) {
+                          if (!isLoggedIn) {
+                            return const SizedBox.shrink();
+                          }
+                          return Transform.scale(
+                            scale: 0.95,
                             child: CreateRatingWidget(
                               imdbId: widget.imdbId,
                               authService: widget.authService,
@@ -372,15 +374,15 @@ class _MoviePageState extends State<MoviePage> {
                                 });
                               },
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
                     const SizedBox(height: 12),
-                    Transform.scale(
-                      scale: 0.9,
-                      child: SizedBox(
-                        width: 280,
+                    SizedBox(
+                      width: 280,
+                      child: Transform.scale(
+                        scale: 0.9,
                         child: ShowRatingWidget(
                           reviews: movieData?['reviewIds'] ?? [],
                         ),

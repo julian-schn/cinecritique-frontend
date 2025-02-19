@@ -274,9 +274,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
     final bool isSidebarExpanded = MediaQuery.of(context).size.width > 800;
 
-    // Adjust header font size based on device width
-    final double headerFontSize = isMobile ? 24.0 : 36.0;
-
     final sidebar = Sidebar(
       authService: widget.authService,
       onHomePressed: () {
@@ -337,38 +334,62 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       currentPage: 'Profil',
     );
 
-    // Responsive Header
-    final headerRow = Padding(
-      padding: EdgeInsets.only(
-        left: isSidebarExpanded
-            ? 20.0
-            : (MediaQuery.of(context).size.width - 1060) / 2,
-        right: 35.0,
-        top: 85.0,
-        bottom: 8,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'Profil Einstellungen',
-            style: GoogleFonts.inter(
-              color: Colors.white,
-              fontSize: headerFontSize,
-              fontWeight: FontWeight.bold,
+    // --- Header EXACTLY like in FavoriteScreen style ---
+    final headerRow = isMobile
+        ? Padding(
+            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+            child: Row(
+              children: const [
+                Text(
+                  'Profil Einstellungen',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20, // Mobile: text 20
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '.',
+                  style: TextStyle(
+                    color: Colors.redAccent,
+                    fontSize: 22, // Mobile: dot 22
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
-          ),
-          Text(
-            '.',
-            style: GoogleFonts.inter(
-              color: Colors.redAccent,
-              fontSize: headerFontSize,
-              fontWeight: FontWeight.bold,
+          )
+        : Padding(
+            padding: EdgeInsets.only(
+              left: isSidebarExpanded
+                  ? 20.0
+                  : (MediaQuery.of(context).size.width - 1060) / 2,
+              right: 35.0,
+              top: 85.0,
+              bottom: 8,
             ),
-          ),
-        ],
-      ),
-    );
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Text(
+                  'Profil Einstellungen',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 26, // Desktop: text 26
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '.',
+                  style: TextStyle(
+                    color: Colors.redAccent,
+                    fontSize: 28, // Desktop: dot 28
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          );
 
     final contentBody = _isLoading
         ? const Center(child: CircularProgressIndicator())

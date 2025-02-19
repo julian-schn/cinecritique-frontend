@@ -48,7 +48,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
     }
   }
 
-  // Optional: Scrollfunktionen; you can keep or remove if you want
+  // Scrollfunktionen
   void scrollLeft(double offset) {
     _scrollController.animateTo(
       _scrollController.offset - offset,
@@ -72,6 +72,14 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
 
     final double headerFontSize = isMobile ? 20.0 : 26.0;
     final double dotFontSize = isMobile ? 22.0 : 28.0;
+
+    // Match GenrePage spacing:
+    final double containerHeight = isMobile ? 180 : 250;
+    final double cardWidth = isMobile ? 180 : 250;
+    final double cardHeight = isMobile ? 180 : 250;
+    final double horizontalPadding = 50.0;     // same as GenrePage
+    final double arrowIconSize = 65.0;         // same as GenrePage
+    final double scrollOffset = 400.0;         // same as GenrePage
 
     final sidebar = Sidebar(
       authService: widget.authService,
@@ -180,12 +188,11 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
             )
           else
             Container(
-              height: isMobile ? 180 : 250,
+              height: containerHeight,
               child: Stack(
                 children: [
                   Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: isMobile ? 20.0 : 50.0),
+                    padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                     child: ListView.builder(
                       controller: _scrollController,
                       scrollDirection: Axis.horizontal,
@@ -196,8 +203,8 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
                           posterUrl: movie['poster'] ?? '',
                           title: movie['title'] ?? 'Unknown',
                           imdbId: movie['imdbId'] ?? '',
-                          cardWidth: isMobile ? 180 : 250,
-                          cardHeight: isMobile ? 180 : 250,
+                          cardWidth: cardWidth,
+                          cardHeight: cardHeight,
                           onTap: () {
                             Navigator.push(
                               context,
@@ -213,43 +220,33 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
                       },
                     ),
                   ),
+                  // Left arrow
                   Positioned(
                     left: 0,
-                    top: (isMobile ? 180 : 250) / 2 -
-                        (isMobile ? 45.0 : 65.0) / 2,
+                    top: containerHeight / 2 - arrowIconSize / 2,
                     child: MouseRegion(
                       cursor: SystemMouseCursors.click,
                       child: GestureDetector(
-                        onTap: () => _scrollController.animateTo(
-                          _scrollController.offset -
-                              (isMobile ? 200 : 400),
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                        ),
+                        onTap: () => scrollLeft(scrollOffset),
                         child: Icon(
                           Icons.arrow_left,
-                          size: isMobile ? 45.0 : 65.0,
+                          size: arrowIconSize,
                           color: Colors.redAccent,
                         ),
                       ),
                     ),
                   ),
+                  // Right arrow
                   Positioned(
                     right: 0,
-                    top: (isMobile ? 180 : 250) / 2 -
-                        (isMobile ? 45.0 : 65.0) / 2,
+                    top: containerHeight / 2 - arrowIconSize / 2,
                     child: MouseRegion(
                       cursor: SystemMouseCursors.click,
                       child: GestureDetector(
-                        onTap: () => _scrollController.animateTo(
-                          _scrollController.offset +
-                              (isMobile ? 200 : 400),
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                        ),
+                        onTap: () => scrollRight(scrollOffset),
                         child: Icon(
                           Icons.arrow_right,
-                          size: isMobile ? 45.0 : 65.0,
+                          size: arrowIconSize,
                           color: Colors.redAccent,
                         ),
                       ),

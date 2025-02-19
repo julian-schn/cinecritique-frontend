@@ -189,7 +189,6 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                   },
                   child: Container(
                     padding: const EdgeInsets.all(8.0),
-                    // You can also shrink the height on mobile if you like:
                     height: isMobile ? 300 : 400,
                     child: ListView.builder(
                       controller: _scrollController,
@@ -217,14 +216,12 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                   borderRadius: BorderRadius.circular(10.0),
                                 ),
                                 child: ListTile(
-                                  // Reduce padding on mobile
                                   contentPadding: EdgeInsets.symmetric(
                                     vertical: isMobile ? 4.0 : 8.0,
                                     horizontal: isMobile ? 8.0 : 16.0,
                                   ),
                                   title: Text(
                                     movie['title'],
-                                    // Smaller font size on mobile
                                     style: TextStyle(
                                       fontSize: isMobile ? 14 : 16,
                                       color: _isHovered[index] == true
@@ -232,11 +229,10 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                           : Colors.white,
                                     ),
                                   ),
-                                  // Smaller poster size on mobile
                                   leading: movie['poster'] != null
                                       ? Container(
-                                          width: isMobile ? 40 : 50,
-                                          height: isMobile ? 60 : 70,
+                                          width: isMobile ? 30 : 50,
+                                          height: isMobile ? 50 : 70,
                                           clipBehavior: Clip.hardEdge,
                                           decoration: BoxDecoration(
                                             borderRadius:
@@ -271,7 +267,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                                 },
                                                 child: FavoriteToggle(
                                                   // Smaller icon on mobile
-                                                  iconSize: isMobile ? 24 : 35,
+                                                  iconSize: isMobile ? 27 : 35,
                                                   imdbId: movie['imdbId'],
                                                   authService: widget.authService,
                                                 ),

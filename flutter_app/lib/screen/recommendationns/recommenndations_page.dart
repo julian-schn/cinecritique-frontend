@@ -48,7 +48,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
     }
   }
 
-  // Scrollfunktionen, die einen Scrolloffset als Parameter erhalten
+  // Optional: Scrollfunktionen; you can keep or remove if you want
   void scrollLeft(double offset) {
     _scrollController.animateTo(
       _scrollController.offset - offset,
@@ -67,18 +67,9 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Prüfe, ob Gerät mobil ist bzw. ob Sidebar erweitert werden soll
     final bool isMobile = MediaQuery.of(context).size.width < 600;
     final bool isSidebarExpanded = MediaQuery.of(context).size.width > 800;
 
-    // Definiere die Kartengröße: 180x180 bei Mobile, sonst 250x250
-    final double cardSize = isMobile ? 180.0 : 250.0;
-    // Pfeilgröße: Wir nutzen hier passendere Icons (z. B. chevron) und Größen analog zur GenrePage
-    final double arrowSize = isMobile ? 45.0 : 65.0;
-    // Horizontaler Padding-Wert für den ListView (reduziert bei Mobile)
-    final double horizontalPadding = isMobile ? 20.0 : 50.0;
-
-    // Überschrift ähnlich wie in der GenrePage – responsive Schriftgrößen
     final double headerFontSize = isMobile ? 20.0 : 26.0;
     final double dotFontSize = isMobile ? 22.0 : 28.0;
 
@@ -88,7 +79,8 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-              builder: (context) => HomeScreen(authService: widget.authService)),
+            builder: (context) => HomeScreen(authService: widget.authService),
+          ),
         );
       },
       onGenresPressed: () {
@@ -107,7 +99,8 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-              builder: (context) => RecommendationsPage(authService: widget.authService)),
+            builder: (context) => RecommendationsPage(authService: widget.authService),
+          ),
         );
       },
       onRatingsPressed: () {
@@ -131,12 +124,14 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       currentPage: 'Empfehlungen',
     );
 
-    // Angepasste Header-Zeile
+    // Header row
     final headerRow = Padding(
       padding: isMobile
           ? const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0)
           : EdgeInsets.only(
-              left: isSidebarExpanded ? 20.0 : (MediaQuery.of(context).size.width - 1060) / 2,
+              left: isSidebarExpanded
+                  ? 20.0
+                  : (MediaQuery.of(context).size.width - 1060) / 2,
               right: 35.0,
               top: 85.0,
               bottom: 8,
@@ -184,12 +179,13 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
               ),
             )
           else
-            SizedBox(
-              height: cardSize,
+            Container(
+              height: isMobile ? 180 : 250,
               child: Stack(
                 children: [
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: isMobile ? 20.0 : 50.0),
                     child: ListView.builder(
                       controller: _scrollController,
                       scrollDirection: Axis.horizontal,
@@ -200,8 +196,8 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
                           posterUrl: movie['poster'] ?? '',
                           title: movie['title'] ?? 'Unknown',
                           imdbId: movie['imdbId'] ?? '',
-                          cardWidth: cardSize,
-                          cardHeight: cardSize,
+                          cardWidth: isMobile ? 180 : 250,
+                          cardHeight: isMobile ? 180 : 250,
                           onTap: () {
                             Navigator.push(
                               context,
@@ -217,39 +213,48 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
                       },
                     ),
                   ),
-                  if (recommendedMovies.isNotEmpty) ...[
-                    Positioned(
-                      left: 0,
-                      top: (cardSize - arrowSize) / 2,
-                      child: MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: GestureDetector(
-                          // Verwende hier einen Chevron-Icon, wie in der GenrePage
-                          onTap: () => scrollLeft(isMobile ? 200 : 400),
-                          child: Icon(
-                            Icons.chevron_left,
-                            size: arrowSize,
-                            color: Colors.redAccent,
-                          ),
+                  Positioned(
+                    left: 0,
+                    top: (isMobile ? 180 : 250) / 2 -
+                        (isMobile ? 45.0 : 65.0) / 2,
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () => _scrollController.animateTo(
+                          _scrollController.offset -
+                              (isMobile ? 200 : 400),
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        ),
+                        child: Icon(
+                          Icons.arrow_left,
+                          size: isMobile ? 45.0 : 65.0,
+                          color: Colors.redAccent,
                         ),
                       ),
                     ),
-                    Positioned(
-                      right: 0,
-                      top: (cardSize - arrowSize) / 2,
-                      child: MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: GestureDetector(
-                          onTap: () => scrollRight(isMobile ? 200 : 400),
-                          child: Icon(
-                            Icons.chevron_right,
-                            size: arrowSize,
-                            color: Colors.redAccent,
-                          ),
+                  ),
+                  Positioned(
+                    right: 0,
+                    top: (isMobile ? 180 : 250) / 2 -
+                        (isMobile ? 45.0 : 65.0) / 2,
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () => _scrollController.animateTo(
+                          _scrollController.offset +
+                              (isMobile ? 200 : 400),
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        ),
+                        child: Icon(
+                          Icons.arrow_right,
+                          size: isMobile ? 45.0 : 65.0,
+                          color: Colors.redAccent,
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ],
               ),
             ),
@@ -265,7 +270,6 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
         drawer: sidebar,
         body: Stack(
           children: [
-            // Der Inhalt wird mit Padding unter dem Burger-Button dargestellt
             Padding(
               padding: const EdgeInsets.only(top: 72.0),
               child: mainContent,

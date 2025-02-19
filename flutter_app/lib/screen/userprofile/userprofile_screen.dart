@@ -11,7 +11,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 class UserProfileScreen extends StatefulWidget {
   final AuthService authService;
-  const UserProfileScreen({Key? key, required this.authService}) : super(key: key);
+  const UserProfileScreen({Key? key, required this.authService})
+      : super(key: key);
 
   @override
   _UserProfileScreenState createState() => _UserProfileScreenState();
@@ -54,7 +55,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         _userInfo = userInfo;
         if (profile != null) {
           _userInfo?.addAll({
-            'name': (profile['firstName'] ?? '') + ' ' + (profile['lastName'] ?? ''),
+            'name': (profile['firstName'] ?? '') +
+                ' ' +
+                (profile['lastName'] ?? ''),
             'username': profile['username'] ?? '',
           });
         }
@@ -88,7 +91,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     try {
       final currentEmail = _userInfo?['email'];
       if (currentEmail == null) return;
-      final success = await widget.authService.updateEmail(currentEmail, _newEmail!);
+      final success =
+          await widget.authService.updateEmail(currentEmail, _newEmail!);
       if (success) {
         setState(() {
           _userInfo?['email'] = _newEmail!;
@@ -146,7 +150,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             children: [
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     color: const Color(0xFF2A2A2A),
                     borderRadius: BorderRadius.circular(8),
@@ -269,42 +274,58 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
     final bool isSidebarExpanded = MediaQuery.of(context).size.width > 800;
 
+    // Adjust header font size based on device width
+    final double headerFontSize = isMobile ? 24.0 : 36.0;
+
     final sidebar = Sidebar(
       authService: widget.authService,
       onHomePressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(authService: widget.authService),
+          ),
         );
       },
       onGenresPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => GenrePage(authService: widget.authService),
+          ),
         );
       },
       onFavoritesPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => FavoriteScreen(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => FavoriteScreen(authService: widget.authService),
+          ),
         );
       },
       onRecommendationsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => RecommendationsPage(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => RecommendationsPage(authService: widget.authService),
+          ),
         );
       },
       onRatingsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => RatingScreen(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => RatingScreen(authService: widget.authService),
+          ),
         );
       },
       onProfilPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => UserProfileScreen(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) =>
+                UserProfileScreen(authService: widget.authService),
+          ),
         );
       },
       onLoginPressed: () {
@@ -316,7 +337,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       currentPage: 'Profil',
     );
 
-    // Überschrift analog zu FavoriteScreen
+    // Responsive Header
     final headerRow = Padding(
       padding: EdgeInsets.only(
         left: isSidebarExpanded
@@ -333,7 +354,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             'Profil Einstellungen',
             style: GoogleFonts.inter(
               color: Colors.white,
-              fontSize: 36,
+              fontSize: headerFontSize,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -341,7 +362,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             '.',
             style: GoogleFonts.inter(
               color: Colors.redAccent,
-              fontSize: 36,
+              fontSize: headerFontSize,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -357,8 +378,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildProfileField('Dein Name', _userInfo?['name'] ?? 'Not available'),
-                  _buildProfileField('Dein Username', _userInfo?['username'] ?? 'Not available'),
+                  _buildProfileField(
+                    'Dein Name',
+                    _userInfo?['name'] ?? 'Not available',
+                  ),
+                  _buildProfileField(
+                    'Dein Username',
+                    _userInfo?['username'] ?? 'Not available',
+                  ),
                   _buildProfileField(
                     'Email Adresse',
                     _userInfo?['email'] ?? 'Not available',
@@ -373,7 +400,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
     final content = SingleChildScrollView(
       child: Column(
-        crossAxisAlignment: isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+        crossAxisAlignment:
+            isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
         children: [
           headerRow,
           contentBody,
@@ -406,7 +434,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           ],
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: _showDeleteModal ? _buildDeleteConfirmationDialog() : null,
+        floatingActionButton:
+            _showDeleteModal ? _buildDeleteConfirmationDialog() : null,
       );
     } else {
       return Scaffold(

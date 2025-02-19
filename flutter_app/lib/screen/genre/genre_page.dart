@@ -163,10 +163,9 @@ class _GenrePageState extends State<GenrePage> {
                   ],
                 ),
                 const SizedBox(height: 14),
-                // Übergib hier das Genre an die HorizontalMovieList
                 HorizontalMovieList(
                   authService: widget.authService,
-                  genre: genre, // <-- WICHTIG
+                  genre: genre, 
                 ),
                 const SizedBox(height: 20),
               ],
@@ -189,7 +188,6 @@ class _GenrePageState extends State<GenrePage> {
         drawer: sidebar,
         body: Stack(
           children: [
-            // Verschiebt den Inhalt nach unten, damit das Burger-Menü oben links sichtbar bleibt
             Padding(
               padding: const EdgeInsets.only(top: 72.0),
               child: content,

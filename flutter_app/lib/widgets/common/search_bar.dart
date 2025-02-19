@@ -42,8 +42,9 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
   void initState() {
     super.initState();
     _focusNode.addListener(() {
+      // Close results if focus is lost and user didn't click inside results
       if (!_focusNode.hasFocus && !_isClickInsideSearchResults) {
-        Future.delayed(Duration(milliseconds: 100), () {
+        Future.delayed(const Duration(milliseconds: 100), () {
           if (mounted && !_isClickInsideSearchResults) {
             setState(() {
               _movies = [];
@@ -128,6 +129,9 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
 
   @override
   Widget build(BuildContext context) {
+    // Detect if device is "mobile"
+    final bool isMobile = MediaQuery.of(context).size.width < 600;
+
     return Padding(
       padding: const EdgeInsets.only(top: 7.0),
       child: GestureDetector(
@@ -171,9 +175,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                 onChanged: _onSearchChanged,
               ),
               if (_isLoading)
-                const CircularProgressIndicator(
-                  color: Colors.white,
-                ),
+                const CircularProgressIndicator(color: Colors.white),
               if (_movies.isNotEmpty)
                 NotificationListener<ScrollNotification>(
                   onNotification: (scrollNotification) {
@@ -187,7 +189,8 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                   },
                   child: Container(
                     padding: const EdgeInsets.all(8.0),
-                    height: 400,
+                    // You can also shrink the height on mobile if you like:
+                    height: isMobile ? 300 : 400,
                     child: ListView.builder(
                       controller: _scrollController,
                       shrinkWrap: true,
@@ -210,26 +213,39 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                               },
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: _isHovered[index] == true
-                                      ? Color(0xFF121212)
-                                      : Color(0xFF121212),
+                                  color: const Color(0xFF121212),
                                   borderRadius: BorderRadius.circular(10.0),
                                 ),
                                 child: ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 8.0),
+                                  // Reduce padding on mobile
+                                  contentPadding: EdgeInsets.symmetric(
+                                    vertical: isMobile ? 4.0 : 8.0,
+                                    horizontal: isMobile ? 8.0 : 16.0,
+                                  ),
                                   title: Text(
                                     movie['title'],
+                                    // Smaller font size on mobile
                                     style: TextStyle(
+                                      fontSize: isMobile ? 14 : 16,
                                       color: _isHovered[index] == true
                                           ? Colors.redAccent
                                           : Colors.white,
                                     ),
                                   ),
+                                  // Smaller poster size on mobile
                                   leading: movie['poster'] != null
-                                      ? Image.network(
-                                          movie['poster'],
-                                          fit: BoxFit.cover,
+                                      ? Container(
+                                          width: isMobile ? 40 : 50,
+                                          height: isMobile ? 60 : 70,
+                                          clipBehavior: Clip.hardEdge,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(4.0),
+                                          ),
+                                          child: Image.network(
+                                            movie['poster'],
+                                            fit: BoxFit.cover,
+                                          ),
                                         )
                                       : null,
                                   trailing: ValueListenableBuilder<bool>(
@@ -237,7 +253,8 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                     builder: (context, isLoggedIn, _) {
                                       return isLoggedIn
                                           ? Padding(
-                                              padding: const EdgeInsets.only(right: 20.0),
+                                              padding: const EdgeInsets.only(
+                                                  right: 20.0),
                                               child: GestureDetector(
                                                 onTapDown: (_) {
                                                   setState(() {
@@ -250,16 +267,17 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                                   });
                                                 },
                                                 onTap: () {
-                                                  // Nothing to do here
+                                                  // Just to avoid the tile from closing
                                                 },
                                                 child: FavoriteToggle(
-                                                  iconSize: 35,
+                                                  // Smaller icon on mobile
+                                                  iconSize: isMobile ? 24 : 35,
                                                   imdbId: movie['imdbId'],
                                                   authService: widget.authService,
                                                 ),
                                               ),
                                             )
-                                          : SizedBox.shrink();
+                                          : const SizedBox.shrink();
                                     },
                                   ),
                                   onTap: () {
@@ -276,7 +294,8 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 10),
+                            // Slightly reduce spacing between items on mobile
+                            SizedBox(height: isMobile ? 6 : 10),
                           ],
                         );
                       },

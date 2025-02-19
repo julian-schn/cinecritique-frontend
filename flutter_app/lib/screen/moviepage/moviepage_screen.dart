@@ -176,7 +176,7 @@ class _MoviePageState extends State<MoviePage> {
                       ),
                       child: Text(
                         title,
-                        maxLines: 2,
+                        maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                         softWrap: true,
                         style: TextStyle(

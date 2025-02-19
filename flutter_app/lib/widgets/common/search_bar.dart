@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
 import 'package:flutter_app/widgets/common/toggle_favorite.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_app/services/auth_service.dart'; 
+import 'package:flutter_app/services/auth_service.dart';
 
 class CustomSearchBar extends StatefulWidget implements PreferredSizeWidget {
   final AuthService authService;
   final Function onSearchStart;
   final Function onSearchEnd;
-  final Function(bool) onSearchResultsUpdated; 
+  final Function(bool) onSearchResultsUpdated;
 
   const CustomSearchBar({
     super.key,
@@ -34,9 +34,10 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
   bool _isLoading = false;
   Timer? _debounce;
 
+  // Flag, um zu kennzeichnen, dass innerhalb der Suchergebnisse getippt bzw. gescrollt wurde
+  bool _isClickInsideSearchResults = false;
   Map<int, bool> _isHovered = {};
   final ScrollController _scrollController = ScrollController();
-  bool _isClickInsideSearchResults = false;
 
   @override
   void initState() {
@@ -175,121 +176,143 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
               if (_isLoading)
                 const CircularProgressIndicator(color: Colors.white),
               if (_movies.isNotEmpty)
-                NotificationListener<ScrollNotification>(
-                  onNotification: (scrollNotification) {
-                    if (scrollNotification is ScrollUpdateNotification) {
-                      if (_scrollController.position.pixels ==
-                          _scrollController.position.maxScrollExtent) {
-                        return true;
-                      }
-                    }
-                    return false;
+                // Hier den Bereich für die Suchergebnisse in einen GestureDetector packen
+                GestureDetector(
+                  onTapDown: (_) {
+                    setState(() {
+                      _isClickInsideSearchResults = true;
+                    });
                   },
-                  child: Container(
-                    padding: const EdgeInsets.all(8.0),
-                    height: isMobile ? 300 : 400,
-                    child: ListView.builder(
-                      controller: _scrollController,
-                      shrinkWrap: true,
-                      physics: const ClampingScrollPhysics(),
-                      itemCount: _movies.length,
-                      itemBuilder: (context, index) {
-                        final movie = _movies[index];
-                        return Column(
-                          children: [
-                            MouseRegion(
-                              onEnter: (_) {
-                                setState(() {
-                                  _isHovered[index] = true;
-                                });
-                              },
-                              onExit: (_) {
-                                setState(() {
-                                  _isHovered[index] = false;
-                                });
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF121212),
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                child: ListTile(
-                                  contentPadding: EdgeInsets.symmetric(
-                                    vertical: isMobile ? 4.0 : 8.0,
-                                    horizontal: isMobile ? 8.0 : 16.0,
+                  onTapUp: (_) {
+                    Future.delayed(const Duration(milliseconds: 200), () {
+                      setState(() {
+                        _isClickInsideSearchResults = false;
+                      });
+                    });
+                  },
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: (scrollNotification) {
+                      if (scrollNotification is ScrollUpdateNotification) {
+                        if (_scrollController.position.pixels ==
+                            _scrollController.position.maxScrollExtent) {
+                          return true;
+                        }
+                      }
+                      return false;
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8.0),
+                      height: isMobile ? 300 : 400,
+                      child: ListView.builder(
+                        controller: _scrollController,
+                        shrinkWrap: true,
+                        physics: const ClampingScrollPhysics(),
+                        itemCount: _movies.length,
+                        itemBuilder: (context, index) {
+                          final movie = _movies[index];
+                          return Column(
+                            children: [
+                              MouseRegion(
+                                onEnter: (_) {
+                                  setState(() {
+                                    _isHovered[index] = true;
+                                  });
+                                },
+                                onExit: (_) {
+                                  setState(() {
+                                    _isHovered[index] = false;
+                                  });
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF121212),
+                                    borderRadius: BorderRadius.circular(10.0),
                                   ),
-                                  title: Text(
-                                    movie['title'],
-                                    style: TextStyle(
-                                      fontSize: isMobile ? 14 : 16,
-                                      color: _isHovered[index] == true
-                                          ? Colors.redAccent
-                                          : Colors.white,
+                                  child: ListTile(
+                                    contentPadding: EdgeInsets.symmetric(
+                                      vertical: isMobile ? 4.0 : 8.0,
+                                      horizontal: isMobile ? 8.0 : 16.0,
                                     ),
-                                  ),
-                                  leading: movie['poster'] != null
-                                      ? Container(
-                                          width: isMobile ? 30 : 50,
-                                          height: isMobile ? 50 : 70,
-                                          clipBehavior: Clip.hardEdge,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(4.0),
-                                          ),
-                                          child: Image.network(
-                                            movie['poster'],
-                                            fit: BoxFit.cover,
-                                          ),
-                                        )
-                                      : null,
-                                  trailing: ValueListenableBuilder<bool>(
-                                    valueListenable: widget.authService.isLoggedIn,
-                                    builder: (context, isLoggedIn, _) {
-                                      return isLoggedIn
-                                          ? Padding(
-                                              padding: const EdgeInsets.only(
-                                                  right: 20.0),
-                                              child: GestureDetector(
-                                                onTapDown: (_) {
-                                                  setState(() {
-                                                    _isClickInsideSearchResults = true;
-                                                  });
-                                                },
-                                                onTapUp: (_) {
-                                                  setState(() {
-                                                    _isClickInsideSearchResults = false;
-                                                  });
-                                                },
-                                                onTap: () {
-                                                },
-                                                child: FavoriteToggle(
-                                                  iconSize: isMobile ? 27 : 35,
-                                                  imdbId: movie['imdbId'],
-                                                  authService: widget.authService,
+                                    title: Text(
+                                      movie['title'],
+                                      style: TextStyle(
+                                        fontSize: isMobile ? 14 : 16,
+                                        color: _isHovered[index] == true
+                                            ? Colors.redAccent
+                                            : Colors.white,
+                                      ),
+                                    ),
+                                    leading: movie['poster'] != null
+                                        ? Container(
+                                            width: isMobile ? 30 : 50,
+                                            height: isMobile ? 50 : 70,
+                                            clipBehavior: Clip.hardEdge,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(4.0),
+                                            ),
+                                            child: Image.network(
+                                              movie['poster'],
+                                              fit: BoxFit.cover,
+                                            ),
+                                          )
+                                        : null,
+                                    trailing: ValueListenableBuilder<bool>(
+                                      valueListenable:
+                                          widget.authService.isLoggedIn,
+                                      builder: (context, isLoggedIn, _) {
+                                        return isLoggedIn
+                                            ? Padding(
+                                                padding: const EdgeInsets.only(
+                                                    right: 20.0),
+                                                child: GestureDetector(
+                                                  onTapDown: (_) {
+                                                    setState(() {
+                                                      _isClickInsideSearchResults =
+                                                          true;
+                                                    });
+                                                  },
+                                                  onTapUp: (_) {
+                                                    setState(() {
+                                                      _isClickInsideSearchResults =
+                                                          false;
+                                                    });
+                                                  },
+                                                  onTap: () {
+                                                    // Hier kannst du das FavoriteToggle
+                                                    // weiter behandeln, falls nötig
+                                                  },
+                                                  child: FavoriteToggle(
+                                                    iconSize:
+                                                        isMobile ? 27 : 35,
+                                                    imdbId: movie['imdbId'],
+                                                    authService:
+                                                        widget.authService,
+                                                  ),
                                                 ),
-                                              ),
-                                            )
-                                          : const SizedBox.shrink();
+                                              )
+                                            : const SizedBox.shrink();
+                                      },
+                                    ),
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => MoviePage(
+                                            imdbId: movie['imdbId'],
+                                            authService: widget.authService,
+                                          ),
+                                        ),
+                                      );
                                     },
                                   ),
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => MoviePage(
-                                          imdbId: movie['imdbId'],
-                                          authService: widget.authService,
-                                        ),
-                                      ),
-                                    );
-                                  },
                                 ),
                               ),
-                            ),
-                            SizedBox(height: isMobile ? 6 : 10),
-                          ],
-                        );
-                      },
+                              SizedBox(height: isMobile ? 6 : 10),
+                            ],
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),

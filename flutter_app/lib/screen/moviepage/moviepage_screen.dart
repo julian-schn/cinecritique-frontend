@@ -165,12 +165,20 @@ class _MoviePageState extends State<MoviePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    movieData?['title'] ?? '',
-                    style: TextStyle(
-                      fontSize: isMobile ? 26 : 30,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: isMobile ? MediaQuery.of(context).size.width * 0.45 : 400,
+                    ),
+                    child: Text(
+                      movieData?['title'] ?? '',
+                      maxLines: isMobile ? 2 : 1,
+                      overflow: isMobile ? TextOverflow.ellipsis : TextOverflow.visible,
+                      softWrap: true,
+                      style: TextStyle(
+                        fontSize: isMobile ? 26 : 30,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -394,12 +402,15 @@ class _MoviePageState extends State<MoviePage> {
                         },
                       ),
                       const SizedBox(height: 12),
-                      Transform.scale(
-                        scale: 0.9,
-                        child: SizedBox(
-                          width: 280,
-                          child: ShowRatingWidget(
-                            reviews: movieData?['reviewIds'] ?? [],
+                      Container(
+                        width: 320,
+                        child: DefaultTextStyle.merge(
+                          style: const TextStyle(fontSize: 16),
+                          child: Transform.scale(
+                            scale: 0.9,
+                            child: ShowRatingWidget(
+                              reviews: movieData?['reviewIds'] ?? [],
+                            ),
                           ),
                         ),
                       ),

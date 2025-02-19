@@ -160,13 +160,27 @@ class _MoviePageState extends State<MoviePage> {
               },
             ),
             Positioned(
-              bottom: 16,
               left: 16,
-              child: Transform.scale(
-                scale: ratingScale,
-                child: DisplayRatingWidget(
-                  averageRating: movieData?['rating'] ?? 0.0,
-                ),
+              bottom: 16,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    movieData?['title'] ?? '',
+                    style: TextStyle(
+                      fontSize: isMobile ? 20 : 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Transform.scale(
+                    scale: ratingScale,
+                    child: DisplayRatingWidget(
+                      averageRating: movieData?['rating'] ?? 0.0,
+                    ),
+                  ),
+                ],
               ),
             ),
             Positioned(
@@ -352,12 +366,11 @@ class _MoviePageState extends State<MoviePage> {
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: isMobile
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 280,
-                      child: ValueListenableBuilder<bool>(
+              ? Center(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      ValueListenableBuilder<bool>(
                         valueListenable: widget.authService.isLoggedIn,
                         builder: (context, isLoggedIn, _) {
                           if (!isLoggedIn) {
@@ -365,30 +378,33 @@ class _MoviePageState extends State<MoviePage> {
                           }
                           return Transform.scale(
                             scale: 0.95,
-                            child: CreateRatingWidget(
-                              imdbId: widget.imdbId,
-                              authService: widget.authService,
-                              onRatingSubmitted: () {
-                                setState(() {
-                                  _fetchMovieDetails();
-                                });
-                              },
+                            child: SizedBox(
+                              width: 280,
+                              child: CreateRatingWidget(
+                                imdbId: widget.imdbId,
+                                authService: widget.authService,
+                                onRatingSubmitted: () {
+                                  setState(() {
+                                    _fetchMovieDetails();
+                                  });
+                                },
+                              ),
                             ),
                           );
                         },
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: 280,
-                      child: Transform.scale(
+                      const SizedBox(height: 12),
+                      Transform.scale(
                         scale: 0.9,
-                        child: ShowRatingWidget(
-                          reviews: movieData?['reviewIds'] ?? [],
+                        child: SizedBox(
+                          width: 280,
+                          child: ShowRatingWidget(
+                            reviews: movieData?['reviewIds'] ?? [],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 )
               : Row(
                   crossAxisAlignment: CrossAxisAlignment.start,

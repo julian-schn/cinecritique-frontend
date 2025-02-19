@@ -138,11 +138,8 @@ class _MoviePageState extends State<MoviePage> {
     final double detailLabelFontSize = isMobile ? 12 : 14;
     final double detailValueFontSize = isMobile ? 14 : 16;
 
-    // Definiere hier die Größen für die HorizontalBackdropList:
-    // Auf Desktop soll die Größe der Mobile-Version genutzt werden.
-    // Für Mobile machen wir die Liste ein wenig kleiner.
-    final double backdropHeight = 180; // Mobile-Größe, auch auf Desktop verwenden
-    final double backdropWidth = 600;  // Mobile-Größe, auch auf Desktop verwenden
+    final double backdropHeight = isMobile ? 120 : 180;
+    final double backdropWidth = isMobile ? MediaQuery.of(context).size.width * 0.9 : 800;
 
     Widget contentBody = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,13 +196,13 @@ class _MoviePageState extends State<MoviePage> {
             ),
             Positioned(
               right: isMobile ? heartRightMobile : heartRightDesktop,
-              bottom: isMobile ? 23 : 42,
+              bottom: isMobile ? 25 : 42,
               child: ValueListenableBuilder<bool>(
                 valueListenable: widget.authService.isLoggedIn,
                 builder: (context, isLoggedIn, _) {
                   return isLoggedIn && isFavorited != null
                       ? FavoriteToggle(
-                          iconSize: isMobile ? 30 : 35,
+                          iconSize: isMobile ? 32 : 35,
                           imdbId: widget.imdbId,
                           authService: widget.authService,
                           initiallyFavorited: isFavorited!,
@@ -360,7 +357,7 @@ class _MoviePageState extends State<MoviePage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Transform.scale(
-                      scale: 0.9,
+                      scale: 0.95,
                       child: SizedBox(
                         width: 280,
                         child: ValueListenableBuilder<bool>(
@@ -395,31 +392,32 @@ class _MoviePageState extends State<MoviePage> {
                     ValueListenableBuilder<bool>(
                       valueListenable: widget.authService.isLoggedIn,
                       builder: (context, isLoggedIn, _) {
-                        if (!isLoggedIn) return const SizedBox.shrink();
-                        return Transform.scale(
-                          scale: 0.95,
-                          child: SizedBox(
-                            width: 400,
-                            child: CreateRatingWidget(
-                              imdbId: widget.imdbId,
-                              authService: widget.authService,
-                              onRatingSubmitted: () {
-                                setState(() {
-                                  _fetchMovieDetails();
-                                });
-                              },
-                            ),
-                          ),
-                        );
+                        return isLoggedIn
+                            ? Transform.scale(
+                                scale: 0.95,
+                                child: SizedBox(
+                                  width: 400,
+                                  child: CreateRatingWidget(
+                                    imdbId: widget.imdbId,
+                                    authService: widget.authService,
+                                    onRatingSubmitted: () {
+                                      setState(() {
+                                        _fetchMovieDetails();
+                                      });
+                                    },
+                                  ),
+                                ),
+                              )
+                            : const SizedBox.shrink();
                       },
                     ),
-                    Expanded(
-                      child: Align(
-                        child: Transform.scale(
-                          scale: 0.95,
-                          child: ShowRatingWidget(
-                            reviews: movieData?['reviewIds'] ?? [],
-                          ),
+                    const Spacer(),
+                    Container(
+                      margin: const EdgeInsets.only(right: 16.0),
+                      child: Transform.scale(
+                        scale: 0.95,
+                        child: ShowRatingWidget(
+                          reviews: movieData?['reviewIds'] ?? [],
                         ),
                       ),
                     ),

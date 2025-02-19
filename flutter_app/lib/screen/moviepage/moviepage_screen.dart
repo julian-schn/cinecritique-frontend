@@ -131,14 +131,13 @@ class _MoviePageState extends State<MoviePage> {
     final double watchButtonPaddingVertical = isMobile ? 16 : 22;
     final double watchButtonPaddingHorizontal = isMobile ? 20 : 26;
     final double watchButtonFontSize = isMobile ? 16 : 18;
-    final double heartRightMobile = 135;
+    final double heartRightMobile = 110;
     final double heartRightDesktop = 160;
     final double ratingScale = isMobile ? 0.9 : 1.0;
     final double plotFontSize = isMobile ? 14 : 16;
     final double detailLabelFontSize = isMobile ? 12 : 14;
     final double detailValueFontSize = isMobile ? 14 : 16;
-
-    final double backdropHeight = isMobile ? 120 : 180;
+    final double backdropHeight = isMobile ? 140 : 180;
     final double backdropWidth = isMobile ? MediaQuery.of(context).size.width * 0.9 : 800;
 
     Widget contentBody = Column(
@@ -356,15 +355,15 @@ class _MoviePageState extends State<MoviePage> {
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Transform.scale(
-                      scale: 0.95,
-                      child: SizedBox(
-                        width: 280,
-                        child: ValueListenableBuilder<bool>(
-                          valueListenable: widget.authService.isLoggedIn,
-                          builder: (context, isLoggedIn, _) {
-                            if (!isLoggedIn) return const SizedBox.shrink();
-                            return CreateRatingWidget(
+                    ValueListenableBuilder<bool>(
+                      valueListenable: widget.authService.isLoggedIn,
+                      builder: (context, isLoggedIn, _) {
+                        if (!isLoggedIn) return const SizedBox.shrink();
+                        return Transform.scale(
+                          scale: 0.95,
+                          child: SizedBox(
+                            width: 280,
+                            child: CreateRatingWidget(
                               imdbId: widget.imdbId,
                               authService: widget.authService,
                               onRatingSubmitted: () {
@@ -372,16 +371,19 @@ class _MoviePageState extends State<MoviePage> {
                                   _fetchMovieDetails();
                                 });
                               },
-                            );
-                          },
-                        ),
-                      ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 12),
                     Transform.scale(
                       scale: 0.9,
-                      child: ShowRatingWidget(
-                        reviews: movieData?['reviewIds'] ?? [],
+                      child: SizedBox(
+                        width: 280,
+                        child: ShowRatingWidget(
+                          reviews: movieData?['reviewIds'] ?? [],
+                        ),
                       ),
                     ),
                   ],

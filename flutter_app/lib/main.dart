@@ -122,11 +122,11 @@ class _HomeScreenState extends State<HomeScreen> {
     // Hier prüfen wir, ob es sich um ein mobiles Gerät handelt
     final bool isMobile = MediaQuery.of(context).size.width < 600;
     // Schriftgrößen anpassen
-    final double headingFontSize = isMobile ? 20 : 24;
+    final double headingFontSize = isMobile ? 20 : 26;
     final double dotFontSize =
-        isMobile ? 22 : 26; // Bei "Genres" ist der Punkt etwas größer
+        isMobile ? 22 : 28; // Bei "Genres" ist der Punkt etwas größer
 
-    final double popularFontSize = isMobile ? 20 : 24;
+    final double popularFontSize = isMobile ? 20 : 26;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

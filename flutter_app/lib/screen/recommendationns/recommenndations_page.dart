@@ -73,17 +73,22 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
 
     // Definiere die Kartengröße: 180x180 bei Mobile, sonst 250x250
     final double cardSize = isMobile ? 180.0 : 250.0;
-    // Pfeilgröße: kleiner bei Mobile
+    // Pfeilgröße: Wir nutzen hier passendere Icons (z. B. chevron) und Größen analog zur GenrePage
     final double arrowSize = isMobile ? 45.0 : 65.0;
     // Horizontaler Padding-Wert für den ListView (reduziert bei Mobile)
     final double horizontalPadding = isMobile ? 20.0 : 50.0;
+
+    // Überschrift ähnlich wie in der GenrePage – responsive Schriftgrößen
+    final double headerFontSize = isMobile ? 20.0 : 26.0;
+    final double dotFontSize = isMobile ? 22.0 : 28.0;
 
     final sidebar = Sidebar(
       authService: widget.authService,
       onHomePressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
+          MaterialPageRoute(
+              builder: (context) => HomeScreen(authService: widget.authService)),
         );
       },
       onGenresPressed: () {
@@ -101,7 +106,8 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       onRecommendationsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => RecommendationsPage(authService: widget.authService)),
+          MaterialPageRoute(
+              builder: (context) => RecommendationsPage(authService: widget.authService)),
         );
       },
       onRatingsPressed: () {
@@ -125,60 +131,38 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       currentPage: 'Empfehlungen',
     );
 
-    // Header: bei mobilen Geräten kompakt, sonst mit erweitertem Padding und größeren Schriften
-    final headerRow = isMobile
-        ? Padding(
-            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-            child: Row(
-              children: const [
-                Text(
-                  'Empfehlungen',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  '.',
-                  style: TextStyle(
-                    color: Colors.redAccent,
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          )
-        : Padding(
-            padding: EdgeInsets.only(
+    // Angepasste Header-Zeile
+    final headerRow = Padding(
+      padding: isMobile
+          ? const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0)
+          : EdgeInsets.only(
               left: isSidebarExpanded ? 20.0 : (MediaQuery.of(context).size.width - 1060) / 2,
               right: 35.0,
               top: 85.0,
               bottom: 8,
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Text(
-                  'Empfehlungen',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  '.',
-                  style: TextStyle(
-                    color: Colors.redAccent,
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Empfehlungen',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: headerFontSize,
+              fontWeight: FontWeight.bold,
             ),
-          );
+          ),
+          Text(
+            '.',
+            style: TextStyle(
+              color: Colors.redAccent,
+              fontSize: dotFontSize,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
 
     final content = Padding(
       padding: const EdgeInsets.only(top: 50.0),
@@ -240,9 +224,10 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
                       child: MouseRegion(
                         cursor: SystemMouseCursors.click,
                         child: GestureDetector(
+                          // Verwende hier einen Chevron-Icon, wie in der GenrePage
                           onTap: () => scrollLeft(isMobile ? 200 : 400),
                           child: Icon(
-                            Icons.arrow_left,
+                            Icons.chevron_left,
                             size: arrowSize,
                             color: Colors.redAccent,
                           ),
@@ -257,7 +242,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
                         child: GestureDetector(
                           onTap: () => scrollRight(isMobile ? 200 : 400),
                           child: Icon(
-                            Icons.arrow_right,
+                            Icons.chevron_right,
                             size: arrowSize,
                             color: Colors.redAccent,
                           ),

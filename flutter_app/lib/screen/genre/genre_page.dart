@@ -50,8 +50,8 @@ class _GenrePageState extends State<GenrePage> {
     final bool isSidebarExpanded = MediaQuery.of(context).size.width > 800;
     
     // Responsive Schriftgrößen für Genre-Überschriften
-    final double genreFontSize = isMobile ? 20 : 24;
-    final double dotFontSize = isMobile ? 22 : 26;
+    final double genreFontSize = isMobile ? 20 : 26;
+    final double dotFontSize = isMobile ? 22 : 28;
     
     final sidebar = Sidebar(
       authService: widget.authService,

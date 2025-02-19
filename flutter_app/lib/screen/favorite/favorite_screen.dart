@@ -54,37 +54,49 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       onHomePressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(authService: widget.authService),
+          ),
         );
       },
       onGenresPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => GenrePage(authService: widget.authService),
+          ),
         );
       },
       onFavoritesPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => FavoriteScreen(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => FavoriteScreen(authService: widget.authService),
+          ),
         );
       },
       onRecommendationsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => RecommendationsPage(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => RecommendationsPage(authService: widget.authService),
+          ),
         );
       },
       onRatingsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => RatingScreen(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => RatingScreen(authService: widget.authService),
+          ),
         );
       },
       onProfilPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => UserProfileScreen(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => UserProfileScreen(authService: widget.authService),
+          ),
         );
       },
       onLoginPressed: () {
@@ -124,7 +136,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       ),
     );
 
-    // Passe den Header für mobile Geräte an (wie in RecommendationsPage)
+    // Angepasster Header:
+    // Mobile: "Meine Favoriten" mit Schriftgröße 20 und der Punkt mit 22
+    // Desktop: "Meine Favoriten" mit Schriftgröße 26 und der Punkt mit 28
     final headerRow = isMobile
         ? Padding(
             padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
@@ -134,7 +148,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                   'Meine Favoriten',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 24,
+                    fontSize: 20, // Mobile: Text 20
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -142,7 +156,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                   '.',
                   style: TextStyle(
                     color: Colors.redAccent,
-                    fontSize: 26,
+                    fontSize: 22, // Mobile: Punkt 22
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -163,7 +177,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                   'Meine Favoriten',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 24,
+                    fontSize: 26, // Desktop: Text 26
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -171,7 +185,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                   '.',
                   style: TextStyle(
                     color: Colors.redAccent,
-                    fontSize: 26,
+                    fontSize: 28, // Desktop: Punkt 28
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -179,7 +193,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             ),
           );
 
-    // Bestimme die Kartengröße: auf mobile 180x180, sonst 250x250
+    // Bestimme die Kartengröße: Auf mobilen Geräten 180x180, sonst 250x250
     final cardSize = isMobile ? 180.0 : 250.0;
 
     final content = SingleChildScrollView(
@@ -249,7 +263,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
         drawer: sidebar,
         body: Stack(
           children: [
-            // Schiebe den Inhalt unter den Burger-Button
+            // Schiebt den Inhalt unter den Burger-Button
             Padding(
               padding: const EdgeInsets.only(top: 72.0),
               child: content,

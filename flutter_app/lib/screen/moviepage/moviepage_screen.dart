@@ -131,12 +131,18 @@ class _MoviePageState extends State<MoviePage> {
     final double watchButtonPaddingVertical = isMobile ? 16 : 22;
     final double watchButtonPaddingHorizontal = isMobile ? 20 : 26;
     final double watchButtonFontSize = isMobile ? 16 : 18;
-    final double heartRightMobile = 130;
+    final double heartRightMobile = 135;
     final double heartRightDesktop = 160;
     final double ratingScale = isMobile ? 0.9 : 1.0;
     final double plotFontSize = isMobile ? 14 : 16;
     final double detailLabelFontSize = isMobile ? 12 : 14;
     final double detailValueFontSize = isMobile ? 14 : 16;
+
+    // Definiere hier die Größen für die HorizontalBackdropList:
+    // Auf Desktop soll die Größe der Mobile-Version genutzt werden.
+    // Für Mobile machen wir die Liste ein wenig kleiner.
+    final double backdropHeight = 180; // Mobile-Größe, auch auf Desktop verwenden
+    final double backdropWidth = 600;  // Mobile-Größe, auch auf Desktop verwenden
 
     Widget contentBody = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,13 +199,13 @@ class _MoviePageState extends State<MoviePage> {
             ),
             Positioned(
               right: isMobile ? heartRightMobile : heartRightDesktop,
-              bottom: isMobile ? 20 : 42,
+              bottom: isMobile ? 23 : 42,
               child: ValueListenableBuilder<bool>(
                 valueListenable: widget.authService.isLoggedIn,
                 builder: (context, isLoggedIn, _) {
                   return isLoggedIn && isFavorited != null
                       ? FavoriteToggle(
-                          iconSize: isMobile ? 28 : 35,
+                          iconSize: isMobile ? 30 : 35,
                           imdbId: widget.imdbId,
                           authService: widget.authService,
                           initiallyFavorited: isFavorited!,
@@ -258,8 +264,8 @@ class _MoviePageState extends State<MoviePage> {
             child: Align(
               alignment: Alignment.center,
               child: SizedBox(
-                height: isMobile ? 200 : 250,
-                width: isMobile ? 700 : 850,
+                height: backdropHeight,
+                width: backdropWidth,
                 child: HorizontalBackdropList(
                   backdrops: List<String>.from(movieData?['backdrops'] ?? []),
                   onBackdropSelected: (String backdrop) {
@@ -376,7 +382,7 @@ class _MoviePageState extends State<MoviePage> {
                     ),
                     const SizedBox(height: 12),
                     Transform.scale(
-                      scale: 0.85,
+                      scale: 0.9,
                       child: ShowRatingWidget(
                         reviews: movieData?['reviewIds'] ?? [],
                       ),
@@ -409,7 +415,6 @@ class _MoviePageState extends State<MoviePage> {
                     ),
                     Expanded(
                       child: Align(
-                        alignment: Alignment.centerRight,
                         child: Transform.scale(
                           scale: 0.95,
                           child: ShowRatingWidget(

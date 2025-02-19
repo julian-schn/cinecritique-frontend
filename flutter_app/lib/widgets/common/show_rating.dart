@@ -30,12 +30,11 @@ class ShowRatingWidget extends StatelessWidget {
             ),
           ...reviews.map((review) {
             final int rating = review['rating'] ?? 0;
-            String userName = 'Unbekannt'; // Standardwert
+            String userName = 'Unbekannt'; 
 
-            // Wenn 'createdBy' vorhanden ist und ein Wert enthält, nutzen wir diesen
             if (review.containsKey('createdBy')) {
               var createdBy = review['createdBy'];
-              userName = createdBy ?? 'Unbekannt'; // Falls 'createdBy' ein Wert ist, verwenden wir ihn
+              userName = createdBy ?? 'Unbekannt'; 
             }
 
             return Padding(
@@ -65,7 +64,7 @@ class ShowRatingWidget extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 16), // Abstand nach dem Username und den Sternen
+                        const SizedBox(height: 16), 
                         Text(review['body'] ?? 'No review text available.', style: const TextStyle(fontSize: 16, color: Colors.white)),
                       ],
                     ),

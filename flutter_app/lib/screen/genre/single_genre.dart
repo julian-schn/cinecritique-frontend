@@ -93,14 +93,8 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
             padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
             child: Row(
               children: [
-                Text(
-                  widget.genre,
-                  style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const Text(
-                  '.',
-                  style: TextStyle(color: Colors.redAccent, fontSize: 22, fontWeight: FontWeight.bold),
-                ),
+                Text(widget.genre, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                const Text('.', style: TextStyle(color: Colors.redAccent, fontSize: 22, fontWeight: FontWeight.bold)),
               ],
             ),
           )
@@ -114,14 +108,8 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  widget.genre,
-                  style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold),
-                ),
-                const Text(
-                  '.',
-                  style: TextStyle(color: Colors.redAccent, fontSize: 28, fontWeight: FontWeight.bold),
-                ),
+                Text(widget.genre, style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold)),
+                const Text('.', style: TextStyle(color: Colors.redAccent, fontSize: 28, fontWeight: FontWeight.bold)),
               ],
             ),
           );
@@ -132,11 +120,10 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
     } else if (movies.isEmpty) {
       movieContent = const Padding(
         padding: EdgeInsets.all(20.0),
-        child: Center(
-          child: Text('Keine Filme in diesem Genre gefunden.', style: TextStyle(color: Colors.white, fontSize: 18)),
-        ),
+        child: Center(child: Text('Keine Filme in diesem Genre gefunden.', style: TextStyle(color: Colors.white, fontSize: 18))),
       );
     } else {
+      final double cardSize = isMobile ? 180.0 : 250.0;
       movieContent = Padding(
         padding: const EdgeInsets.only(left: 20.0, right: 35.0, top: 10, bottom: 1),
         child: Center(
@@ -146,17 +133,14 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
             runSpacing: 16.0,
             children: movies.map((movie) {
               return SizedBox(
-                width: 250,
-                height: 250,
+                width: cardSize,
+                height: cardSize,
                 child: MovieCard(
                   posterUrl: movie['poster'] ?? '',
                   title: movie['title'] ?? 'Unbekannt',
                   imdbId: movie['imdbId'] ?? '',
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => MoviePage(imdbId: movie['imdbId'], authService: widget.authService)),
-                    );
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => MoviePage(imdbId: movie['imdbId'], authService: widget.authService)));
                   },
                 ),
               );
@@ -170,10 +154,7 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
       physics: _isSearching ? const NeverScrollableScrollPhysics() : const ClampingScrollPhysics(),
       child: Column(
         crossAxisAlignment: isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
-        children: [
-          headerRow,
-          movieContent,
-        ],
+        children: [headerRow, movieContent],
       ),
     );
 
@@ -187,12 +168,7 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
             Positioned(
               top: 16,
               left: 16,
-              child: IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () {
-                  _scaffoldKey.currentState?.openDrawer();
-                },
-              ),
+              child: IconButton(icon: const Icon(Icons.menu, color: Colors.white), onPressed: () { _scaffoldKey.currentState?.openDrawer(); }),
             ),
           ],
         ),

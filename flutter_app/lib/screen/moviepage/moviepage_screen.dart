@@ -20,13 +20,7 @@ import 'package:url_launcher/url_launcher.dart';
 class MoviePage extends StatefulWidget {
   final String imdbId;
   final AuthService authService;
-
-  const MoviePage({
-    Key? key,
-    required this.imdbId,
-    required this.authService,
-  }) : super(key: key);
-
+  const MoviePage({Key? key, required this.imdbId, required this.authService}) : super(key: key);
   @override
   _MoviePageState createState() => _MoviePageState();
 }
@@ -37,8 +31,6 @@ class _MoviePageState extends State<MoviePage> {
   Map<String, dynamic>? movieData;
   String? currentBackdrop;
   bool? isFavorited;
-
-  // ScaffoldKey für Drawer
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -79,46 +71,26 @@ class _MoviePageState extends State<MoviePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Analog zu FavoriteScreen
     final bool isMobile = MediaQuery.of(context).size.width < 600;
-
     final sidebar = Sidebar(
       authService: widget.authService,
       onHomePressed: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => HomeScreen(authService: widget.authService)),
-        );
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomeScreen(authService: widget.authService)));
       },
       onGenresPressed: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => GenrePage(authService: widget.authService)),
-        );
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => GenrePage(authService: widget.authService)));
       },
       onFavoritesPressed: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => FavoriteScreen(authService: widget.authService)),
-        );
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => FavoriteScreen(authService: widget.authService)));
       },
       onRecommendationsPressed: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => RecommendationsPage(authService: widget.authService)),
-        );
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => RecommendationsPage(authService: widget.authService)));
       },
       onRatingsPressed: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => RatingScreen(authService: widget.authService)),
-        );
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => RatingScreen(authService: widget.authService)));
       },
       onProfilPressed: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => UserProfileScreen(authService: widget.authService)),
-        );
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => UserProfileScreen(authService: widget.authService)));
       },
       onLoginPressed: () {
         widget.authService.login();
@@ -129,7 +101,6 @@ class _MoviePageState extends State<MoviePage> {
       currentPage: 'Moviepage',
     );
 
-    // Wenn noch keine Daten -> Spinner
     if (movieData == null) {
       return Scaffold(
         key: _scaffoldKey,
@@ -138,65 +109,59 @@ class _MoviePageState extends State<MoviePage> {
       );
     }
 
-    // Eigentlicher Inhalt
+    final double headerImageHeight = isMobile ? 300 : 480;
+    final double watchButtonPaddingVertical = isMobile ? 16 : 22;
+    final double watchButtonPaddingHorizontal = isMobile ? 20 : 26;
+    final double watchButtonFontSize = isMobile ? 16 : 18;
+    final double movieCardSize = isMobile ? 180 : 250;
+
     Widget contentBody = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header-Image
         Stack(
           children: [
             Image.network(
               currentBackdrop ?? 'https://via.placeholder.com/300x480',
               width: double.infinity,
-              height: 480,
+              height: headerImageHeight,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
                   width: double.infinity,
-                  height: 480,
+                  height: headerImageHeight,
                   color: Colors.grey,
                   child: const Icon(Icons.image, color: Colors.white),
                 );
               },
             ),
-            // Watch-Button, Rating etc.
             Positioned(
               bottom: 16,
               left: 16,
               child: Row(
                 children: [
-                  DisplayRatingWidget(
-                    averageRating: movieData?['rating'] ?? 0.0,
-                  ),
+                  DisplayRatingWidget(averageRating: movieData?['rating'] ?? 0.0),
                   const SizedBox(width: 24),
                 ],
               ),
             ),
             Positioned(
-              right: 40,
-              bottom: 35,
+              right: isMobile ? 20 : 40,
+              bottom: isMobile ? 20 : 35,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
-                  padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 26),
+                  padding: EdgeInsets.symmetric(vertical: watchButtonPaddingVertical, horizontal: watchButtonPaddingHorizontal),
                 ),
                 onPressed: () {
                   final trailerUrl = movieData?['trailerLink'];
                   _launchURL(trailerUrl);
                 },
-                child: const Text(
-                  'Watch',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                  ),
-                ),
+                child: Text('Watch', style: TextStyle(fontSize: watchButtonFontSize, color: Colors.white)),
               ),
             ),
-            // FavoriteToggle
             Positioned(
-              right: 160,
-              bottom: 42,
+              right: isMobile ? 100 : 160,
+              bottom: isMobile ? 20 : 42,
               child: ValueListenableBuilder<bool>(
                 valueListenable: widget.authService.isLoggedIn,
                 builder: (context, isLoggedIn, _) {
@@ -218,8 +183,6 @@ class _MoviePageState extends State<MoviePage> {
           ],
         ),
         const Divider(color: Colors.white, thickness: 2, height: 0),
-
-        // Genres
         if (movieData?['genres'] != null)
           Container(
             padding: const EdgeInsets.all(16.0),
@@ -228,40 +191,23 @@ class _MoviePageState extends State<MoviePage> {
               runSpacing: 8.0,
               children: (movieData?['genres'] as List).map((genre) {
                 return OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.white),
-                    foregroundColor: Colors.white,
-                  ),
+                  style: OutlinedButton.styleFrom(side: const BorderSide(color: Colors.white), foregroundColor: Colors.white),
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => GenreDetailPage(
-                          genre: genre,
-                          authService: widget.authService,
-                        ),
-                      ),
-                    );
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => GenreDetailPage(genre: genre, authService: widget.authService)));
                   },
-                  child: Text(
-                    genre,
-                    style: const TextStyle(color: Colors.white),
-                  ),
+                  child: Text(genre, style: const TextStyle(color: Colors.white)),
                 );
               }).toList(),
             ),
           ),
-
-        // Backdrops
-        if (movieData?['backdrops'] != null &&
-            (movieData?['backdrops'] as List).isNotEmpty)
+        if (movieData?['backdrops'] != null && (movieData?['backdrops'] as List).isNotEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: Align(
               alignment: Alignment.center,
               child: SizedBox(
-                height: 150,
-                width: 850,
+                height: movieCardSize,
+                width: isMobile ? movieCardSize : 850,
                 child: HorizontalBackdropList(
                   backdrops: List<String>.from(movieData?['backdrops'] ?? []),
                   onBackdropSelected: (String backdrop) {
@@ -273,8 +219,6 @@ class _MoviePageState extends State<MoviePage> {
               ),
             ),
           ),
-
-        // Plot & Director
         Container(
           padding: const EdgeInsets.all(16.0),
           child: Row(
@@ -286,14 +230,11 @@ class _MoviePageState extends State<MoviePage> {
                   margin: const EdgeInsets.only(bottom: 16.0),
                   child: Text(
                     movieData?['plot'] ?? 'Keine Beschreibung verfügbar.',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
+                    style: const TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),
               ),
-              const SizedBox(width: 150),
+              SizedBox(width: isMobile ? 20 : 150),
               Expanded(
                 flex: 1,
                 child: Column(
@@ -301,51 +242,23 @@ class _MoviePageState extends State<MoviePage> {
                   children: [
                     const Padding(
                       padding: EdgeInsets.only(bottom: 8.0),
-                      child: Text(
-                        'Directed by',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey,
-                        ),
-                      ),
+                      child: Text('Directed by', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey)),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 16.0),
-                      child: Text(
-                        movieData?['director'] ?? 'Unbekannt',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
-                        ),
-                      ),
+                      child: Text(movieData?['director'] ?? 'Unbekannt', style: const TextStyle(fontSize: 16, color: Colors.white)),
                     ),
                     const Padding(
                       padding: EdgeInsets.only(bottom: 8.0),
-                      child: Text(
-                        'Released on',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey,
-                        ),
-                      ),
+                      child: Text('Released on', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey)),
                     ),
-                    Text(
-                      movieData?['releaseDate'] ?? 'Unbekannt',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                      ),
-                    ),
+                    Text(movieData?['releaseDate'] ?? 'Unbekannt', style: const TextStyle(fontSize: 16, color: Colors.white)),
                   ],
                 ),
               ),
             ],
           ),
         ),
-
-        // Rating-Section
         Container(
           padding: const EdgeInsets.all(16.0),
           child: Row(
@@ -356,7 +269,7 @@ class _MoviePageState extends State<MoviePage> {
                 builder: (context, isLoggedIn, _) {
                   if (!isLoggedIn) return const SizedBox.shrink();
                   return SizedBox(
-                    width: 400,
+                    width: isMobile ? 300 : 400,
                     child: CreateRatingWidget(
                       imdbId: widget.imdbId,
                       authService: widget.authService,
@@ -372,9 +285,7 @@ class _MoviePageState extends State<MoviePage> {
               Expanded(
                 child: Align(
                   alignment: Alignment.centerRight,
-                  child: ShowRatingWidget(
-                    reviews: movieData?['reviewIds'] ?? [],
-                  ),
+                  child: ShowRatingWidget(reviews: movieData?['reviewIds'] ?? []),
                 ),
               ),
             ],
@@ -383,37 +294,24 @@ class _MoviePageState extends State<MoviePage> {
       ],
     );
 
-    // Alles in einen SingleChildScrollView
     final allContent = SingleChildScrollView(child: contentBody);
 
-    // Mobiles Layout
     if (isMobile) {
       return Scaffold(
         key: _scaffoldKey,
         drawer: sidebar,
         body: Stack(
           children: [
-            // top:72 => Inhalt liegt unter dem Burger-Menü
-            Padding(
-              padding: const EdgeInsets.only(top: 72.0),
-              child: allContent,
-            ),
-            // Burger-Menü (wie in FavoriteScreen) oben links
+            Padding(padding: const EdgeInsets.only(top: 72.0), child: allContent),
             Positioned(
               top: 16,
               left: 16,
-              child: IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () {
-                  _scaffoldKey.currentState?.openDrawer();
-                },
-              ),
+              child: IconButton(icon: const Icon(Icons.menu, color: Colors.white), onPressed: () { _scaffoldKey.currentState?.openDrawer(); }),
             ),
           ],
         ),
       );
     } else {
-      // Desktop
       return Scaffold(
         body: Row(
           children: [

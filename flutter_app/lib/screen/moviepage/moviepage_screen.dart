@@ -168,7 +168,7 @@ class _MoviePageState extends State<MoviePage> {
                   Text(
                     movieData?['title'] ?? '',
                     style: TextStyle(
-                      fontSize: isMobile ? 23 : 27,
+                      fontSize: isMobile ? 26 : 30,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),

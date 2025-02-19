@@ -142,7 +142,7 @@ class _MoviePageState extends State<MoviePage> {
 
     final String title = movieData?['title'] ?? '';
     final bool isTitleLong = title.length > 25;
-    final double mobileTitleFontSize = isTitleLong ? 20 : 25;
+    final double mobileTitleFontSize = isTitleLong ? 16 : 20;
 
     Widget contentBody = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,7 +172,7 @@ class _MoviePageState extends State<MoviePage> {
                   if (isMobile)
                     ConstrainedBox(
                       constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width * 0.5,
+                        maxWidth: MediaQuery.of(context).size.width * 0.55,
                       ),
                       child: Text(
                         title,

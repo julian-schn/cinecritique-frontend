@@ -334,7 +334,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       currentPage: 'Profil',
     );
 
-    // --- Header EXACTLY like in FavoriteScreen style ---
     final headerRow = isMobile
         ? Padding(
             padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
@@ -344,7 +343,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   'Profil Einstellungen',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 20, // Mobile: text 20
+                    fontSize: 20, 
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -352,7 +351,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   '.',
                   style: TextStyle(
                     color: Colors.redAccent,
-                    fontSize: 22, // Mobile: dot 22
+                    fontSize: 22, 
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -375,7 +374,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   'Profil Einstellungen',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 26, // Desktop: text 26
+                    fontSize: 26, 
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -383,7 +382,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   '.',
                   style: TextStyle(
                     color: Colors.redAccent,
-                    fontSize: 28, // Desktop: dot 28
+                    fontSize: 28, 
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -436,12 +435,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         drawer: sidebar,
         body: Stack(
           children: [
-            // Platz für den Burger-Button
             Padding(
               padding: const EdgeInsets.only(top: 72.0),
               child: content,
             ),
-            // Burger-Menü oben links
             Positioned(
               top: 16,
               left: 16,

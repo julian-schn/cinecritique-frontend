@@ -32,7 +32,6 @@ class _RatingScreenState extends State<RatingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Bestimme, ob mobile oder Desktop
     final bool isMobile = MediaQuery.of(context).size.width < 600;
     final bool isSidebarExpanded = MediaQuery.of(context).size.width > 800;
 
@@ -95,7 +94,6 @@ class _RatingScreenState extends State<RatingScreen> {
       currentPage: 'Bewertungen',
     );
 
-    // Überschrift: Bei Mobile mit einem kompakteren Padding und kleineren Schriftgrößen
     final headerRow = isMobile
         ? Padding(
             padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
@@ -152,7 +150,6 @@ class _RatingScreenState extends State<RatingScreen> {
             ),
           );
 
-    // Passe die Kartengrößen an: Für mobile kleiner
     final cardWidth = isMobile ? 200.0 : 250.0;
     final posterHeight = isMobile ? 160.0 : 200.0;
 
@@ -216,7 +213,6 @@ class _RatingScreenState extends State<RatingScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // Poster
                         ClipRRect(
                           borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(12.0),
@@ -296,7 +292,6 @@ class _RatingScreenState extends State<RatingScreen> {
       },
     );
 
-    // Gesamter Inhalt + etwas unteren Abstand
     final content = SingleChildScrollView(
       child: Column(
         crossAxisAlignment: isSidebarExpanded
@@ -311,14 +306,12 @@ class _RatingScreenState extends State<RatingScreen> {
       ),
     );
 
-    // Mobiles Layout (mit Stack, Burger-Menü oben)
     if (isMobile) {
       return Scaffold(
         key: _scaffoldKey,
         drawer: sidebar,
         body: Stack(
           children: [
-            // Mit Padding top:72 liegt der Inhalt unter dem Burger-Button
             Padding(
               padding: const EdgeInsets.only(top: 72.0),
               child: content,
@@ -337,7 +330,6 @@ class _RatingScreenState extends State<RatingScreen> {
         ),
       );
     } else {
-      // Desktop Layout
       return Scaffold(
         body: Row(
           children: [

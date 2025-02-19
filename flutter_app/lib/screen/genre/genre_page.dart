@@ -49,7 +49,6 @@ class _GenrePageState extends State<GenrePage> {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
     final bool isSidebarExpanded = MediaQuery.of(context).size.width > 800;
     
-    // Responsive Schriftgrößen für Genre-Überschriften
     final double genreFontSize = isMobile ? 20 : 26;
     final double dotFontSize = isMobile ? 22 : 28;
     
@@ -112,7 +111,6 @@ class _GenrePageState extends State<GenrePage> {
       currentPage: 'Genres',
     );
 
-    // Hauptinhalt
     Widget mainContent;
     if (isLoading) {
       mainContent = const Center(child: CircularProgressIndicator());

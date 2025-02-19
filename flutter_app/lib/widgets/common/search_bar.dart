@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
 import 'package:flutter_app/widgets/common/toggle_favorite.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_app/services/auth_service.dart'; // Importiere AuthService
+import 'package:flutter_app/services/auth_service.dart'; 
 
 class CustomSearchBar extends StatefulWidget implements PreferredSizeWidget {
   final AuthService authService;
   final Function onSearchStart;
   final Function onSearchEnd;
-  final Function(bool) onSearchResultsUpdated; // Callback für Suchergebnisse
+  final Function(bool) onSearchResultsUpdated; 
 
   const CustomSearchBar({
     super.key,
@@ -42,7 +42,6 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
   void initState() {
     super.initState();
     _focusNode.addListener(() {
-      // Close results if focus is lost and user didn't click inside results
       if (!_focusNode.hasFocus && !_isClickInsideSearchResults) {
         Future.delayed(const Duration(milliseconds: 100), () {
           if (mounted && !_isClickInsideSearchResults) {
@@ -129,7 +128,6 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    // Detect if device is "mobile"
     final bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return Padding(
@@ -263,10 +261,8 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                                   });
                                                 },
                                                 onTap: () {
-                                                  // Just to avoid the tile from closing
                                                 },
                                                 child: FavoriteToggle(
-                                                  // Smaller icon on mobile
                                                   iconSize: isMobile ? 27 : 35,
                                                   imdbId: movie['imdbId'],
                                                   authService: widget.authService,
@@ -290,7 +286,6 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                 ),
                               ),
                             ),
-                            // Slightly reduce spacing between items on mobile
                             SizedBox(height: isMobile ? 6 : 10),
                           ],
                         );

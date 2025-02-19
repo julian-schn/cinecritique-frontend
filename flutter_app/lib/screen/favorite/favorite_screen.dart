@@ -136,9 +136,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       ),
     );
 
-    // Angepasster Header:
-    // Mobile: "Meine Favoriten" mit Schriftgröße 20 und der Punkt mit 22
-    // Desktop: "Meine Favoriten" mit Schriftgröße 26 und der Punkt mit 28
+    
     final headerRow = isMobile
         ? Padding(
             padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
@@ -148,7 +146,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                   'Meine Favoriten',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 20, // Mobile: Text 20
+                    fontSize: 20, 
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -156,7 +154,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                   '.',
                   style: TextStyle(
                     color: Colors.redAccent,
-                    fontSize: 22, // Mobile: Punkt 22
+                    fontSize: 22, 
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -177,7 +175,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                   'Meine Favoriten',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 26, // Desktop: Text 26
+                    fontSize: 26, 
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -185,7 +183,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                   '.',
                   style: TextStyle(
                     color: Colors.redAccent,
-                    fontSize: 28, // Desktop: Punkt 28
+                    fontSize: 28, 
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -193,7 +191,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             ),
           );
 
-    // Bestimme die Kartengröße: Auf mobilen Geräten 180x180, sonst 250x250
     final cardSize = isMobile ? 180.0 : 250.0;
 
     final content = SingleChildScrollView(
@@ -263,7 +260,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
         drawer: sidebar,
         body: Stack(
           children: [
-            // Schiebt den Inhalt unter den Burger-Button
             Padding(
               padding: const EdgeInsets.only(top: 72.0),
               child: content,

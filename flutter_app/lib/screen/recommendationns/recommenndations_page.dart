@@ -25,7 +25,6 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   bool isLoading = true;
   final ScrollController _scrollController = ScrollController();
 
-  // ScaffoldKey, wie in anderen Seiten
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -68,18 +67,16 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   @override
   Widget build(BuildContext context) {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
-    final bool isSidebarExpanded = MediaQuery.of(context).size.width > 800;
 
     final double headerFontSize = isMobile ? 20.0 : 26.0;
     final double dotFontSize = isMobile ? 22.0 : 28.0;
 
-    // Match GenrePage spacing:
     final double containerHeight = isMobile ? 180 : 250;
     final double cardWidth = isMobile ? 180 : 250;
     final double cardHeight = isMobile ? 180 : 250;
-    final double horizontalPadding = 50.0;     // same as GenrePage
-    final double arrowIconSize = 65.0;         // same as GenrePage
-    final double scrollOffset = 400.0;         // same as GenrePage
+    final double horizontalPadding = 50.0; 
+    final double arrowIconSize = 65.0;    
+    final double scrollOffset = 400.0;     
 
     final sidebar = Sidebar(
       authService: widget.authService,
@@ -94,33 +91,42 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       onGenresPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => GenrePage(authService: widget.authService),
+          ),
         );
       },
       onFavoritesPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => FavoriteScreen(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => FavoriteScreen(authService: widget.authService),
+          ),
         );
       },
       onRecommendationsPressed: () {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => RecommendationsPage(authService: widget.authService),
+            builder: (context) =>
+                RecommendationsPage(authService: widget.authService),
           ),
         );
       },
       onRatingsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => RatingScreen(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => RatingScreen(authService: widget.authService),
+          ),
         );
       },
       onProfilPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => UserProfileScreen(authService: widget.authService)),
+          MaterialPageRoute(
+            builder: (context) => UserProfileScreen(authService: widget.authService),
+          ),
         );
       },
       onLoginPressed: () {
@@ -132,17 +138,14 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       currentPage: 'Empfehlungen',
     );
 
-    // Header row
     final headerRow = Padding(
       padding: isMobile
           ? const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0)
-          : EdgeInsets.only(
-              left: isSidebarExpanded
-                  ? 20.0
-                  : (MediaQuery.of(context).size.width - 1060) / 2,
+          : const EdgeInsets.only(
+              left: 20.0,
               right: 35.0,
               top: 85.0,
-              bottom: 8,
+              bottom: 8.0,
             ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -220,7 +223,6 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
                       },
                     ),
                   ),
-                  // Left arrow
                   Positioned(
                     left: 0,
                     top: containerHeight / 2 - arrowIconSize / 2,

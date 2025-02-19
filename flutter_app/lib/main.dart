@@ -119,12 +119,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildContent() {
-    // Hier prüfen wir, ob es sich um ein mobiles Gerät handelt
     final bool isMobile = MediaQuery.of(context).size.width < 600;
-    // Schriftgrößen anpassen
     final double headingFontSize = isMobile ? 20 : 26;
     final double dotFontSize =
-        isMobile ? 22 : 28; // Bei "Genres" ist der Punkt etwas größer
+        isMobile ? 22 : 28; 
 
     final double popularFontSize = isMobile ? 20 : 26;
 
@@ -193,7 +191,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
 
     if (isMobile) {
-      // Mobile Layout (wie z. B. bei FavoriteScreen)
       return Scaffold(
         key: _scaffoldKey,
         drawer: Sidebar(
@@ -210,7 +207,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         body: Stack(
           children: [
-            // Inhalt nach unten verschoben, damit das Burger-Menü Platz hat
             Padding(
               padding: const EdgeInsets.only(top: 72.0),
               child: SingleChildScrollView(
@@ -219,7 +215,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     : const ClampingScrollPhysics(),
                 child: Column(
                   children: [
-                    // Suchleiste
                     Container(
                       color: const Color(0xFF121212),
                       padding: const EdgeInsets.only(right: 16, bottom: 8),
@@ -247,7 +242,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            // Burger-Menü (Positioned, wie in FavoriteScreen)
             Positioned(
               top: 16,
               left: 16,
@@ -262,7 +256,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
     } else {
-      // Desktop Layout
       return Scaffold(
         body: Row(
           children: [

@@ -6,8 +6,8 @@ import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
 import 'package:flutter_app/services/auth_service.dart';
 
 class HorizontalMovieList extends StatefulWidget {
-  final String? genre; // Genre optional
-  final AuthService authService; // AuthService als Parameter
+  final String? genre;
+  final AuthService authService; 
 
   const HorizontalMovieList({Key? key, this.genre, required this.authService})
       : super(key: key);
@@ -25,9 +25,9 @@ class _HorizontalMovieListState extends State<HorizontalMovieList> {
   void initState() {
     super.initState();
     if (widget.genre == null) {
-      fetchAllMovies(); // Wenn kein Genre angegeben, alle Filme abrufen
+      fetchAllMovies(); 
     } else {
-      fetchMoviesByGenre(); // Sonst Filme basierend auf Genre abrufen
+      fetchMoviesByGenre(); 
     }
   }
 

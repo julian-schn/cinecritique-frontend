@@ -134,7 +134,6 @@ class _MoviePageState extends State<MoviePage> {
     final double heartRightMobile = 130;
     final double heartRightDesktop = 160;
     final double ratingScale = isMobile ? 0.9 : 1.0;
-    final double backdropSize = isMobile ? 300 : 480;
     final double plotFontSize = isMobile ? 14 : 16;
     final double detailLabelFontSize = isMobile ? 12 : 14;
     final double detailValueFontSize = isMobile ? 14 : 16;
@@ -146,13 +145,13 @@ class _MoviePageState extends State<MoviePage> {
           children: [
             Image.network(
               currentBackdrop ?? 'https://via.placeholder.com/300x480',
-              width: backdropSize,
-              height: backdropSize,
+              width: double.infinity,
+              height: isMobile ? 300 : 480,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
-                  width: backdropSize,
-                  height: backdropSize,
+                  width: double.infinity,
+                  height: isMobile ? 300 : 480,
                   color: Colors.grey,
                   child: const Icon(Icons.image, color: Colors.white),
                 );
@@ -221,18 +220,18 @@ class _MoviePageState extends State<MoviePage> {
           Container(
             padding: const EdgeInsets.all(16.0),
             child: Wrap(
-              spacing: 8.0,
-              runSpacing: 8.0,
+              spacing: isMobile ? 12 : 16,
+              runSpacing: isMobile ? 12 : 16,
               children: (movieData?['genres'] as List).map((genre) {
                 return OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Colors.white),
                     foregroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(
-                      vertical: isMobile ? 4 : 8,
-                      horizontal: isMobile ? 8 : 16,
+                      vertical: isMobile ? 6 : 10,
+                      horizontal: isMobile ? 12 : 18,
                     ),
-                    minimumSize: Size(isMobile ? 60 : 80, isMobile ? 30 : 40),
+                    minimumSize: Size(isMobile ? 80 : 100, isMobile ? 36 : 48),
                   ),
                   onPressed: () {
                     Navigator.push(
@@ -247,7 +246,7 @@ class _MoviePageState extends State<MoviePage> {
                   },
                   child: Text(
                     genre,
-                    style: TextStyle(color: Colors.white, fontSize: isMobile ? 12 : 14),
+                    style: TextStyle(color: Colors.white, fontSize: isMobile ? 14 : 16),
                   ),
                 );
               }).toList(),
@@ -259,8 +258,8 @@ class _MoviePageState extends State<MoviePage> {
             child: Align(
               alignment: Alignment.center,
               child: SizedBox(
-                height: isMobile ? 250 * 0.8 : 250,
-                width: isMobile ? 850 * 0.8 : 850,
+                height: isMobile ? 200 : 250,
+                width: isMobile ? 700 : 850,
                 child: HorizontalBackdropList(
                   backdrops: List<String>.from(movieData?['backdrops'] ?? []),
                   onBackdropSelected: (String backdrop) {
@@ -352,23 +351,32 @@ class _MoviePageState extends State<MoviePage> {
           padding: const EdgeInsets.all(16.0),
           child: isMobile
               ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SizedBox(
-                      width: 300,
-                      child: CreateRatingWidget(
-                        imdbId: widget.imdbId,
-                        authService: widget.authService,
-                        onRatingSubmitted: () {
-                          setState(() {
-                            _fetchMovieDetails();
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 16),
                     Transform.scale(
                       scale: 0.9,
+                      child: SizedBox(
+                        width: 280,
+                        child: ValueListenableBuilder<bool>(
+                          valueListenable: widget.authService.isLoggedIn,
+                          builder: (context, isLoggedIn, _) {
+                            if (!isLoggedIn) return const SizedBox.shrink();
+                            return CreateRatingWidget(
+                              imdbId: widget.imdbId,
+                              authService: widget.authService,
+                              onRatingSubmitted: () {
+                                setState(() {
+                                  _fetchMovieDetails();
+                                });
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Transform.scale(
+                      scale: 0.85,
                       child: ShowRatingWidget(
                         reviews: movieData?['reviewIds'] ?? [],
                       ),
@@ -382,16 +390,19 @@ class _MoviePageState extends State<MoviePage> {
                       valueListenable: widget.authService.isLoggedIn,
                       builder: (context, isLoggedIn, _) {
                         if (!isLoggedIn) return const SizedBox.shrink();
-                        return SizedBox(
-                          width: 400,
-                          child: CreateRatingWidget(
-                            imdbId: widget.imdbId,
-                            authService: widget.authService,
-                            onRatingSubmitted: () {
-                              setState(() {
-                                _fetchMovieDetails();
-                              });
-                            },
+                        return Transform.scale(
+                          scale: 0.95,
+                          child: SizedBox(
+                            width: 400,
+                            child: CreateRatingWidget(
+                              imdbId: widget.imdbId,
+                              authService: widget.authService,
+                              onRatingSubmitted: () {
+                                setState(() {
+                                  _fetchMovieDetails();
+                                });
+                              },
+                            ),
                           ),
                         );
                       },
@@ -399,8 +410,11 @@ class _MoviePageState extends State<MoviePage> {
                     Expanded(
                       child: Align(
                         alignment: Alignment.centerRight,
-                        child: ShowRatingWidget(
-                          reviews: movieData?['reviewIds'] ?? [],
+                        child: Transform.scale(
+                          scale: 0.95,
+                          child: ShowRatingWidget(
+                            reviews: movieData?['reviewIds'] ?? [],
+                          ),
                         ),
                       ),
                     ),

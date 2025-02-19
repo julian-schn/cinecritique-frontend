@@ -140,6 +140,10 @@ class _MoviePageState extends State<MoviePage> {
     final double backdropHeight = isMobile ? 140 : 180;
     final double backdropWidth = isMobile ? MediaQuery.of(context).size.width * 0.9 : 800;
 
+    final String title = movieData?['title'] ?? '';
+    final bool isTitleLong = title.length > 25;
+    final double mobileTitleFontSize = isTitleLong ? 20 : 25;
+
     Widget contentBody = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -165,22 +169,34 @@ class _MoviePageState extends State<MoviePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: isMobile ? MediaQuery.of(context).size.width * 0.45 : 400,
-                    ),
-                    child: Text(
-                      movieData?['title'] ?? '',
-                      maxLines: isMobile ? 2 : 1,
-                      overflow: isMobile ? TextOverflow.ellipsis : TextOverflow.visible,
-                      softWrap: true,
-                      style: TextStyle(
-                        fontSize: isMobile ? 26 : 30,
+                  if (isMobile)
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: MediaQuery.of(context).size.width * 0.5,
+                      ),
+                      child: Text(
+                        title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: true,
+                        style: TextStyle(
+                          fontSize: mobileTitleFontSize,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    )
+                  else
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.visible,
+                      style: const TextStyle(
+                        fontSize: 30,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
                     ),
-                  ),
                   const SizedBox(height: 8),
                   Transform.scale(
                     scale: ratingScale,

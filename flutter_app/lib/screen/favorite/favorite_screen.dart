@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/main.dart';
 import 'package:flutter_app/screen/genre/genre_page.dart';
+import 'package:flutter_app/screen/recommendationns/recommenndations_page.dart';
 import 'package:flutter_app/widgets/common/sidebar.dart';
-import 'package:flutter_app/widgets/movie/movie_card.dart';
 import 'package:flutter_app/widgets/common/search_bar.dart';
+import 'package:flutter_app/widgets/movie/movie_card.dart';
 import 'package:flutter_app/services/auth_service.dart';
 import 'package:flutter_app/screen/favorite/favorite_controller.dart';
-import 'package:flutter_app/screen/recommendationns/recommenndations_page.dart';
 import 'package:flutter_app/screen/rating/rating_screen.dart';
 import 'package:flutter_app/screen/userprofile/userprofile_screen.dart';
 import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
@@ -49,115 +49,29 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
     final bool isSidebarExpanded = MediaQuery.of(context).size.width > 800;
 
-    // Responsive Schriftgrößen für die Überschrift
-    final double headerFontSize = isMobile ? 20 : 24;
-    final double dotFontSize = isMobile ? 22 : 26;
-
-    final sidebar = Sidebar(
-      authService: widget.authService,
-      onHomePressed: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
-        );
-      },
-      onGenresPressed: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
-        );
-      },
-      onFavoritesPressed: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => FavoriteScreen(authService: widget.authService)),
-        );
-      },
-      onRecommendationsPressed: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => RecommendationsPage(authService: widget.authService)),
-        );
-      },
-      onRatingsPressed: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => RatingScreen(authService: widget.authService)),
-        );
-      },
-      onProfilPressed: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => UserProfileScreen(authService: widget.authService)),
-        );
-      },
-      onLoginPressed: () {
-        widget.authService.login();
-      },
-      onLogoutPressed: () {
-        widget.authService.logout();
-      },
-      currentPage: 'Favoriten',
+    // Verwende hier die gleichen Padding- und Schriftwerte wie in der HomeScreen
+    final EdgeInsets headerPadding = EdgeInsets.only(
+      left: isSidebarExpanded ? 20.0 : (MediaQuery.of(context).size.width - 1060) / 2,
+      right: 35.0,
+      top: 85.0,
+      bottom: 8,
+    );
+    final TextStyle headerTextStyle = const TextStyle(
+      color: Colors.white,
+      fontSize: 24,
+      fontWeight: FontWeight.bold,
+    );
+    final TextStyle headerDotStyle = const TextStyle(
+      color: Colors.redAccent,
+      fontSize: 26,
+      fontWeight: FontWeight.bold,
     );
 
-    final searchRow = Padding(
-      padding: const EdgeInsets.only(bottom: 5.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: CustomSearchBar(
-              authService: widget.authService,
-              onSearchStart: () {
-                setState(() {
-                  _isSearching = true;
-                });
-              },
-              onSearchEnd: () {
-                setState(() {
-                  _isSearching = false;
-                });
-              },
-              onSearchResultsUpdated: (hasResults) {
-                setState(() {
-                  _isSearching = hasResults;
-                });
-              },
-            ),
-          ),
-        ],
-      ),
-    );
+    // Definiere die Kartengrößen genau wie in deiner HorizontalMovieList:
+    final double cardWidth = isMobile ? 200 : 250;
+    final double cardHeight = isMobile ? 200 : 250;
 
-    final headerRow = Padding(
-      padding: EdgeInsets.only(
-        left: isSidebarExpanded ? 20.0 : (MediaQuery.of(context).size.width - 1060) / 2,
-        right: 35.0,
-        top: 85.0,
-        bottom: 8,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'Meine Favoriten',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: headerFontSize,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(
-            '.',
-            style: TextStyle(
-              color: Colors.redAccent,
-              fontSize: dotFontSize,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-
+    // Favoriten-Inhalt: Verwende ein Wrap, sodass die MovieCards responsiv nebeneinander angeordnet werden.
     Widget favoritesContent;
     if (isLoading) {
       favoritesContent = const Center(child: CircularProgressIndicator());
@@ -175,17 +89,15 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
         ),
       );
     } else {
-      // Auf mobilen Geräten: Zwei MovieCards nebeneinander in einem Grid
-      if (isMobile) {
-        favoritesContent = GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisSpacing: 16.0,
-          mainAxisSpacing: 16.0,
-          childAspectRatio: 1, // MovieCard ist quadratisch (250x250)
-          children: favorites.map((movie) {
-            return MovieCard(
+      favoritesContent = Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 16.0,
+        runSpacing: 16.0,
+        children: favorites.map((movie) {
+          return SizedBox(
+            width: cardWidth,
+            height: cardHeight,
+            child: MovieCard(
               posterUrl: movie['poster'] ?? '',
               title: movie['title'] ?? 'Unbekannt',
               imdbId: movie['imdbId'] ?? '',
@@ -200,52 +112,60 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                   ),
                 );
               },
-            );
-          }).toList(),
-        );
-      } else {
-        // Auf größeren Bildschirmen: Bestehendes Wrap-Layout (z.B. mehrere MovieCards nebeneinander)
-        favoritesContent = Center(
-          child: Wrap(
-            alignment: WrapAlignment.center,
-            spacing: isSidebarExpanded ? 16.0 : 48.0,
-            runSpacing: 16.0,
-            children: favorites.map((movie) {
-              return SizedBox(
-                width: 250,
-                height: 250,
-                child: MovieCard(
-                  posterUrl: movie['poster'] ?? '',
-                  title: movie['title'] ?? 'Unbekannt',
-                  imdbId: movie['imdbId'] ?? '',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MoviePage(
-                          imdbId: movie['imdbId'],
-                          authService: widget.authService,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              );
-            }).toList(),
-          ),
-        );
-      }
+            ),
+          );
+        }).toList(),
+      );
     }
 
-    final content = SingleChildScrollView(
+    final Widget content = SingleChildScrollView(
       physics: _isSearching
           ? const NeverScrollableScrollPhysics()
           : const ClampingScrollPhysics(),
       child: Column(
-        crossAxisAlignment: isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+        crossAxisAlignment:
+            isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
         children: [
-          searchRow,
-          headerRow,
+          // Suchleiste
+          Padding(
+            padding: const EdgeInsets.only(bottom: 5.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: CustomSearchBar(
+                    authService: widget.authService,
+                    onSearchStart: () {
+                      setState(() {
+                        _isSearching = true;
+                      });
+                    },
+                    onSearchEnd: () {
+                      setState(() {
+                        _isSearching = false;
+                      });
+                    },
+                    onSearchResultsUpdated: (hasResults) {
+                      setState(() {
+                        _isSearching = hasResults;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Überschrift "Meine Favoriten"
+          Padding(
+            padding: headerPadding,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Meine Favoriten', style: headerTextStyle),
+                Text('.', style: headerDotStyle),
+              ],
+            ),
+          ),
+          // Favoriten-Grid (Wrap)
           Padding(
             padding: const EdgeInsets.only(left: 20.0, right: 35.0, top: 10, bottom: 1),
             child: favoritesContent,
@@ -257,7 +177,52 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     if (isMobile) {
       return Scaffold(
         key: _scaffoldKey,
-        drawer: sidebar,
+        drawer: Sidebar(
+          authService: widget.authService,
+          onHomePressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
+            );
+          },
+          onGenresPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
+            );
+          },
+          onFavoritesPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => FavoriteScreen(authService: widget.authService)),
+            );
+          },
+          onRecommendationsPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => RecommendationsPage(authService: widget.authService)),
+            );
+          },
+          onRatingsPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => RatingScreen(authService: widget.authService)),
+            );
+          },
+          onProfilPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => UserProfileScreen(authService: widget.authService)),
+            );
+          },
+          onLoginPressed: () {
+            widget.authService.login();
+          },
+          onLogoutPressed: () {
+            widget.authService.logout();
+          },
+          currentPage: 'Favoriten',
+        ),
         body: Stack(
           children: [
             Padding(
@@ -281,7 +246,52 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       return Scaffold(
         body: Row(
           children: [
-            sidebar,
+            Sidebar(
+              authService: widget.authService,
+              onHomePressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
+                );
+              },
+              onGenresPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
+                );
+              },
+              onFavoritesPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => FavoriteScreen(authService: widget.authService)),
+                );
+              },
+              onRecommendationsPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => RecommendationsPage(authService: widget.authService)),
+                );
+              },
+              onRatingsPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => RatingScreen(authService: widget.authService)),
+                );
+              },
+              onProfilPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => UserProfileScreen(authService: widget.authService)),
+                );
+              },
+              onLoginPressed: () {
+                widget.authService.login();
+              },
+              onLogoutPressed: () {
+                widget.authService.logout();
+              },
+              currentPage: 'Favoriten',
+            ),
             Expanded(child: content),
           ],
         ),

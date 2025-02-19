@@ -103,7 +103,7 @@ class _HorizontalMovieListState extends State<HorizontalMovieList> {
     // Für Mobile vs. Desktop: unterschiedliche Kartengrößen
     final bool isMobile = MediaQuery.of(context).size.width < 600;
     final double containerHeight = isMobile ? 200 : 250;
-    final double cardWidth = isMobile ? 180 : 250;
+    final double cardWidth = isMobile ? 200 : 250;
     final double cardHeight = isMobile ? 200 : 250;
 
     // **Hier verwenden wir dieselben Werte für Abstände/Pfeile**, 

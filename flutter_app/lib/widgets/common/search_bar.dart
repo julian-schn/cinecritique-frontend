@@ -33,6 +33,9 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
   List<Map<String, dynamic>> _movies = [];
   bool _isLoading = false;
   Timer? _debounce;
+
+  // Flag, um zu kennzeichnen, dass innerhalb der Suchergebnisse getippt bzw. gescrollt wurde
+  bool _isClickInsideSearchResults = false;
   Map<int, bool> _isHovered = {};
   final ScrollController _scrollController = ScrollController();
 
@@ -40,9 +43,9 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
   void initState() {
     super.initState();
     _focusNode.addListener(() {
-      if (!_focusNode.hasFocus) {
+      if (!_focusNode.hasFocus && !_isClickInsideSearchResults) {
         Future.delayed(const Duration(milliseconds: 100), () {
-          if (mounted) {
+          if (mounted && !_isClickInsideSearchResults) {
             setState(() {
               _movies = [];
             });
@@ -69,14 +72,19 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
       widget.onSearchResultsUpdated(false);
       return;
     }
+
     setState(() {
       _isLoading = true;
     });
+
     final url = 'https://cinecritique.mi.hdm-stuttgart.de/api/movies?search=$query';
+
     try {
       final response = await http.get(Uri.parse(url));
+
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+
         List<Map<String, dynamic>> loadedMovies = data.where((movie) {
           return movie['title'] != null &&
               movie['title'].toLowerCase().contains(query.toLowerCase());
@@ -87,12 +95,15 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
             'imdbId': movie['imdbId'] ?? '',
           };
         }).toList();
+
         setState(() {
           _movies = loadedMovies;
           _isLoading = false;
         });
+
         widget.onSearchResultsUpdated(_movies.isNotEmpty);
       } else {
+        print('Fehler: ${response.statusCode}');
         setState(() {
           _movies = [];
           _isLoading = false;
@@ -100,6 +111,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
         widget.onSearchResultsUpdated(false);
       }
     } catch (e) {
+      print('Fehler bei der API-Anfrage: $e');
       setState(() {
         _movies = [];
         _isLoading = false;
@@ -118,11 +130,20 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
   @override
   Widget build(BuildContext context) {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
+
     return Padding(
       padding: const EdgeInsets.only(top: 7.0),
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onTap: () {},
+        onTap: () {
+          if (!_focusNode.hasPrimaryFocus && !_isClickInsideSearchResults) {
+            FocusScope.of(context).requestFocus(FocusNode());
+            setState(() {
+              _movies = [];
+            });
+            widget.onSearchResultsUpdated(false);
+          }
+        },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 5.0),
           child: Column(
@@ -155,9 +176,20 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
               if (_isLoading)
                 const CircularProgressIndicator(color: Colors.white),
               if (_movies.isNotEmpty)
+                // Hier den Bereich für die Suchergebnisse in einen GestureDetector packen
                 GestureDetector(
-                  onTapDown: (_) {},
-                  onTapUp: (_) {},
+                  onTapDown: (_) {
+                    setState(() {
+                      _isClickInsideSearchResults = true;
+                    });
+                  },
+                  onTapUp: (_) {
+                    Future.delayed(const Duration(milliseconds: 200), () {
+                      setState(() {
+                        _isClickInsideSearchResults = false;
+                      });
+                    });
+                  },
                   child: NotificationListener<ScrollNotification>(
                     onNotification: (scrollNotification) {
                       if (scrollNotification is ScrollUpdateNotification) {
@@ -234,9 +266,22 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                                 padding: const EdgeInsets.only(
                                                     right: 20.0),
                                                 child: GestureDetector(
-                                                  onTapDown: (_) {},
-                                                  onTapUp: (_) {},
-                                                  onTap: () {},
+                                                  onTapDown: (_) {
+                                                    setState(() {
+                                                      _isClickInsideSearchResults =
+                                                          true;
+                                                    });
+                                                  },
+                                                  onTapUp: (_) {
+                                                    setState(() {
+                                                      _isClickInsideSearchResults =
+                                                          false;
+                                                    });
+                                                  },
+                                                  onTap: () {
+                                                    // Hier kannst du das FavoriteToggle
+                                                    // weiter behandeln, falls nötig
+                                                  },
                                                   child: FavoriteToggle(
                                                     iconSize:
                                                         isMobile ? 27 : 35,

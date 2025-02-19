@@ -141,7 +141,7 @@ class _MoviePageState extends State<MoviePage> {
     final double backdropWidth = isMobile ? MediaQuery.of(context).size.width * 0.9 : 800;
 
     final String title = movieData?['title'] ?? '';
-    final bool isTitleLong = title.length > 25;
+    final bool isTitleLong = title.length > 35;
     final double mobileTitleFontSize = isTitleLong ? 16 : 20;
 
     Widget contentBody = Column(

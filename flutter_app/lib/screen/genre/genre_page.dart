@@ -163,7 +163,11 @@ class _GenrePageState extends State<GenrePage> {
                   ],
                 ),
                 const SizedBox(height: 14),
-                HorizontalMovieList(authService: widget.authService),
+                // Übergib hier das Genre an die HorizontalMovieList
+                HorizontalMovieList(
+                  authService: widget.authService,
+                  genre: genre, // <-- WICHTIG
+                ),
                 const SizedBox(height: 20),
               ],
             ),

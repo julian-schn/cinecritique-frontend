@@ -5,6 +5,8 @@ class MovieCard extends StatelessWidget {
   final String title;
   final String imdbId;
   final VoidCallback onTap;
+  final double cardWidth;
+  final double cardHeight;
 
   const MovieCard({
     Key? key,
@@ -12,17 +14,22 @@ class MovieCard extends StatelessWidget {
     required this.title,
     required this.imdbId,
     required this.onTap,
+    this.cardWidth = 250,
+    this.cardHeight = 250,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // Bestimme die Höhe des Bildes, z. B. ca. 75% der Kartenhöhe
+    final double posterHeight = cardHeight * 0.75;
+
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          width: 250,
-          height: 250,
+          width: cardWidth,
+          height: cardHeight,
           margin: const EdgeInsets.symmetric(horizontal: 8.0),
           decoration: BoxDecoration(
             color: const Color(0xFF1C1C1C),
@@ -38,27 +45,36 @@ class MovieCard extends StatelessWidget {
                 ),
                 child: Image.network(
                   posterUrl,
-                  height: 190,
+                  height: posterHeight,
                   width: double.infinity,
                   fit: BoxFit.cover,
                   alignment: Alignment.topCenter,
                 ),
               ),
               Container(
-                height: 4,
-                color: Colors.redAccent,
-                margin: const EdgeInsets.only(bottom: 10.0),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
+                height: cardHeight - posterHeight,
+                child: Column(
+                  children: [
+                    Container(
+                      height: 4,
+                      color: Colors.redAccent,
+                      margin: const EdgeInsets.only(bottom: 4.0),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(
+                          title,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: cardHeight * 0.07, // Schriftgröße proportional
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

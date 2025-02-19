@@ -32,7 +32,8 @@ class _HorizontalGenreListState extends State<HorizontalGenreList> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+        final Map<String, dynamic> data =
+            json.decode(utf8.decode(response.bodyBytes));
 
         Set<String> genreSet = {};
 
@@ -70,12 +71,22 @@ class _HorizontalGenreListState extends State<HorizontalGenreList> {
       return const Center(child: CircularProgressIndicator());
     }
 
+    // Prüfe, ob es sich um ein mobiles Gerät handelt
+    final bool isMobile = MediaQuery.of(context).size.width < 600;
+    // Passe die Höhe des Containers und der Cards an
+    final double containerHeight = isMobile ? 100 : 140;
+    final double cardWidth = isMobile ? 180 : 250;
+    final double cardHeight = containerHeight;
+    final double horizontalPadding = isMobile ? 30.0 : 50.0;
+    final double arrowIconSize = isMobile ? 50 : 65;
+    final double scrollOffset = isMobile ? 300 : 400;
+
     return Container(
-      height: 140,
+      height: containerHeight,
       child: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 50.0),
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
             child: ListView.builder(
               controller: _scrollController,
               scrollDirection: Axis.horizontal,
@@ -84,59 +95,65 @@ class _HorizontalGenreListState extends State<HorizontalGenreList> {
                 final genre = genres[index];
                 return GestureDetector(
                   onTap: () {
-                    // GenreDetailPage wird mit dem entsprechenden Genre und authService geöffnet
+                    // Öffnet die GenreDetailPage mit dem entsprechenden Genre und authService
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => GenreDetailPage(
                           genre: genre,
-                          authService: widget.authService, // authService hier weitergeben
+                          authService: widget.authService,
                         ),
                       ),
                     );
                   },
-                  child: GenreCard(genre: genre), // Dein bestehendes Design bleibt hier erhalten
+                  child: GenreCard(
+                    genre: genre,
+                    cardWidth: cardWidth,
+                    cardHeight: cardHeight,
+                  ),
                 );
               },
             ),
           ),
+          // Pfeile zum Scrollen nach links
           Positioned(
             left: 0,
-            top: 42,
+            top: containerHeight / 2 - arrowIconSize / 2,
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
               child: GestureDetector(
                 onTap: () {
                   _scrollController.animateTo(
-                    _scrollController.offset - 400,
+                    _scrollController.offset - scrollOffset,
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeInOut,
                   );
                 },
-                child: const Icon(
+                child: Icon(
                   Icons.arrow_left,
-                  size: 65,
+                  size: arrowIconSize,
                   color: Colors.redAccent,
                 ),
               ),
             ),
           ),
+          // Pfeile zum Scrollen nach rechts
           Positioned(
             right: 0,
-            top: 42,
+            top: containerHeight / 2 - arrowIconSize / 2,
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
               child: GestureDetector(
                 onTap: () {
                   _scrollController.animateTo(
-                    _scrollController.offset + 400,
+                    _scrollController.offset + scrollOffset,
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeInOut,
                   );
                 },
-                child: const Icon(
+                child: Icon(
                   Icons.arrow_right,
-                  size: 65,
+                  size: arrowIconSize,
                   color: Colors.redAccent,
                 ),
               ),

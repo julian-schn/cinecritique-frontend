@@ -9,7 +9,8 @@ class HorizontalMovieList extends StatefulWidget {
   final String? genre; // Genre optional machen
   final AuthService authService; // AuthService als Parameter
 
-  const HorizontalMovieList({Key? key, this.genre, required this.authService}) : super(key: key);
+  const HorizontalMovieList({Key? key, this.genre, required this.authService})
+      : super(key: key);
 
   @override
   State<HorizontalMovieList> createState() => _HorizontalMovieListState();
@@ -97,38 +98,33 @@ class _HorizontalMovieListState extends State<HorizontalMovieList> {
     }
   }
 
-  void scrollLeft() {
-    _scrollController.animateTo(
-      _scrollController.offset - 400,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
-  }
-
-  void scrollRight() {
-    _scrollController.animateTo(
-      _scrollController.offset + 400,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final bool isMobile = MediaQuery.of(context).size.width < 600;
+    // Responsive Dimensionen
+    final double containerHeight = isMobile ? 200 : 250;
+    final double cardWidth = isMobile ? 180 : 250;
+    final double cardHeight = isMobile ? 200 : 250;
+    final double horizontalPadding = isMobile ? 30.0 : 50.0;
+    final double arrowIconSize = isMobile ? 50 : 65;
+    final double scrollOffset = isMobile ? 300 : 400;
+
     return isLoading
         ? const Center(child: CircularProgressIndicator())
         : Container(
-            height: 250,
+            height: containerHeight,
             child: Stack(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 50.0),
+                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                   child: ListView.builder(
                     controller: _scrollController,
                     scrollDirection: Axis.horizontal,
                     itemCount: movies.length,
                     itemBuilder: (context, index) {
                       return MovieCard(
+                        cardWidth: cardWidth,
+                        cardHeight: cardHeight,
                         posterUrl: movies[index]['poster'] ?? '',
                         title: movies[index]['title'] ?? 'Unknown',
                         imdbId: movies[index]['imdbId'] ?? '',
@@ -138,7 +134,7 @@ class _HorizontalMovieListState extends State<HorizontalMovieList> {
                             MaterialPageRoute(
                               builder: (context) => MoviePage(
                                 imdbId: movies[index]['imdbId'] ?? '',
-                                authService: widget.authService, // authService hier weitergeben
+                                authService: widget.authService,
                               ),
                             ),
                           );
@@ -149,14 +145,20 @@ class _HorizontalMovieListState extends State<HorizontalMovieList> {
                 ),
                 Positioned(
                   left: 0,
-                  top: 92.5,
+                  top: containerHeight / 2 - arrowIconSize / 2,
                   child: MouseRegion(
                     cursor: SystemMouseCursors.click,
                     child: GestureDetector(
-                      onTap: scrollLeft,
-                      child: const Icon(
+                      onTap: () {
+                        _scrollController.animateTo(
+                          _scrollController.offset - scrollOffset,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
+                      },
+                      child: Icon(
                         Icons.arrow_left,
-                        size: 65,
+                        size: arrowIconSize,
                         color: Colors.redAccent,
                       ),
                     ),
@@ -164,14 +166,20 @@ class _HorizontalMovieListState extends State<HorizontalMovieList> {
                 ),
                 Positioned(
                   right: 0,
-                  top: 92.5,
+                  top: containerHeight / 2 - arrowIconSize / 2,
                   child: MouseRegion(
                     cursor: SystemMouseCursors.click,
                     child: GestureDetector(
-                      onTap: scrollRight,
-                      child: const Icon(
+                      onTap: () {
+                        _scrollController.animateTo(
+                          _scrollController.offset + scrollOffset,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
+                      },
+                      child: Icon(
                         Icons.arrow_right,
-                        size: 65,
+                        size: arrowIconSize,
                         color: Colors.redAccent,
                       ),
                     ),

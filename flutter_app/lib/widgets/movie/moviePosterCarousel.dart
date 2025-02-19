@@ -4,7 +4,7 @@ import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:math';
-import 'package:flutter_app/services/auth_service.dart'; // Stelle sicher, dass dieser Import korrekt ist
+import 'package:flutter_app/services/auth_service.dart'; 
 
 class MoviePosterCarousel extends StatefulWidget {
   final AuthService authService;
@@ -46,7 +46,7 @@ class _MoviePosterCarouselState extends State<MoviePosterCarousel> {
         List<Map<String, dynamic>> loadedMovies = data.map((movie) {
           return {
             'poster': movie['backdrops']?.isNotEmpty == true ? movie['backdrops'][0] : '',
-            'imdbId': movie['imdbId'], // Hier die imdbId hinzufügen
+            'imdbId': movie['imdbId'], 
           };
         }).toList();
 
@@ -73,19 +73,22 @@ class _MoviePosterCarouselState extends State<MoviePosterCarousel> {
 
   @override
   void dispose() {
-    // Timer stoppen, wenn das Widget aus dem Baum entfernt wird
     _timer.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool isMobile = MediaQuery.of(context).size.width < 600;
+    final double containerWidth = isMobile ? MediaQuery.of(context).size.width * 0.9 : 800;
+    final double containerHeight = isMobile ? containerWidth / 2 : 400;
+
     return isLoading
         ? const Center(child: CircularProgressIndicator())
         : Center(
             child: Container(
-              height: 400,
-              width: 800,
+              height: containerHeight,
+              width: containerWidth,
               child: AnimatedSwitcher(
                 duration: const Duration(seconds: 1),
                 child: MouseRegion(
@@ -111,8 +114,8 @@ class _MoviePosterCarouselState extends State<MoviePosterCarousel> {
                       child: Image.network(
                         movies[_currentIndex]['poster'] ?? '',
                         fit: BoxFit.cover,
-                        width: 800,
-                        height: 400,
+                        width: containerWidth,
+                        height: containerHeight,
                       ),
                     ),
                   ),

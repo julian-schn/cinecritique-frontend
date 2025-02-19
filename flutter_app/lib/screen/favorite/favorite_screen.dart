@@ -206,7 +206,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             )
           else
             Padding(
-              padding: const EdgeInsets.only(left: 20.0, right: 35.0, top: 10, bottom: 1),
+              padding: const EdgeInsets.only(left: 20.0, right: 35.0, top: 10, bottom: 8),
               child: Center(
                 child: Wrap(
                   alignment: WrapAlignment.center,

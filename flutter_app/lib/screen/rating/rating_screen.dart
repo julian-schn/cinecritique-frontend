@@ -32,7 +32,7 @@ class _RatingScreenState extends State<RatingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Genau wie in FavoriteScreen:
+    // Bestimme, ob mobile oder Desktop
     final bool isMobile = MediaQuery.of(context).size.width < 600;
     final bool isSidebarExpanded = MediaQuery.of(context).size.width > 800;
 
@@ -41,37 +41,49 @@ class _RatingScreenState extends State<RatingScreen> {
       onHomePressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen(authService: widget.authService)),
+          MaterialPageRoute(
+              builder: (context) =>
+                  HomeScreen(authService: widget.authService)),
         );
       },
       onGenresPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => GenrePage(authService: widget.authService)),
+          MaterialPageRoute(
+              builder: (context) =>
+                  GenrePage(authService: widget.authService)),
         );
       },
       onFavoritesPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => FavoriteScreen(authService: widget.authService)),
+          MaterialPageRoute(
+              builder: (context) =>
+                  FavoriteScreen(authService: widget.authService)),
         );
       },
       onRecommendationsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => RecommendationsPage(authService: widget.authService)),
+          MaterialPageRoute(
+              builder: (context) =>
+                  RecommendationsPage(authService: widget.authService)),
         );
       },
       onRatingsPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => RatingScreen(authService: widget.authService)),
+          MaterialPageRoute(
+              builder: (context) =>
+                  RatingScreen(authService: widget.authService)),
         );
       },
       onProfilPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => UserProfileScreen(authService: widget.authService)),
+          MaterialPageRoute(
+              builder: (context) =>
+                  UserProfileScreen(authService: widget.authService)),
         );
       },
       onLoginPressed: () {
@@ -83,39 +95,66 @@ class _RatingScreenState extends State<RatingScreen> {
       currentPage: 'Bewertungen',
     );
 
-    // Überschrift
-    final headerRow = Padding(
-      // wie bei FavoriteScreen: oben 85px, etc.
-      padding: EdgeInsets.only(
-        left: isSidebarExpanded
-            ? 20.0
-            : (MediaQuery.of(context).size.width - 1060) / 2,
-        right: 35.0,
-        top: 85.0,
-        bottom: 8,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'Meine Bewertungen',
-            style: GoogleFonts.inter(
-              color: Colors.white,
-              fontSize: 36,
-              fontWeight: FontWeight.bold,
+    // Überschrift: Bei Mobile mit einem kompakteren Padding und kleineren Schriftgrößen
+    final headerRow = isMobile
+        ? Padding(
+            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+            child: Row(
+              children: [
+                Text(
+                  'Meine Bewertungen',
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '.',
+                  style: GoogleFonts.inter(
+                    color: Colors.redAccent,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
-          ),
-          Text(
-            '.',
-            style: GoogleFonts.inter(
-              color: Colors.redAccent,
-              fontSize: 36,
-              fontWeight: FontWeight.bold,
+          )
+        : Padding(
+            padding: EdgeInsets.only(
+              left: isSidebarExpanded
+                  ? 20.0
+                  : (MediaQuery.of(context).size.width - 1060) / 2,
+              right: 35.0,
+              top: 85.0,
+              bottom: 8,
             ),
-          ),
-        ],
-      ),
-    );
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Meine Bewertungen',
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '.',
+                  style: GoogleFonts.inter(
+                    color: Colors.redAccent,
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          );
+
+    // Passe die Kartengrößen an: Für mobile kleiner
+    final cardWidth = isMobile ? 200.0 : 250.0;
+    final posterHeight = isMobile ? 160.0 : 200.0;
 
     final futureBuilder = FutureBuilder<List<Map<String, dynamic>>>(
       future: _userReviewsFuture,
@@ -154,7 +193,7 @@ class _RatingScreenState extends State<RatingScreen> {
               final reviewText = reviewData['reviewBody'] ?? '';
 
               return Container(
-                width: 250,
+                width: cardWidth,
                 margin: const EdgeInsets.all(8.0),
                 child: Card(
                   color: const Color(0xFF1C1C1C),
@@ -185,12 +224,12 @@ class _RatingScreenState extends State<RatingScreen> {
                           ),
                           child: Image.network(
                             poster,
-                            height: 200,
+                            height: posterHeight,
                             width: double.infinity,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
                               return Container(
-                                height: 200,
+                                height: posterHeight,
                                 color: Colors.grey[800],
                                 child: const Icon(Icons.movie),
                               );
@@ -200,10 +239,10 @@ class _RatingScreenState extends State<RatingScreen> {
                         Container(
                           height: 4,
                           color: Colors.redAccent,
-                          margin: const EdgeInsets.only(bottom: 10.0),
+                          margin: EdgeInsets.only(bottom: isMobile ? 8.0 : 10.0),
                         ),
                         Container(
-                          height: 48,
+                          height: isMobile ? 40 : 48,
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           alignment: Alignment.topCenter,
                           child: Text(
@@ -211,7 +250,7 @@ class _RatingScreenState extends State<RatingScreen> {
                             textAlign: TextAlign.center,
                             style: GoogleFonts.inter(
                               color: Colors.white,
-                              fontSize: 15,
+                              fontSize: isMobile ? 13 : 15,
                               fontWeight: FontWeight.bold,
                             ),
                             maxLines: 2,
@@ -225,27 +264,27 @@ class _RatingScreenState extends State<RatingScreen> {
                             return Icon(
                               index < ratingNum ? Icons.star : Icons.star_border,
                               color: Colors.white,
-                              size: 23,
+                              size: isMobile ? 20 : 23,
                             );
                           }),
                         ),
                         const SizedBox(height: 8),
                         Container(
-                          height: 60,
+                          height: isMobile ? 50 : 60,
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           alignment: Alignment.topCenter,
                           child: Text(
                             reviewText,
                             style: GoogleFonts.inter(
                               color: Colors.grey[300],
-                              fontSize: 14,
+                              fontSize: isMobile ? 12 : 14,
                             ),
-                            maxLines: 3,
+                            maxLines: isMobile ? 2 : 3,
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.center,
                           ),
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: isMobile ? 8 : 10),
                       ],
                     ),
                   ),
@@ -257,28 +296,29 @@ class _RatingScreenState extends State<RatingScreen> {
       },
     );
 
-    // Gesamter Inhalt
+    // Gesamter Inhalt + etwas unteren Abstand
     final content = SingleChildScrollView(
       child: Column(
-        crossAxisAlignment:
-            isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+        crossAxisAlignment: isSidebarExpanded
+            ? CrossAxisAlignment.start
+            : CrossAxisAlignment.center,
         children: [
           headerRow,
           const SizedBox(height: 48),
           futureBuilder,
+          const SizedBox(height: 20),
         ],
       ),
     );
 
-    // Mobiles Layout (Stack, top Padding usw.)
+    // Mobiles Layout (mit Stack, Burger-Menü oben)
     if (isMobile) {
       return Scaffold(
         key: _scaffoldKey,
         drawer: sidebar,
         body: Stack(
           children: [
-            // Padding top:72 => 
-            // so liegt der Header unter dem Burger-Menü
+            // Mit Padding top:72 liegt der Inhalt unter dem Burger-Button
             Padding(
               padding: const EdgeInsets.only(top: 72.0),
               child: content,

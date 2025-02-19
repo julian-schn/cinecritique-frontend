@@ -133,7 +133,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
             '.',
             style: TextStyle(
               color: Colors.redAccent,
-              fontSize: 24,
+              fontSize: 26,
               fontWeight: FontWeight.bold,
             ),
           ),

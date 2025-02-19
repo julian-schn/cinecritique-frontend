@@ -48,7 +48,11 @@ class _GenrePageState extends State<GenrePage> {
   Widget build(BuildContext context) {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
     final bool isSidebarExpanded = MediaQuery.of(context).size.width > 800;
-
+    
+    // Responsive Schriftgrößen für Genre-Überschriften
+    final double genreFontSize = isMobile ? 20 : 24;
+    final double dotFontSize = isMobile ? 22 : 26;
+    
     final sidebar = Sidebar(
       authService: widget.authService,
       onHomePressed: () {
@@ -138,22 +142,21 @@ class _GenrePageState extends State<GenrePage> {
               crossAxisAlignment:
                   isSidebarExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
               children: [
-                // Hier stand vorher die "Genres." Überschrift – entfernt!
                 Row(
                   children: [
                     Text(
                       genre,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 24,
+                        fontSize: genreFontSize,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const Text(
+                    Text(
                       '.',
                       style: TextStyle(
                         color: Colors.redAccent,
-                        fontSize: 24,
+                        fontSize: dotFontSize,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -182,8 +185,7 @@ class _GenrePageState extends State<GenrePage> {
         drawer: sidebar,
         body: Stack(
           children: [
-            // Wir verschieben den Inhalt nach unten,
-            // damit das Burger-Menü oben links sichtbar bleibt
+            // Verschiebt den Inhalt nach unten, damit das Burger-Menü oben links sichtbar bleibt
             Padding(
               padding: const EdgeInsets.only(top: 72.0),
               child: content,

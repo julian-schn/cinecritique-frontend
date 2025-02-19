@@ -17,7 +17,7 @@ class HorizontalGenreList extends StatefulWidget {
 class _HorizontalGenreListState extends State<HorizontalGenreList> {
   List<String> genres = [];
   bool isLoading = true;
-  ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -73,13 +73,18 @@ class _HorizontalGenreListState extends State<HorizontalGenreList> {
 
     // Prüfe, ob es sich um ein mobiles Gerät handelt
     final bool isMobile = MediaQuery.of(context).size.width < 600;
-    // Passe die Höhe des Containers und der Cards an
+    
+    // Passe die Höhe der Cards an, damit sie auf dem Handy kleiner sind.
+    // Die Pfeile und Abstände sollen jedoch überall gleich bleiben.
     final double containerHeight = isMobile ? 100 : 140;
     final double cardWidth = isMobile ? 180 : 250;
     final double cardHeight = containerHeight;
-    final double horizontalPadding = isMobile ? 30.0 : 50.0;
-    final double arrowIconSize = isMobile ? 50 : 65;
-    final double scrollOffset = isMobile ? 300 : 400;
+
+    // **Hier verwenden wir für beide Layouts die gleichen Werte**, 
+    // damit die Pfeile relativ gleich zum ersten/letzten Card liegen.
+    final double horizontalPadding = 50.0; // Gleicher Wert für Mobile und Desktop
+    final double arrowIconSize = 65;       // Gleicher Wert für Mobile und Desktop
+    final double scrollOffset = 400;       // Gleicher Wert für Mobile und Desktop
 
     return Container(
       height: containerHeight,

@@ -33,7 +33,8 @@ class MyApp extends StatelessWidget {
           bodyLarge: TextStyle(color: Colors.white),
         ),
         scrollbarTheme: ScrollbarThemeData(
-          thumbColor: MaterialStateProperty.all(const Color.fromARGB(214, 255, 82, 82)),
+          thumbColor:
+              MaterialStateProperty.all(const Color.fromARGB(214, 255, 82, 82)),
           radius: const Radius.circular(10),
         ),
       ),
@@ -85,7 +86,8 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => RecommendationsPage(authService: widget.authService),
+        builder: (context) =>
+            RecommendationsPage(authService: widget.authService),
       ),
     );
   }
@@ -117,6 +119,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildContent() {
+    // Hier prüfen wir, ob es sich um ein mobiles Gerät handelt
+    final bool isMobile = MediaQuery.of(context).size.width < 600;
+    // Schriftgrößen anpassen
+    final double headingFontSize = isMobile ? 20 : 24;
+    final double dotFontSize =
+        isMobile ? 22 : 26; // Bei "Genres" ist der Punkt etwas größer
+
+    final double popularFontSize = isMobile ? 20 : 24;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -126,12 +137,12 @@ class _HomeScreenState extends State<HomeScreen> {
         Padding(
           padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
           child: Row(
-            children: const [
+            children: [
               Text(
                 'Genres',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 24,
+                  fontSize: headingFontSize,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -139,7 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 '.',
                 style: TextStyle(
                   color: Colors.redAccent,
-                  fontSize: 24,
+                  fontSize: dotFontSize,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -151,12 +162,12 @@ class _HomeScreenState extends State<HomeScreen> {
         Padding(
           padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
           child: Row(
-            children: const [
+            children: [
               Text(
                 'Popular Movies',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 24,
+                  fontSize: popularFontSize,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -164,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 '.',
                 style: TextStyle(
                   color: Colors.redAccent,
-                  fontSize: 24,
+                  fontSize: popularFontSize,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -182,7 +193,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
 
     if (isMobile) {
-      // Mobile Layout wie FavoriteScreen
+      // Mobile Layout (wie z. B. bei FavoriteScreen)
       return Scaffold(
         key: _scaffoldKey,
         drawer: Sidebar(
@@ -199,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         body: Stack(
           children: [
-            // Inhalt nach unten verschoben, so dass das Burger-Menü Platz hat
+            // Inhalt nach unten verschoben, damit das Burger-Menü Platz hat
             Padding(
               padding: const EdgeInsets.only(top: 72.0),
               child: SingleChildScrollView(
@@ -276,7 +287,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Container(
                       color: const Color(0xFF121212),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       child: Row(
                         children: [
                           Expanded(

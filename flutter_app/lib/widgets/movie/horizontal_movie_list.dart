@@ -6,7 +6,7 @@ import 'package:flutter_app/screen/moviepage/moviepage_screen.dart';
 import 'package:flutter_app/services/auth_service.dart';
 
 class HorizontalMovieList extends StatefulWidget {
-  final String? genre; // Genre optional machen
+  final String? genre; // Genre optional
   final AuthService authService; // AuthService als Parameter
 
   const HorizontalMovieList({Key? key, this.genre, required this.authService})
@@ -100,14 +100,17 @@ class _HorizontalMovieListState extends State<HorizontalMovieList> {
 
   @override
   Widget build(BuildContext context) {
+    // Für Mobile vs. Desktop: unterschiedliche Kartengrößen
     final bool isMobile = MediaQuery.of(context).size.width < 600;
-    // Responsive Dimensionen
     final double containerHeight = isMobile ? 200 : 250;
     final double cardWidth = isMobile ? 180 : 250;
     final double cardHeight = isMobile ? 200 : 250;
-    final double horizontalPadding = isMobile ? 30.0 : 50.0;
-    final double arrowIconSize = isMobile ? 50 : 65;
-    final double scrollOffset = isMobile ? 300 : 400;
+
+    // **Hier verwenden wir dieselben Werte für Abstände/Pfeile**, 
+    // um das Layout möglichst ähnlich zu halten
+    final double horizontalPadding = 50.0;
+    final double arrowIconSize = 65;
+    final double scrollOffset = 400;
 
     return isLoading
         ? const Center(child: CircularProgressIndicator())

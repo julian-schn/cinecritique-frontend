@@ -147,7 +147,7 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
             widget.genre,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 36,
+              fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -155,7 +155,7 @@ class _GenreDetailPageState extends State<GenreDetailPage> {
             '.',
             style: TextStyle(
               color: Colors.redAccent,
-              fontSize: 38,
+              fontSize: 26,
               fontWeight: FontWeight.bold,
             ),
           ),

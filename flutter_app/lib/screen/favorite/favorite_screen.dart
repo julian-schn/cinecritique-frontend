@@ -138,7 +138,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             'Meine Favoriten',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 36,
+              fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -146,7 +146,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             '.',
             style: TextStyle(
               color: Colors.redAccent,
-              fontSize: 38,
+              fontSize: 26,
               fontWeight: FontWeight.bold,
             ),
           ),

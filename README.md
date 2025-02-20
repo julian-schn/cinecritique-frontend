@@ -1,93 +1,100 @@
-# CineCritique - Frontend
+# Cinecritique Frontend
 
+Das Flutter Frontend für CineCritique
 
+# Inhalt
+1. Starten der App und Voraussetzungen
+    - Voraussetzungen
+    - Starten der App
+    - Mobile App
+2. Versionlog
 
-## Getting started
+## Starten der App und Voraussetzungen
+Empgehlung: [Live Version im Web](https://cinecritique.mi.hdm-stuttgart.de/) benutzen, lokal kann Keycloak Probleme machen
+### Voraussetzungen
+1. Lokale Flutter Installation (inkl. Dependencies wie Chrome webtools)
+2. Keycloak Installation
+3. Backend Service und AI Service
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+Anmerkung für Keycloak:
+Wenn das Projekt lokal laufen soll, muss man in der ``auth.dart`` die ``redirectUri`` auf ``http://localhost:54841``, und das Projekt mit ``flutter run -d chrome --web-port=54841``starten
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+### Starten der App
+1. Navigiere in Projektverzeichnis (``.../cinecritique-frontend/flutter_app``)
+2. Führe ``flutter run -d chrome --web-port=54841`` aus, wähle Gerät aus (Chrome Desktop für Webapp) falls danach gefragt wird
 
-## Add your files
+## Versionslog
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+### Version 0.1.0 (Initial Release)
+- **Datum:** 2024-10-19 – 2024-10-19
+- **Autoren:** Semar Emmy
+- **Änderungen:**
+  - Erster Commit
 
-```
-cd existing_repo
-git remote add origin https://gitlab.mi.hdm-stuttgart.de/es152/cinecritique-frontend.git
-git branch -M main
-git push -uf origin main
-```
+### Version 0.2.0 (Flutter App Setup)
+- **Datum:** 2024-11-19 – 2024-11-19
+- **Autoren:** Schniepp Julian
+- **Änderungen:**
+  - Flutter App Directory hinzugefügt
+  - Leere Flutter App Generiert
 
-## Integrate with your tools
+### Version 0.3.0 (Dezember-Update)
+- **Datum:** 2024-12-02 – 2024-12-31
+- **Autoren:** Schniepp Julian, Krabel Lian
+- **Änderungen:**
+  - **UI-Struktur & Komponenten:**  
+    - Aufteilung der Benutzeroberfläche in separate Dateien und Controller (Screens, UI-Logik)  
+    - Hinzufügen von zusätzlichen Klassen, Abhängigkeiten und einem User Model  
+  - **Dokumentation & Clean-Up:**  
+    - Aktualisierung und Erweiterung der Readme sowie Einführung gemeinsamer ToDo-Dateien  
+    - Bereinigung von Imports und allgemeine Code-Aufräumarbeiten  
+  - **Prototyp-Implementierungen:**  
+    - Erste Implementierung von Prototyp-Widgets und experimentellen Screens  
+  - **Suchleiste:**  
+    - Implementierung einer Searchbar zur Verbesserung der Usability  
+  - **Keycloak-Integration:**  
+    - Hinzufügen von Keycloak-Abhängigkeiten und -Parametern  
+    - Anpassungen im Auth Service zur Vorbereitung der Keycloak-Authentifizierung
 
-- [ ] [Set up project integrations](https://gitlab.mi.hdm-stuttgart.de/es152/cinecritique-frontend/-/settings/integrations)
+### Version 0.4.0 (Januar-Update: Erweiterte Funktionalitäten und Optimierungen)
+- **Datum:** 2025-01-09 – 2025-01-30
+- **Autoren:** Schniepp Julian, Krabel Lian, Föll Jonas
+- **Änderungen:**
+  - **Authentication & Keycloak-Integration:**
+    - Einführung und Implementierung des Auth-Services sowie erste Schritte zur Keycloak-Integration (z. B. Commit „implemented auth service, todo: fix keycloak parameters“, „keycloak changes“ und „commenting out code“).
+    - Fehlerbehebungen bei der Keycloak-Server-URL und Anpassungen an der OpenID-Logik zur Behebung von CORS-Fehlern und 404-Problemen (Commits wie „fixed keycloak server url“ und „comments and fixes to openid logic“) 
+  - **Benutzeroberfläche & Navigation:**
+    - Einführung und Optimierung der Sidebar für nicht angemeldete Benutzer; die Sidebar wurde integriert, angepasst und so konfiguriert, dass sie konsistent auf verschiedenen Seiten dargestellt wird (z. B. „sidebar eingefügt“ und „updated sidebar“).
+    - Überarbeitung des Custom App Bar, um Keycloak-bezogene Einschränkungen zu umgehen (Commit „changes to custom_app_bar“).
+    - Verbesserungen an der Moviepage und Home-Seite, inklusive vorübergehender Implementierungen und finaler Anpassungen für eine konsistente Darstellung (z. B. „temporary home screen implementation“ und „fertige home (main) page“)
+  - **Rating & Userprofile:**
+    - Umfassende Änderungen im Rating-Bereich: Mehrere Commits optimierten den Rating Controller, die Rating Screen und das Rating Widget – inklusive Debugging, Anpassungen der Endpunkte und Implementierung strategischer Logging-Statements (Commits wie „changes to rating controller“, „updated rating controller with correct endpoint“ und „changes to rating screen“).
+    - Implementierung und Verbesserung der Userprofile-Seite zur Steigerung der Benutzerfreundlichkeit (z. B. „implemented userprofile screen“ und „improved userprofile“).
+  - **API & Funktionalität:**
+    - Mehrfache Updates der API-Konfiguration, insbesondere Anpassungen des _baseUrl, um eine stabile Kommunikation mit dem Backend zu gewährleisten (z. B. „adjusting api _baseUrl AGAIN“, „updates _baseUrl“).
+    - Erweiterungen im Bereich der Favorites: Implementierung einer Suchfunktion, Aktualisierungen im Favorite Controller und Optimierungen bei der JSON-Verarbeitung (z. B. „added search to favorites page“, „updated favorite controller, minor fixes for json parsing“).
+  - **Empfehlungen, Logging & Code-Optimierungen:**
+    - Verbesserungen bei der Implementierung der Recommendations: Hinzufügen von Methoden (wie z. B. „added getemail to auth service“, „changes to recommendations“) und strategische Debugging-Maßnahmen zur Optimierung der Empfehlungslogik.
+    - Diverse Code-Cleanups, Anpassungen in der Dokumentation (Readme- und Meta-Tag-Updates) sowie weitere kleinere UI- und Designanpassungen (z. B. „readme changes“, „updated meta tags“) 
 
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+### Version 0.5.0 (UI- & Responsiveness-Optimierungen)
+- **Datum:** 2025-02-17 – 2025-02-...
+- **Autoren:** Krabel Lian, Schniepp Julian
+- **Änderungen:**
+  - **Branch-Merge:**  
+    - Zusammenführung von Entwicklungszweigen in den Main-Branch (Merge branch 'frontend_dev' into 'main').
+  - **Suchleiste:**  
+    - Dauerhafte Sichtbarkeit der Suchleiste („searchbar bleibt imer offen“).  
+    - Optimierungen für mobile Ansichten, z. B. scrollbar auf dem Handy („suchleiste versuch scrollbar am handy“).  
+    - Mehrere Anpassungen und Testversuche, um das Verhalten der Suchleiste zu verbessern („suchleiste verändert“, „suchbar macht faxen mim schließen nachm herz“, „searchbar fix“).
+  - **Typografie & Layout:**  
+    - Anpassungen der Schriftgrößen und Titelpositionierung („schriftgröße mann“, „hoffentlich passt der titel jetzt“, „schriftgröße auf 30 erhöht“, „schriftgröße des titels geändert“).  
+    - Feinjustierung von UI-Elementen wie Hovereffekten in der Sidebar („letzte sidebar anpassungen (hovereffekt)“).
+  - **Responsive UI & Navigation:**  
+    - Optimierung der Sidebar, Moviepage und Userprofile für bessere Responsiveness („userprofile responsive“, „main page responsive“, „moviepage anpassung“).  
+    - Überarbeitung der Navigationselemente, inklusive Burger-Menü-Anpassungen (Abstände, Layoutanpassungen – siehe „abstände burger menu“, „anpassungen burger menu“, „burgermenu überall gleich“).
+  - **Rating & Favoriten:**  
+    - Zentrierung und Anpassung der Rating Widgets („rating widgets immer zentriert“) sowie Tests und Optimierungen an den Rating-Seiten („anpassungen rating“, „anpassungen rating page“, „rating test 3 :)“).  
+    - Verbesserte Darstellung der Favoritenansicht mit responsiven Layouts und alphabetischer Sortierung („favorite screen responsive“, „favoritenpage responsive“, „alphabetische sotrierung der filme“).
+  - **Diverse Optimierungen:**  
+    - Weitere kleinere UI-Anpassungen und Bugfixes zur Verbesserung der Benutzererfahrung.

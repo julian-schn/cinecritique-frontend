@@ -1,3 +1,5 @@
+# ⚠️⚠️⚠️ This is merely a port of a project I've worked on from our universitys GitLab ⚠️⚠️⚠️
+
 # Cinecritique Frontend
 
 Das Flutter Frontend für CineCritique
